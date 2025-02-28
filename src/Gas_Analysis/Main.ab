@@ -1,0 +1,206 @@
+(********************************************************************
+ * Programm: Gasanalyse
+ * Autor: Markthaler
+ * Erstellt: 30.03.2022
+ * Info: Definiert Messung der Gaskonzentrationen und berechnet Kennwerte zur Methanisierung
+		(1-Punkt-Kalibrierung der Sensoren wird manuell durchgeführt)
+ ********************************************************************)
+
+PROGRAM _INIT
+	//Initialisierung einer Zeitverzögerung zur Erfassung der Latenz bei der Messung
+	FB_TimeDelay.Enable := FALSE;
+	FB_TimeDelay.InitialValue := 0;
+	FB_TimeDelay.DelayTime := 120;			//Latenz der Messung = Messzeitverzögerung (ca. 120s)
+	
+	//Initialisierung der Parameter für die Pulsfrequenzmodulation zur periodischen Gasmessung
+	FB_PFM.PulseWidth := 1500;  
+	FB_PFM.MinPause := 1;
+		
+	//Initialstatus: AUS
+	g_i_status_GAL := 0;
+	g_i_period_GAL := 0;
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	CASE g_i_status_GAL OF
+		ACTION 0:			//Gasanalyse AUS
+			LOOP l_i = 0 TO 2 DO
+				g_b_valid_GAL[l_i] := FALSE;	//Status für zulässige Messung deaktiviert
+				g_b_MV[l_i+8] := FALSE;		//Magnetventile zur Gasanalyse sind geschlossen
+			ENDLOOP
+			g_i_period_GAL := 0;				//Keine periodische Messung
+			g_r_nf_methan := 0;
+		ENDACTION
+		
+		ACTION 1:			//Gasanalyse EIN - Gaszufuhr
+			LOOP l_i = 1 TO 2 DO
+				g_b_valid_GAL[l_i] := FALSE;
+				g_b_MV[l_i+7] := FALSE;
+			ENDLOOP
+			g_b_MV[10] := TRUE;
+			
+			//Erst nach Latenz der Messung, wird eine zulässige Gasmessung erwartet
+			FB_TimeDelay.InitialValue := 0;									//Eingangswert für t < DelayTime
+			FB_TimeDelay.Enable := TRUE;							
+			FB_TimeDelay.In := 1;											//Eingangswert für t >= DelayTime
+			FB_TimeDelay FUB MTBasicsTimeDelay();							//Funktionsaufruf MTBasicsTimeDelay
+			g_b_valid_GAL[0] :=	BOOL(FB_TimeDelay.Out);				//Ausgabewert
+			
+			//Keine Kalibrierung möglich
+			g_b_kal_GAL[0] := FALSE;
+			g_b_kal_GAL[1] := FALSE;
+		ENDACTION
+		
+		ACTION 2:			//Gasanalyse EIN - nach 1. Stufe
+			g_b_valid_GAL[0] := FALSE;
+			g_b_valid_GAL[2] := FALSE;
+			LOOP l_i = 9 TO 10 DO
+				g_b_MV[l_i] := FALSE;
+			ENDLOOP
+			g_b_MV[8] := TRUE;
+			
+			//Erst nach Latenz der Messung, wird eine zulässige Gasmessung erwartet
+			FB_TimeDelay.InitialValue := 0;									//Eingangswert für t < DelayTime
+			FB_TimeDelay.Enable := TRUE;							
+			FB_TimeDelay.In := 1;											//Eingangswert für t >= DelayTime
+			FB_TimeDelay FUB MTBasicsTimeDelay();							//Funktionsaufruf MTBasicsTimeDelay
+			g_b_valid_GAL[1] :=	BOOL(FB_TimeDelay.Out);				//Ausgabewert
+			
+			//Keine Kalibrierung möglich
+			g_b_kal_GAL[0] := FALSE;
+			g_b_kal_GAL[1] := FALSE;
+		ENDACTION
+		
+		ACTION 3:			//Gasanalyse EIN - nach 2. Stufe (Trockenes Produktgas)
+			LOOP l_i = 1 TO 2 DO
+				g_b_valid_GAL[l_i] := FALSE;
+			ENDLOOP
+			g_b_MV[8] := FALSE;
+			g_b_MV[9] := TRUE;
+			g_b_MV[10] := FALSE;
+			
+			//Erst nach Latenz der Messung, wird eine zulässige Gasmessung erwartet
+			FB_TimeDelay.InitialValue := 0;									//Eingangswert für t < DelayTime
+			FB_TimeDelay.Enable := TRUE;							
+			FB_TimeDelay.In := 1;											//Eingangswert für t >= DelayTime
+			FB_TimeDelay FUB MTBasicsTimeDelay();							//Funktionsaufruf MTBasicsTimeDelay
+			g_b_valid_GAL[2] :=	BOOL(FB_TimeDelay.Out);				//Ausgabewert
+			
+			//Keine Kalibrierung möglich
+			g_b_kal_GAL[0] := FALSE;
+			g_b_kal_GAL[1] := FALSE;
+			
+			l_r_y_methan_corr := g_r_y_CH4_percent / 100;   //Methankonzentration + Rest
+			l_r_y_co2 := g_r_y_CO2_percent / 100;
+			l_r_y_h2_corr := g_r_y_H2_percent / 100;
+		ENDACTION
+		
+		ACTION 4:			//1. Punktkalibrierung der Sensoren
+			//Freie Schaltung der Ventile zur 1. Punktkalibrierung der Sensoren
+		ENDACTION
+		
+		ELSEACTION:
+			g_b_error[43] := TRUE;
+		ENDACTION
+	ENDCASE
+	
+	//Periodisches Erfassen der Gaskonzentration an den verschiedenen Stellen
+	CASE g_i_period_GAL OF
+		ACTION 0:			//Keine Periodische Messung
+			//Messung der Gaskonzentration, wie von Anlagenbetreiber:in festgelegt
+			FB_PFM.Enable := FALSE;
+		ENDACTION
+		
+		ACTION 1:			//Periodische Messung Gaszufuhr - 1.Stufe - 2.Stufe (Labor)
+			FB_PFM.Enable := TRUE;
+			FB_PFM.DutyCycle := 99;				//Ausnutzung von FB_PFM.MinPause = 1s (Immer abwechselnd Pulse und MinPause)
+			FB_PFM FUB MTBasicsPFM();			//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			
+			IF EDGEPOS(FB_PFM.Out) THEN		//Bei positiver Flanke Wechsel der Gasmessung
+				IF g_i_status_GAL < 3 THEN
+					g_i_status_GAL := g_i_status_GAL + 1;
+				ELSE
+					g_i_status_GAL := 1;
+				ENDIF
+			ENDIF
+			
+
+		ENDACTION
+		
+		ACTION 2:			//Periodische Messung Gaszufuhr - 1.Stufe - 2.Stufe (Feldtest)
+			IF g_b_ramp_active[0] THEN 
+				g_i_status_GAL := 2;
+				FB_PFM.Enable := FALSE;
+			ELSE
+				FB_PFM.Enable := TRUE;
+				FB_PFM.DutyCycle := 99;			//Ausnutzung von FB_PFM.MinPause = 1s (Immer abwechselnd Pulse und MinPause)
+				FB_PFM FUB MTBasicsPFM();		//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			
+				IF EDGEPOS(FB_PFM.Out) THEN		//Bei positiver Flanke Wechsel der Gasmessung
+					IF g_i_status_GAL < 3 THEN
+						g_i_status_GAL := g_i_status_GAL + 1;
+					ELSE
+						g_i_status_GAL := 1;
+					ENDIF
+				ENDIF
+			ENDIF
+		ENDACTION
+		
+		ACTION 3:			//Periodische Messung 1.Stufe - 2.Stufe (Labor)
+			FB_PFM.Enable := TRUE;
+			FB_PFM.DutyCycle := 99;				//Ausnutzung von FB_PFM.MinPause = 1s (Immer abwechselnd Pulse und MinPause)
+			FB_PFM FUB MTBasicsPFM();			//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+		
+			IF EDGEPOS(FB_PFM.Out) THEN		//Bei positiver Flanke Wechsel der Gasmessung
+				IF g_i_status_GAL < 3 THEN
+					g_i_status_GAL := g_i_status_GAL + 1;
+				ELSE
+					g_i_status_GAL := 2;
+				ENDIF
+			ENDIF
+		ENDACTION
+	
+		ACTION 4:			//Periodische Messung 1.Stufe - 2.Stufe (Feldtest)
+			IF g_b_ramp_active[0] THEN 
+				g_i_status_GAL := 2;
+				FB_PFM.Enable := FALSE;
+			ELSE
+				FB_PFM.Enable := TRUE;
+				FB_PFM.DutyCycle := 99;				//Ausnutzung von FB_PFM.MinPause = 1s (Immer abwechselnd Pulse und MinPause)
+				FB_PFM FUB MTBasicsPFM();			//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+		
+				IF EDGEPOS(FB_PFM.Out) THEN		//Bei positiver Flanke Wechsel der Gasmessung
+					IF g_i_status_GAL < 3 THEN
+						g_i_status_GAL := g_i_status_GAL + 1;
+					ELSE
+						g_i_status_GAL := 2;
+					ENDIF
+				ENDIF
+			ENDIF
+		ENDACTION
+				
+		ELSEACTION:	//Fehler: Kein definierter Status
+			g_b_error[44] := TRUE;
+		ENDACTION
+	ENDCASE
+	
+	// Bestimmung des synthetisch produzierten Methans
+	g_r_nf_methan := l_r_y_methan_corr * (4 * g_r_nf_in_react[2] + g_r_nf_in_react[0]) / (1 - l_r_y_co2 + 3 * l_r_y_methan_corr) - g_r_nf_in_react[2];
+	IF g_r_nf_methan < 0 THEN
+		g_r_nf_methan := 0;
+	ENDIF
+	
+	IF (g_r_nf_methan > 0) AND (l_r_y_h2_corr >= 0) AND (l_r_y_methan_corr > 0) THEN
+		g_r_nf_h2_res := g_r_nf_methan * l_r_y_h2_corr / l_r_y_methan_corr;
+	ELSE
+		g_r_nf_h2_res := 0;
+	ENDIF
+	
+			
+END_PROGRAM
+
+PROGRAM _EXIT
+	FB_TimeDelay.Enable := FALSE;
+	FB_TimeDelay FUB MTBasicsTimeDelay();
+END_PROGRAM
+

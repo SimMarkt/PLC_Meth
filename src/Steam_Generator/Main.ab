@@ -1,0 +1,110 @@
+(********************************************************************
+ * Programm: Dampferzeugerregelung
+ * Autor: Markthaler
+ * Erstellt: 30.03.2022
+ * Info: Regelung des Dampferzeugers
+	(Hinweis: MTBasicsPFM wurde nicht eingesetzt, da falls Dutycycle << 5 % -> OffTime (t_OFF) sehr groß. Beim Umschalten auf 
+	Dutycycle = 100% wartet der Funktionsbaustein dann aber t_OFF ab -> Für lange Zeit keine Leistung, obwohl es nach dem PID nötig wäre.
+	Bei LCRPFM findet eine regelmäßige Überprüfung des Eingangswertes statt, sodass t_OFF korrigiert wird, allerdings wird hier
+	für x = 100% das Signal nicht durchgegehend auf TRUE gesetzt. Aus diesem Grund -> Falls x > 98 -> TRUE)
+ ********************************************************************)
+
+PROGRAM _INIT
+	//Initialisierung der PID-Regelparameter
+	l_r_pid_var[0] := 0.002;
+	l_r_pid_var[1] := 300;
+	l_r_pid_var[2] := 0;
+	l_r_pid_var[3] := 0;
+	l_r_pid_var[4] := 0;
+	l_r_pid_var[5] := 0.72;
+	g_r_pid_var_DE[0] := l_r_pid_var[0];
+	g_r_pid_var_DE[1] := l_r_pid_var[1];
+	g_r_pid_var_DE[2] := l_r_pid_var[2];
+	g_r_pid_var_DE[3] := l_r_pid_var[3];
+	
+	//Übertragung der PID-Regelparameter an PID Funktionsbaustein
+	FB_PID.PIDParameters.Gain := l_r_pid_var[0];
+	FB_PID.PIDParameters.IntegrationTime := l_r_pid_var[1];
+	FB_PID.PIDParameters.DerivativeTime := l_r_pid_var[2];
+	FB_PID.PIDParameters.FilterTime := l_r_pid_var[3];
+	FB_PID.MinOut := l_r_pid_var[4];
+	FB_PID.MaxOut := l_r_pid_var[5];
+	
+	//Initialstatus: AUS
+	g_i_status_SG := 0;
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	//Regelung: Füllstand im Dampferzeuger
+	CASE g_i_status_SG OF
+		ACTION 0:		//Dampferzeugerregelung AUS
+			g_pm_PM[1].r_soll := 0;				//Ausgabesignal an Membranpumpe zu Null
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+			g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL_4mA[0]);
+		ENDACTION
+		
+		ACTION 1:		//Manuelle Pumpensteuerung
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+			g_pm_PM[1].i_ao := INT((g_pm_PM[1].r_soll * (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[0]) / (g_pm_PM[1].r_max-g_pm_PM[1].r_min)) + G_R_ANALOG_SIGNAL_4mA[0]);
+			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Sicherung bei Rundungsfehlern
+				g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL);
+			ELSE
+				IF g_pm_PM[1].i_ao <= INT(G_R_ANALOG_SIGNAL_4mA[0]) THEN
+					g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL_4mA[0]);
+				ENDIF
+			ENDIF
+		ENDACTION
+		
+		ACTION 2:		//Dampferzeugerregelung AN
+			//PID-Regelung ausführen
+			FB_PID.Enable := TRUE;							//Regler aktivieren
+			FB_PID.SetValue := g_r_T_cat_max_soll[0]; 		//Sollwert setzen, Berechnung im Programm "Kondensatorregelung"
+			FB_PID.ActValue := g_r_T_cat_max[2];			//Istwert einlesen
+			
+			//Manuelle Anpassung der Regelparameter
+			IF EDGEPOS(g_pm_PM[1].b_update) THEN
+				l_r_pid_var[0] := g_r_pid_var_DE[0];
+				l_r_pid_var[1] := g_r_pid_var_DE[1];
+				l_r_pid_var[2] := g_r_pid_var_DE[2];
+				l_r_pid_var[3] := g_r_pid_var_DE[3];
+				FB_PID.PIDParameters.Gain := l_r_pid_var[0];
+				FB_PID.PIDParameters.IntegrationTime := l_r_pid_var[1];
+				FB_PID.PIDParameters.DerivativeTime := l_r_pid_var[2];
+				FB_PID.PIDParameters.FilterTime := l_r_pid_var[3];
+				FB_PID.Update := TRUE;
+			ELSE
+				IF EDGEPOS(FB_PID.UpdateDone) THEN
+					FB_PID.Update := FALSE;
+					g_pm_PM[1].b_update := FALSE;
+				ENDIF
+			ENDIF
+			
+			FB_PID FUB MTBasicsPID(); 									//Funktionsaufruf MTBasicsPID
+		
+			//Übertragung der PID-Ausgabewerte an die Membranpumpe
+			g_pm_PM[1].r_soll := (l_r_pid_var[5] - FB_PID.Out) * g_r_DE_adapt; 	//Ausgangsgröße PID -> Eingangsgröße
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+			g_pm_PM[1].i_ao := INT((g_pm_PM[1].r_soll * (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[0]) / (g_pm_PM[1].r_max-g_pm_PM[1].r_min)) + G_R_ANALOG_SIGNAL_4mA[0]);
+			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Sicherung bei Rundungsfehlern
+				g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL);
+			ELSE
+				IF g_pm_PM[1].i_ao <= INT(G_R_ANALOG_SIGNAL_4mA[0]) THEN
+					g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL_4mA[0]);
+				ENDIF
+			ENDIF 
+		ENDACTION
+		
+		ELSEACTION:	//Fehler: Kein definierter Status
+			g_b_error[58] := TRUE;
+			g_pm_PM[1].r_soll := 0;				//Ausgabesignal an Membranpumpe zu Null
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+			g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);
+		ENDACTION
+	ENDCASE	
+END_PROGRAM
+
+PROGRAM _EXIT
+	(* Insert code here *)
+	
+END_PROGRAM
+

@@ -1,0 +1,13 @@
+VAR
+	l_i : USINT; (*Index/ Laufvariable*)
+	l_r_rho_H2Ofl : REAL := 1000; (*Dichte von flüssigem Wasser in kg/m³*)
+	l_r_p_PIR7_abs : REAL; (*Druck bei der Gasanalyse PIR7 in bar (absolut)*)
+END_VAR
+VAR CONSTANT
+	L_R_G : REAL := 9.81; (*Erdbeschleunigung in m/s²*)
+	L_R_H_SG : REAL := 17.5; (*Höhendifferenz zwischen Messstellen zur Füllstandsmessung im Separator in cm*)
+	L_R_P_PIR7_ATM : REAL := 0.980; (*Gemessener Druck der Atmosphäre in bar (absolut)*)
+END_VAR
+VAR
+	FB_MovingAverage : MTFilterMovingAverage; (*Funktionsbaustein: Gleitender Mittelwert des Dampferzeugerfüllstands LIRC*)
+END_VAR
