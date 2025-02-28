@@ -1,0 +1,10 @@
+VAR
+	l_i : USINT; (*Index/ Laufvariable*)
+	l_r_pid_var : ARRAY[0..2,0..5] OF REAL := [18(0.0)]; (*2D Array mit Regelungsparametern [Zeile: Druckregelung l_i mit 0=leer; Spalte: 0=Gain,1=IntegrationTime, 2=DerivativeTime, 3=FilterTime, 4=MinOut, 5=MaxOut]*)
+	l_r_ramp_var : ARRAY[0..2,0..3] OF REAL; (*2D Array mit Parametern für die Rampe [Zeile: Druckregelung l_i mit 0=leer; Spalte: 0=MaxPosSlewRate, 1=MaxNegSlewRate, 2=MinOut, 3=MaxOut]*)
+	l_r_pid_out : ARRAY[0..2] OF REAL; (*Enthält Stellwert des PID-Reglers für negative Rückkopplung mit Regelgröße*)
+	FB_Limiter : ARRAY[0..4] OF MTBasicsLimiter; (*Funktionsbaustein [0=leer]: Ansteuerung einer Rampe*)
+	FB_OscillationTuning : ARRAY[0..2] OF MTBasicsOscillationTuning; (*Funktionsbaustein [0=leer]: Tuning der PID-Regelparameter*)
+	FB_PID : ARRAY[0..2] OF MTBasicsPID; (*Funktionsbaustein [0=leer]: PID-Regelung*)
+	L_R_test : REAL;
+END_VAR
