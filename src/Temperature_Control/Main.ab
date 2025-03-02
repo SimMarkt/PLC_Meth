@@ -1,0 +1,323 @@
+(********************************************************************
+ * Program: Temperature_Control
+ * Author: Markthaler
+ * Created: 30.03.2022
+ * Info: PID control of the system heaters
+ * l_i=1	HZ-HST1 with TIRC6+12	Heater (Fixed bed reactor - product gas discharge, steam generator - steam discharge)
+ * l_i=2	HZ-HSS1 with TIRC3		Heater (Desulfurization - heat pipe reactor)
+ * l_i=3	HZ-HSS2	with TIRC8		Heater (Condenser 1 - fixed bed reactor)
+ * l_i=4	HZ-HSS3	with TIRC1		Heater (Gas control line - desulfurization)
+ * l_i=5	HZ-HSS4	with TIRC11+14	Heater (Heat pipe reactor - condenser 1 + fixed bed reactor - condenser 2)
+ * l_i=6	HZ-HSS5	with TIRC7		Heater (Steam addition)
+ * l_i=7	HZ-HBS1	with TIRC2		Heater (Desulfurization)
+ * l_i=8	HZ-HBQ1	with TIRC4+5		Heater (Heat pipe reactor)
+ * l_i=9	HZ-HBQ2	with TIRC9+10	Heater (Fixed bed reactor)
+ * l_i=10	HZ-HBRA1 with TIRC13	Heater / Frost protection (Floor heating)
+	(Note: MTBasicsPFM was not used because if Dutycycle = 1 % -> OffTime (t_OFF) is very large. When switching to 
+	Dutycycle = 100%, the function block then waits for t_OFF -> No power for a long time, although it would be necessary according to the PID.
+	With LCRPFM, a regular check of the input value takes place, so that t_OFF is corrected, but here
+	for x = 100%, the signal is not continuously set to TRUE. For this reason -> If x > 98 -> TRUE)
+ ********************************************************************)
+
+PROGRAM _INIT
+	//Initialization of the PID control parameters and ramp parameters for startup (individually for each temperature control)
+	l_i:=1; //HZ-HST1 - (Fixed bed reactor - product gas discharge, steam generator - steam discharge)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 200;
+	l_i:=2; //HZ-HSS1 - (Desulfurization - heat pipe reactor)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 250;
+	l_i:=3; //HZ-HSS2 - (Condenser 1 - fixed bed reactor)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 250;
+	l_i:=4; //HZ-HSS3 - (Gas control line - desulfurization)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 200;
+	l_i:=5; //HZ-HSS4 - (Heat pipe reactor - condenser 1 + fixed bed reactor - condenser 2)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 200;
+	l_i:=6; //HZ-HSS5 - (Steam addition)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 100;
+	l_i:=7;	//HZ-HBS1 - (Desulfurization)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 60;
+	l_i:=8; //HZ-HBQ1 - (Heat pipe reactor)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 350;
+	l_i:=9; //HZ-HBQ2 - (Fixed bed reactor)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	l_r_ramp_var[l_i,0] := 0.15;
+	l_r_ramp_var[l_i,1] := 0.15;
+	l_r_ramp_var[l_i,2] := 0.0;
+	l_r_ramp_var[l_i,3] := 300;
+	l_i:=10; //HZ-HBRA1 - Frost protection (Floor heating)
+	l_r_pid_var[l_i,0] := 5.28517;
+	l_r_pid_var[l_i,1] := 258.5;
+	l_r_pid_var[l_i,2] := 64.625;
+	
+	LOOP l_i = 1 TO 10 DO
+		l_r_pid_var[l_i,3] := 0;
+		l_r_pid_var[l_i,4] := 0;			//Adjusted to input range DutyCycle of the PFM [0...100]
+		l_r_pid_var[l_i,5] := 100;			//Adjusted to input range DutyCycle of the PFM [0...100]
+				
+		//Transfer of the PID control parameters to the PID function block
+		FB_PID[l_i].PIDParameters.Gain := l_r_pid_var[l_i,0];
+		FB_PID[l_i].PIDParameters.IntegrationTime := l_r_pid_var[l_i,1];
+		FB_PID[l_i].PIDParameters.DerivativeTime := l_r_pid_var[l_i,2];
+		FB_PID[l_i].PIDParameters.FilterTime := l_r_pid_var[l_i,3];
+		FB_PID[l_i].MinOut := l_r_pid_var[l_i,4];
+		FB_PID[l_i].MaxOut := l_r_pid_var[l_i,5];
+		
+		//Initialization of the control parameters for pulse frequency modulation
+		FB_LCRPFM[l_i].max_value := 100;
+		FB_LCRPFM[l_i].min_value := 0;
+		FB_LCRPFM[l_i].t_pulse := 2;
+		FB_LCRPFM[l_i].t_pause := 1;
+	
+		//Activation of the control parameters for pulse frequency modulation
+		FB_LCRPFM[l_i].enable := TRUE;
+		
+		//Initialization of the parameters for the moving average to determine the heating power
+		FB_MovingAverage[l_i].WindowLength	:=	50;		//Averaging over 50 values (Task class 200ms --> 10-second average)
+		FB_MovingAverage[l_i].Enable			:=	TRUE;
+	
+		//Initial status: OFF
+		g_i_status_HZ[l_i] := 0;
+	ENDLOOP
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	LOOP l_i = 1 TO 10 DO
+		CASE g_i_status_HZ[l_i] OF
+			ACTION 0:	//Heater OFF
+				FB_PID[l_i].Enable := FALSE;			//Controller inactive
+				g_b_SR_HZ[l_i] := FALSE;				//No pulse signal to solid-state relay        
+			ENDACTION
+			
+			ACTION 1:	//Heater ON - Startup process (rule-based control based von the maximum catalyst temperature)			
+				IF g_r_T_cat_max[2] < 110 THEN
+					g_r_startup := 0;
+					g_temp_TIRC[1].r_soll := 0;		// Before desulfurization
+					g_temp_TIRC[2].r_soll := 0;		// Desulfurization
+					g_temp_TIRC[3].r_soll := 0;		// Before HP reactor
+					g_temp_TIRC[4].r_soll := 250;	// HP reactor
+					g_temp_TIRC[6].r_soll := 0;		// Discharge: gases + steam
+					g_temp_TIRC[8].r_soll := 0;		// Before FB reactor
+					g_temp_TIRC[9].r_soll := 0;		// FB reactor
+					g_temp_TIRC[11].r_soll := 0;	// Before condensers
+					g_temp_TIRC[16].r_soll := 0;	// Biogas supply line
+				ELSE
+					IF g_r_T_cat_max[2] < 160 THEN
+						g_r_startup := 1;
+						g_temp_TIRC[1].r_soll := 0;		// Before desulfurization
+						g_temp_TIRC[2].r_soll := 0;		// Desulfurization
+						g_temp_TIRC[3].r_soll := 0;		// Before HP reactor
+						g_temp_TIRC[4].r_soll := 300;	// HP reactor
+						g_temp_TIRC[6].r_soll := 0;		// Discharge: gases + steam
+						g_temp_TIRC[8].r_soll := 0;		// Before FB reactor
+						g_temp_TIRC[9].r_soll := 0;		// FB reactor
+						g_temp_TIRC[11].r_soll := 0;	// Before condensers
+						g_temp_TIRC[16].r_soll := 0;	// Biogas supply line
+					ELSE
+						IF g_r_T_cat_max[2] < 175 THEN
+							g_r_startup := 2;
+							g_temp_TIRC[1].r_soll := 0;		// Before desulfurization
+							g_temp_TIRC[2].r_soll := 0;		// Desulfurization
+							g_temp_TIRC[3].r_soll := 0;		// Before HP reactor
+							g_temp_TIRC[4].r_soll := 340;	// HP reactor
+							g_temp_TIRC[6].r_soll := 0;		// Discharge: gases + steam
+							g_temp_TIRC[8].r_soll := 0;		// Before FB reactor
+							g_temp_TIRC[9].r_soll := 200;	// FB reactor
+							g_temp_TIRC[11].r_soll := 0;	// Before condensers
+							g_temp_TIRC[16].r_soll := 0;	// Biogas supply line
+						ELSE
+							IF g_r_T_cat_max[2] < 195 THEN
+								g_r_startup := 3;
+								g_temp_TIRC[1].r_soll := 110;	// Before desulfurization
+								g_temp_TIRC[2].r_soll := 50;	// Desulfurization
+								g_temp_TIRC[3].r_soll := 200;	// Before HP reactor
+								g_temp_TIRC[4].r_soll := 380;	// HP reactor
+								g_temp_TIRC[6].r_soll := 120;	// Discharge: gases + steam
+								g_temp_TIRC[8].r_soll := 200;	// Before FB reactor
+								g_temp_TIRC[9].r_soll := 200;	// FB reactor
+								g_temp_TIRC[11].r_soll := 200;	// Before condensers
+								g_temp_TIRC[16].r_soll := 80;	// Biogas supply line	
+							ELSE
+								IF g_r_T_cat_max[2] < 200 THEN
+									g_r_startup := 4;
+									g_temp_TIRC[1].r_soll := 110;	// Before desulfurization
+									g_temp_TIRC[2].r_soll := 50;	// Desulfurization
+									g_temp_TIRC[3].r_soll := 280;	// Before HP reactor
+									g_temp_TIRC[4].r_soll := 380;	// HP reactor
+									g_temp_TIRC[6].r_soll := 120;	// Discharge: gases + steam
+									g_temp_TIRC[8].r_soll := 280;	// Before FB reactor
+									g_temp_TIRC[9].r_soll := 200;	// FB reactor
+									g_temp_TIRC[11].r_soll := 200;	// Before condensers
+									g_temp_TIRC[16].r_soll := 80;	// Biogas supply line	
+								ELSE
+									IF g_r_T_cat_max[2] < 220 THEN
+										g_r_startup := 5;
+										g_temp_TIRC[1].r_soll := 110;	// Before desulfurization
+										g_temp_TIRC[2].r_soll := 50;	// Desulfurization
+										g_temp_TIRC[3].r_soll := 320;	// Before HP reactor
+										g_temp_TIRC[4].r_soll := 420;	// HP reactor
+										g_temp_TIRC[6].r_soll := 120;	// Discharge: gases + steam
+										g_temp_TIRC[8].r_soll := 300;	// Before FB reactor
+										g_temp_TIRC[9].r_soll := 170;	// FB reactor
+										g_temp_TIRC[11].r_soll := 200;	// Before condensers
+										g_temp_TIRC[16].r_soll := 80;	// Biogas supply line	
+									ELSE
+										IF g_r_T_cat_max[2] < 300 THEN
+											g_r_startup := 6;
+											g_temp_TIRC[1].r_soll := 110;	// Before desulfurization
+											g_temp_TIRC[2].r_soll := 50;	// Desulfurization
+											g_temp_TIRC[3].r_soll := 350;	// Before HP reactor
+											g_temp_TIRC[4].r_soll := 420;	// HP reactor
+											g_temp_TIRC[6].r_soll := 120;	// Discharge: gases + steam
+											g_temp_TIRC[8].r_soll := 340;	// Before FB reactor
+											g_temp_TIRC[9].r_soll := 160;	// FB reactor
+											g_temp_TIRC[11].r_soll := 200;	// Before condensers
+											g_temp_TIRC[16].r_soll := 80;	// Biogas supply line	
+										ELSE
+											IF g_r_T_cat_max[2] < 400 THEN
+												g_r_startup := 7;
+												g_temp_TIRC[1].r_soll := 110;	// Before desulfurization
+												g_temp_TIRC[2].r_soll := 50;	// Desulfurization
+												g_temp_TIRC[3].r_soll := 350;	// Before HP reactor
+												g_temp_TIRC[4].r_soll := 420;	// HP reactor
+												g_temp_TIRC[6].r_soll := 120;	// Discharge: gases + steam
+												g_temp_TIRC[8].r_soll := 350;	// Before FB reactor
+												g_temp_TIRC[9].r_soll := 160;	// FB reactor
+												g_temp_TIRC[11].r_soll := 200;	// Before condensers
+												g_temp_TIRC[16].r_soll := 80;	// Biogas supply line	
+											ELSE
+												g_r_startup := 8;
+												g_temp_TIRC[1].r_soll := 110;	// Before desulfurization
+												g_temp_TIRC[2].r_soll := 50;	// Desulfurization
+												g_temp_TIRC[3].r_soll := 200;	// Before HP reactor
+												g_temp_TIRC[4].r_soll := 270;	// HP reactor
+												g_temp_TIRC[6].r_soll := 120;	// Discharge: gases + steam
+												g_temp_TIRC[8].r_soll := 360;	// Before FB reactor
+												g_temp_TIRC[9].r_soll := 160;	// FB reactor
+												g_temp_TIRC[11].r_soll := 200;	// Before condensers
+												g_temp_TIRC[16].r_soll := 80;	// Biogas supply line
+											ENDIF
+										ENDIF
+									ENDIF
+								ENDIF
+							ENDIF
+						ENDIF
+					ENDIF
+				ENDIF
+				
+				//Execute PID control
+				FB_PID[l_i].Enable := TRUE;										//Activate controller
+				FB_PID[l_i].SetValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll; 	//Setpoint
+				FB_PID[l_i].ActValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;	//Read actual value
+				FB_PID[l_i] FUB MTBasicsPID();										//Function call MTBasicsPID
+		
+				//Conversion of the analog PID output signals into pulsed digital signals
+				FB_LCRPFM[l_i].x := FB_PID[l_i].Out;
+				FB_LCRPFM[l_i] FUB LCRPFM();
+				
+				//Transfer of the pulsed digital signals to the solid-state relay
+				IF l_i = 10 THEN
+					g_b_SR_HZ[l_i] := TRUE;
+				ELSE
+					IF FB_PID[l_i].Out < 98 THEN
+						g_b_SR_HZ[l_i] := FB_LCRPFM[l_i].pulse;
+					ELSE
+						g_b_SR_HZ[l_i] := TRUE;
+					ENDIF
+				ENDIF
+			ENDACTION
+		
+			ACTION 2:	//Heater ON
+				//Execute PID control
+				FB_PID[l_i].Enable := TRUE;										//Activate controller
+				FB_PID[l_i].SetValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll; 	//Setpoint
+				FB_PID[l_i].ActValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;	//Read actual value
+				FB_PID[l_i] FUB MTBasicsPID();									//Function call MTBasicsPID
+		
+				//Conversion of the analog PID output signals into pulsed digital signals
+				FB_LCRPFM[l_i].x := FB_PID[l_i].Out;
+				FB_LCRPFM[l_i] FUB LCRPFM();
+				
+				//Transfer of the pulsed digital signals to the solid-state relay
+				IF l_i = 10 THEN
+					g_b_SR_HZ[l_i] := TRUE;
+				ELSE
+					IF FB_PID[l_i].Out < 98 THEN
+						g_b_SR_HZ[l_i] := FB_LCRPFM[l_i].pulse;
+					ELSE
+						g_b_SR_HZ[l_i] := TRUE;
+					ENDIF
+				ENDIF
+			ENDACTION
+						
+			ELSEACTION:	//Error: No defined status
+				g_b_error[l_i+44] := TRUE;
+				g_b_SR_HZ[l_i] := FALSE;				//No pulse signal to solid-state relay
+			ENDACTION
+		ENDCASE
+		
+		//Determination of the heating power via moving average of the pulsed control
+		FB_MovingAverage[l_i].In	:=	g_b_SR_HZ[l_i];
+		FB_MovingAverage[l_i] FUB MTFilterMovingAverage();
+		g_r_P_el_HZ[l_i] :=	FB_MovingAverage[l_i].Out * L_R_P_EL_MAX_HZ[l_i]; //Assumption of constant water mass flow with active control
+	ENDLOOP
+	
+	//Determine heating power for HP reactor, before FB reactor and FB reactor
+	g_r_P_el_HZ_sum := g_r_P_el_HZ[3] + g_r_P_el_HZ[8] + g_r_P_el_HZ[9];
+END_PROGRAM
+
+PROGRAM _EXIT
+	LOOP l_i = 1 TO 10 DO
+		FB_MovingAverage[l_i].Enable := FALSE;
+		FB_MovingAverage[l_i] FUB MTFilterMovingAverage();
+	ENDLOOP
+END_PROGRAM
+

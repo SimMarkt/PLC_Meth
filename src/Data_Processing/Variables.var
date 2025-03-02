@@ -1,13 +1,13 @@
 VAR
-	l_i : USINT; (*Index/ Laufvariable*)
-	l_r_rho_H2Ofl : REAL := 1000; (*Dichte von flüssigem Wasser in kg/m³*)
-	l_r_p_PIR7_abs : REAL; (*Druck bei der Gasanalyse PIR7 in bar (absolut)*)
+	l_i : USINT; (*Index/ Loop variable*)
+	l_r_rho_H2Ofl : REAL := 998; (*Density of liquid water in kg/mÂ³*)
+	l_r_p_PIR7_abs : REAL; (*Pressure in the gas analysis PIR7 in bar (absolute)*)
 END_VAR
 VAR CONSTANT
-	L_R_G : REAL := 9.81; (*Erdbeschleunigung in m/s²*)
-	L_R_H_SG : REAL := 17.5; (*Höhendifferenz zwischen Messstellen zur Füllstandsmessung im Separator in cm*)
-	L_R_P_PIR7_ATM : REAL := 0.980; (*Gemessener Druck der Atmosphäre in bar (absolut)*)
+	L_R_G : REAL := 9.81; (*Gravitational acceleration in m/sÂ²*)
+	L_R_H_SG : REAL := 17.5; (*Height difference between measuring points for level measurement in the separator in cm*)
+	L_R_P_PIR7_ATM : REAL := 0.980; (*Measured atmospheric pressure in bar (absolute)*)
 END_VAR
 VAR
-	FB_MovingAverage : MTFilterMovingAverage; (*Funktionsbaustein: Gleitender Mittelwert des Dampferzeugerfüllstands LIRC*)
+	FB_MovingAverage : MTFilterMovingAverage; (*Function block: Moving average of the steam generator level LIRC*)
 END_VAR

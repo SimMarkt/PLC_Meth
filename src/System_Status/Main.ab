@@ -1,5 +1,5 @@
 (********************************************************************
- * Programm: System Status
+ * Programm: System_Status
  * Autor: Markthaler
  * Erstellt: 30.03.2022
  * Note: Definition of the system status and control of the signal lights
@@ -46,7 +46,7 @@ PROGRAM _CYCLIC
 	l_r_T_cat_max := MAX(g_r_T_cat_max[0], g_r_T_cat_max[1]);
 	
 	// Change of system status
-	LOOP l_i = 0 TO 9 DO					// Pressing the toggle button (g_b_status_PL[l_i] = TRUE) -> Change of g_i_status_PL (Visualization)
+	LOOP l_i = 0 TO 9 DO			// Pressing the toggle button (g_b_status_PL[l_i] = TRUE) -> Change of g_i_status_PL (Visualization)
 		IF l_b_status_PL[l_i] <> g_b_status_PL[l_i] THEN
 			IF g_b_status_PL[l_i] THEN
 				g_i_status_PL := l_i;
@@ -89,288 +89,287 @@ PROGRAM _CYCLIC
 		ENDACTION
 		
 		ACTION 1:		// System: Startup - Laboratory
-			IF l_i_status_PL <> g_i_status_PL THEN					// One-time action when switching to startup
-				g_i_status_GAL := 0;			// Gas measurement off
-				g_i_period_GAL := 0;			// and periodic measurement off
-				LOOP l_i = 1 TO 9 DO			// Start up heaters
+			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when switching to startup
+				g_i_status_GAL := 0;							// Gas measurement off
+				g_i_period_GAL := 0;							// and periodic measurement off
+				LOOP l_i = 1 TO 9 DO							// Start up heaters
 					g_i_status_HZ[l_i] := 1;	
 				ENDLOOP
-				g_i_status_GR := 1;				//Gasregelung auf Laborbetrieb
-				g_i_status_CON := 1;			//Kondensatork�hlung auf manuell
-				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	//Proportionalventil zu Kondensator 1 (K�hlwasser) geschlossen
-				g_b_MV[11] := FALSE;						//Magnetventil zu Kondensator 2 (K�hlwasser) geschlossen
-				g_i_status_WS := 2;				//F�llstandsregelung im Vorlagebeh�lter EIN
-				g_b_FG1 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_FG2 := TRUE;				//Freigabe-Relais aktivieren
+				g_i_status_GR := 1;				 				// Gas regulation to laboratory operation
+				g_i_status_CON := 1;							// Condenser cooling to manual
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	// Proportional valve to condenser 1 (cooling water) closed
+				g_b_MV[11] := FALSE;							// Solenoid valve to condenser 2 (cooling water) closed
+				g_i_status_WS := 2;								// Level control in the storage tank ON
+				g_b_FG1 := TRUE;								// Activate release relay
+				g_b_FG2 := TRUE;								// Activate release relay
 				l_i_status_PL := g_i_status_PL;
 			ENDIF
 			
-			//Automatikbetrieb AUS
+			// Automatic operation OFF
 			g_b_auto = FALSE;
 						
-			//Ansteuerung der Signalampel (Gr�n = blinkend)
+			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 99;			//Ausnutzung von FB_PFM.MinPause (Immer abwechselnd Pulse und MinPause)
-			FB_PFM[0] FUB MTBasicsPFM();					//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			FB_PFM[0].DutyCycle := 99;							// Utilization of FB_PFM.MinPause (Always alternating pulse and MinPause)
+			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 2:		//Anlage: Anfahren - Feldtest
-			IF l_i_status_PL <> g_i_status_PL THEN					//Einmalige Aktion beim Wechsel von Anfahren
-				g_i_status_GAL := 0;			//Gasmessung aus 
-				g_i_period_GAL := 0;			//und periodisch gemessen aus
-				LOOP l_i = 1 TO 9 DO			//Heizungen anfahren
+		ACTION 2:		 // System: Startup - Field test
+			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when switching to startup
+				g_i_status_GAL := 0;							// Gas measurement off 
+				g_i_period_GAL := 0;							// and periodic measurement off
+				LOOP l_i = 1 TO 9 DO							// Start up heaters
 					g_i_status_HZ[l_i] := 1;	
 				ENDLOOP
-				g_i_status_GR := 0;				//Gasregelung AUS
-				g_i_status_CON := 0;			//Kondensatork�hlung AUS
-				g_i_status_SG := 2;				//Dampferzeugerregelung EIN
-				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	//Proportionalventil zu Kondensator 1 (K�hlwasser) geschlossen
-				g_b_MV[11] := TRUE;						//Magnetventil zu Kondensator 2 (K�hlwasser) geschlossen
-				g_i_status_WS := 2;				//F�llstandsregelung im Vorlagebeh�lter EIN
-				g_b_FG1 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_FG2 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_GSM1_active := TRUE;		//GSM-Modul aktivieren
+				g_i_status_GR := 0;								// Gas regulation OFF
+				g_i_status_CON := 0;							// Condenser cooling OFF
+				g_i_status_SG := 2;								// Steam generator control ON
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	// Proportional valve to condenser 1 (cooling water) closed
+				g_b_MV[11] := TRUE;								// Solenoid valve to condenser 2 (cooling water) closed
+				g_i_status_WS := 2;								// Level control in the storage tank ON
+				g_b_FG1 := TRUE;								// Activate release relay
+				g_b_FG2 := TRUE;								// Activate release relay
+				g_b_GSM1_active := TRUE;						// Activate GSM module
 				l_b_enabled := TRUE;
 				l_i_status_PL := g_i_status_PL;
 				g_r_startup := 0;
 				g_i_status_PL_extern_auto := 3;
 			ENDIF
 
-			// Routine für das autonomatische Anfahren der Anlage über Rule-based control
+			// Routine for the autonomous startup of the system via rule-based control
 			IF g_r_startup >= 3 THEN
-				g_i_status_GR := 3;				//Gasregelung H2-Sp�lung
+				g_i_status_GR := 3;								// Gas regulation H2 purge
 				IF g_r_startup >= 4 THEN
-					g_i_status_GR := 2;				//Gasregelung Feldtest EIN
-					g_i_status_PIRC[2] := 1;		//Druckregelung der Prozessgasseite EIN
-					g_r_last := 8.2;					//Aktuelle Last auf 8.2%
+					g_i_status_GR := 2;							// Gas regulation field test ON
+					g_i_status_PIRC[2] := 1;					// Pressure control of the process gas side ON
+					g_r_last := 8.2;							// Current load at 8.2%
 					g_r_last_ramp := 8.2;
-					IF l_b_enabled THEN				//Werden nur einmal ausgef�hrt
+					IF l_b_enabled THEN							// Executed only once
 						g_r_last_ramp_extern := 8.2;		
-						g_r_p_soll_PIRC[2] := 4;		//Druck f�r Prozessgasseite in bar_rel
+						g_r_p_soll_PIRC[2] := 4;				// Pressure for process gas side in bar_rel
 						g_pres_PIRC[2].r_soll := 4;		
 						l_b_enabled := FALSE;
 					ENDIF
-					g_i_status_CON := 2;			//Kondensatork�hlung EIN
-					g_i_status_GAL := 3;			//Gasmessung 2.Stufe
+					g_i_status_CON := 2;			 			// Condenser cooling ON
+					g_i_status_GAL := 3;						// Gas measurement 2nd stage
 					IF g_r_startup >= 7 THEN
-						g_i_period_GAL := 4;			//Gasanalyse periodisch EIN
+						g_i_period_GAL := 4;					// Gas analysis periodic ON
 						IF g_r_startup >= 8 THEN
-							// g_r_last_ramp_extern := 23.2; // Anpassung bei autonomen Berieb
-							g_i_status_PL := 4; 		//Betrieb Feldtest		
+							g_i_status_PL := 4; 				// Operation field test		
 						ENDIF
 					ENDIF
 				ENDIF
 			ENDIF
 			
-			//Sicherheit bei steuerungsseitiger Fehlfunktion der PID-Module f�r die Temperaturregelung
+			// Safety in case of control malfunction of the PID modules for temperature control
 			LOOP l_i = 1 TO 9 DO
 				IF g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist > 60 THEN
-					// Falls Ist-Temperaturwert > 1,5 * Soll-Temperaturwert -> Heizung aus
+					// If actual temperature value > 1.5 * set temperature value -> Heater off
 					IF (g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist > (g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll * 1.5)) THEN
 						g_i_status_HZ[l_i] := 0;
 					ENDIF
-					// Falls Ist-Temperaturwert wieder ungef�hr Soll-Temperaturwert Niveau erreicht hat -> Heizung ein
+					// If actual temperature value reaches approximately set temperature value level again -> Heater on
 					IF (g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist < (g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll * 1.01)) THEN
 						g_i_status_HZ[l_i] := 1;
 					ENDIF
 				ENDIF
 			ENDLOOP
 						
-			//Ansteuerung der Signalampel (Gr�n = blinkend)
+			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 99;			//Ausnutzung von FB_PFM.MinPause (Immer abwechselnd Pulse und MinPause)
-			FB_PFM[0] FUB MTBasicsPFM();						//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			FB_PFM[0].DutyCycle := 99;							// Utilization of FB_PFM.MinPause (Always alternating pulse and MinPause)
+			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 3:		//Anlage: Betrieb - Labor
-			IF l_i_status_PL <> g_i_status_PL THEN					//Einmalige Aktion beim Anfahren
-				g_i_period_GAL := 0;			//und periodisch gemessen aus
-				LOOP l_i = 1 TO 9 DO			//Heizungen EIN
+		ACTION 3:		// System: Operation - Laboratory
+			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
+				g_i_period_GAL := 0;							// Periodic GAL measurement off
+				LOOP l_i = 1 TO 9 DO							// Heaters ON
 					g_i_status_HZ[l_i] := 2;	
 				ENDLOOP
-				g_i_status_GR := 2;				//Gasregelung EIN - Feldtest
-				g_i_status_CON := 2;			//Kondensatork�hlung erstmal auf manuell
-				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	//Proportionalventil zu Kondensator 1 (K�hlwasser) erstmal geschlossen
-				g_i_status_WS := 2;				//F�llstandsregelung im Vorlagebeh�lter EIN
-				g_b_FG1 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_FG2 := TRUE;				//Freigabe-Relais aktivieren
+				g_i_status_GR := 2;								// Gas regulation ON - field test
+				g_i_status_CON := 2;							// Condenser cooling initially manual
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	// Proportional valve to condenser 1 (cooling water) initially closed
+				g_i_status_WS := 2;								// Level control in the storage tank ON
+				g_b_FG1 := TRUE;								// Activate release relay
+				g_b_FG2 := TRUE;								// Activate release relay
 				l_i_status_PL := g_i_status_PL;
 			ENDIF
 			
-			//Automatikbetrieb AUS
+			// Automatic operation OFF
 			g_b_auto = FALSE;
 			
-			//Ansteuerung der Signalampel (Gr�n)
+			// Control of the signal light (Green)
 			g_b_SA1[0] := TRUE;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 4:		//Anlage: Betrieb - Feldtest
-			//Von au�en kann die Last und damit der Sollbiogasvolumenstrom vorgegeben werden
-			IF l_i_status_PL <> g_i_status_PL THEN					//Einmalige Aktion beim Anfahren
-				LOOP l_i = 1 TO 9 DO			//Heizungen EIN
+		ACTION 4:		// System: Operation - Field test
+			// From outside, the load and thus the set biogas flow rate can be specified
+			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
+				LOOP l_i = 1 TO 9 DO							// Heaters ON
 					g_i_status_HZ[l_i] := 2;	
 				ENDLOOP
-				g_i_status_GR := 2;				//Gasregelung EIN - Feldtest
-				g_i_status_CON := 2;			//Kondensatork�hlung EIN
-				g_i_status_SG := 2;				//Dampferzeugerregelung EIN
-				g_i_status_WS := 2;				//F�llstandsregelung im Vorlagebeh�lter EIN
-				g_b_FG1 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_FG2 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_GSM1_active := TRUE;		//GSM-Modul aktivieren
+				g_i_status_GR := 2;								// Gas regulation ON - field test
+				g_i_status_CON := 2;							// Condenser cooling ON
+				g_i_status_SG := 2;								// Steam generator control ON
+				g_i_status_WS := 2;								// Level control in the storage tank ON
+				g_b_FG1 := TRUE;								// Activate release relay
+				g_b_FG2 := TRUE;								// Activate release relay
+				g_b_GSM1_active := TRUE;						// Activate GSM module
 				l_i_status_PL := g_i_status_PL;
 				g_i_status_PL_extern_auto := 4;
-				// g_r_last_ramp_extern := 23.2; //Anpassung f�r autonomen Betrieb
 			ENDIF
 								
-			//Ansteuerung der Signalampel (Gr�n)
+			// Control of the signal light (Green)
 			g_b_SA1[0] := TRUE;	
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 5:		//Anlage: Abfahren - Labor
-			IF l_i_status_PL <> g_i_status_PL THEN					//Einmalige Aktion beim Anfahren
-				g_i_status_GAL := 2;			//Gasmessung auf 1.Stufe und 
-				g_i_period_GAL := 1;			//und periodisch gemessen
-				LOOP l_i = 2 TO 5 DO			//Heizungen AUS (au�er Produktgasabfuhr und Wasserdampfzugabe)
+		ACTION 5:		// System: Cooldown - Laboratory
+			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
+				g_i_status_GAL := 2;							// Gas measurement to 1st stage and 
+				g_i_period_GAL := 1;							// and periodic measurement
+				LOOP l_i = 2 TO 5 DO							// Heaters OFF (except product gas discharge and steam addition)
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
 				LOOP l_i = 7 TO 10 DO			
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
-				LOOP l_i = 1 TO 2 DO			//Druckregelung noch EIN
+				LOOP l_i = 1 TO 2 DO							// Pressure control still ON
 					g_i_status_PIRC[l_i] := 1;	
 				ENDLOOP
 				l_i_status_PL := g_i_status_PL;
 			ENDIF
 			
-			//Automatikbetrieb AUS
+			// Automatic operation OFF
 			g_b_auto = FALSE;
 			
-			//Ansteuerung der Signalampel (Gr�n = blinkend)
+			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 20;			//Beim Abfahren sind Pausenzeiten erh�ht
-			FB_PFM[0] FUB MTBasicsPFM();						//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			FB_PFM[0].DutyCycle := 20;							// During cooldown, pause times are increased
+			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 6:		//Anlage: Abfahren - Feldtest
-			IF l_i_status_PL <> g_i_status_PL THEN					//Einmalige Aktion beim Anfahren
-				g_i_status_GAL := 0;			//Gasmessung AUS
-				g_i_period_GAL := 0;			//und periodisch gemessen AUS
-				LOOP l_i = 1 TO 5 DO			//Heizungen AUS
+		ACTION 6:		// System: Cooldown - Field test
+			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
+				g_i_status_GAL := 0;							// Gas measurement OFF
+				g_i_period_GAL := 0;							// and periodic measurement OFF
+				LOOP l_i = 1 TO 5 DO							// Heaters OFF
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
-				g_i_status_HZ[6] := 2;			// Biogaszuleitung: Heizung bleibt noch an, um beim Wiederanfahren aus dem Abfahrstatus die Tropfenbildung dort zu Vermeiden
+				g_i_status_HZ[6] := 2;							// Biogas supply: Heater remains on to avoid droplet formation there when restarting from shutdown status
 				g_temp_TIRC[16].r_soll := 80;	
-				LOOP l_i = 7 TO 9 DO			//Heizungen AUS
+				LOOP l_i = 7 TO 9 DO							// Heaters OFF
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
-				g_i_status_GR := 3;				//Gasregelung H2-Sp�lung
-				g_i_status_PIRC[2] := 2;		//Kontrolliertes �ffnen des Prozessgasventils
-				g_i_status_CON := 0;			//Kondensatork�hlung AUS
-				g_i_status_SG := 0;				//Dampferzeugerregelung AUS
-				g_i_status_WS := 0;				//F�llstandsregelung im Vorlagebeh�lter AUS
-				g_b_FG1 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_FG2 := TRUE;				//Freigabe-Relais aktivieren
-				g_b_GSM1_active := TRUE;		//GSM-Modul aktivieren
+				g_i_status_GR := 3;								// Gas regulation H2 purge
+				g_i_status_PIRC[2] := 2;						// Controlled opening of the process gas valve
+				g_i_status_CON := 0;							// Condenser cooling OFF
+				g_i_status_SG := 0;								// Steam generator control OFF
+				g_i_status_WS := 0;								// Level control in the storage tank OFF
+				g_b_FG1 := TRUE;								// Activate release relay
+				g_b_FG2 := TRUE;								// Activate release relay
+				g_b_GSM1_active := TRUE;						// Activate GSM module
 				l_i_status_PL := g_i_status_PL;
 				g_i_status_PL_extern_auto := 2;
 			ENDIF
-			
+
+			# Cooldown routine is based on rule-based control w.r.t. the catalyst temperature		
 			IF g_r_T_cat_max[2] < 310 THEN
-				g_i_status_GR := 0;				//Gasregelung AUS
+				g_i_status_GR := 0;								// Gas regulation OFF
 			ENDIF
 			
 			IF g_r_T_cat_max[2] < 175 THEN
-				g_i_status_PL := 0;				//Anlage Stillstand
+				g_i_status_PL := 0;								// System shutdown
 			ENDIF
 						
-			//Ansteuerung der Signalampel (Gr�n = blinkend)
+			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 20;			//Beim Abfahren sind Pausenzeiten erh�ht
-			FB_PFM[0] FUB MTBasicsPFM();						//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			FB_PFM[0].DutyCycle := 20;							// During cooldown, pause times are increased
+			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 7:		//Anlage: Fehler
+		ACTION 7:		// System: Error
 			IF l_i_status_PL <> g_i_status_PL THEN
 				l_i_status_PL := g_i_status_PL;
 				
-				//Freigabe-Relais deaktivieren
+				// Deactivate release relay
 				g_b_FG1 := FALSE;
 				g_b_FG2 := FALSE;
 			ENDIF
 			
-			//Fehlermeldung �ber GSM-Modul
+			// Error message via GSM module
 			IF g_b_GSM1_active THEN
 				g_b_GSM1_IN5 := TRUE;	
 			ENDIF
 			
-			//Automatikbetrieb AUS
+			// Automatic operation OFF
 			g_b_auto = FALSE;
 			
-			//Ansteuerung der Signalampel (Rot)
+			// Control of the signal light (Red)
 			g_b_SA1[0] := FALSE;
 			g_b_SA1[2] := TRUE;
 			
-			//Ausl�sen der Hupe f�r 5 Sekunden
+			// Trigger the horn for 5 seconds
 			FB_TP_10ms[0].IN = g_b_e_add;
 			FB_TP_10ms[0].PT = 500;
 			FB_TP_10ms[0] FUB TP_10ms()
 			g_b_SA1[4] := FB_TP_10ms[0].Q;	
 		ENDACTION
 		
-		ACTION 8:		//Anlage: Manuelle Bedienung ohne Startbedingungen
+		ACTION 8:		// System: Manual operation without start conditions
 			IF l_i_status_PL <> g_i_status_PL THEN
 				l_i_status_PL := g_i_status_PL;
 			ENDIF
 			
-			//Ansteuerung der Signalampel (Gelb = blinkend)
+			// Control of the signal light (Yellow = flashing)
 			FB_PFM[0].Enable := TRUE;
 			FB_PFM[0].DutyCycle := 99;			
-			FB_PFM[0] FUB MTBasicsPFM();						//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[1] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 9:		//Anlage: Standby -> Reaktoren werden auf Temperaturgehalten
+		ACTION 9:		// System: Standby -> Reactors are kept at temperature
 			IF l_i_status_PL <> g_i_status_PL THEN
-				g_i_status_GAL := 0;			//Gasmessung AUS
-				g_i_period_GAL := 0;			//und periodisch gemessen AUS
-				LOOP l_i = 1 TO 2 DO			//Druckregelung AUS
+				g_i_status_GAL := 0;							// Gas measurement OFF
+				g_i_period_GAL := 0;							// and periodic measurement OFF
+				LOOP l_i = 1 TO 2 DO							// Pressure control OFF
 					g_i_status_PIRC[l_i] := 0;
 					g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);
 				ENDLOOP
-				IF (l_i_status_PL = 2) OR (l_i_status_PL = 4) OR (l_i_status_PL = 6) THEN		//Falls zuvor im Feldtest
-					g_i_status_GR := 3;				//Gasregelung H2-Sp�lung
+				IF (l_i_status_PL = 2) OR (l_i_status_PL = 4) OR (l_i_status_PL = 6) THEN		// If previously in field test
+					g_i_status_GR := 3;							// Gas regulation H2 purge
 					l_b_GR_H2 := TRUE;						
 				ELSE
-					g_i_status_GR := 0;				//Gasregelung AUS
+					g_i_status_GR := 0;							// Gas regulation OFF
 					l_b_GR_H2 := FALSE;		
 				ENDIF
 				
-				g_i_status_CON := 0;			//Kondensatork�hlung AUS
-				g_i_status_SG := 0;				//Dampferzeugerregelung AUS
-				g_i_status_WS := 0;				//F�llstandsregelung im Vorlagebeh�lter AUS
+				g_i_status_CON := 0;			// Condenser cooling OFF
+				g_i_status_SG := 0;				// Steam generator control OFF
+				g_i_status_WS := 0;				// Level control in the storage tank OFF
 			
-				//Freigabe-Relais aktivieren
+				// Activate release relay
 				g_b_FG1 := TRUE;
 				g_b_FG2 := TRUE;
 				
-				//Nur HP-Reaktorheizung und Biogasheizung aktivieren
+				// Only HP reactor heating and biogas heating activate
 				LOOP l_i = 1 TO 9 DO			
 					g_i_status_HZ[l_i] := 0;
 				ENDLOOP
-				g_i_status_HZ[8] := 2;			// HP-Reaktor EIN
-				g_temp_TIRC[4].r_soll := 220; 	// HP-ReaktorHeizungstemperatur im Standby
-				g_i_status_HZ[6] := 2;			// Biogaszuleitung EIN, um beim Wiederanfahren aus dem Standby die Tropfenbildung dort zu Vermeiden
+				g_i_status_HZ[8] := 2;			// HP reactor ON
+				g_temp_TIRC[4].r_soll := 220; 	// HP reactor heating temperature in standby
+				g_i_status_HZ[6] := 2;			// Biogas supply ON, to avoid droplet formation there when restarting from standby
 				g_temp_TIRC[16].r_soll := 70;
 				l_i_status_PL := g_i_status_PL;
 				g_i_status_PL_extern_auto := 1;
@@ -380,21 +379,21 @@ PROGRAM _CYCLIC
 			FB_TP_10ms[1].PT = 30000;
 			FB_TP_10ms[1] FUB TP_10ms()
 			IF FB_TP_10ms[1].Q = FALSE THEN
-				g_i_status_GR := 0;				//Gasregelung AUS
+				g_i_status_GR := 0;				// Gas regulation OFF
 				l_b_GR_H2 := FALSE;
 			ENDIF
 			
-			//Ansteuerung der Signalampel (Gelb = blinkend)
+			// Control of the signal light (Yellow = flashing)
 			FB_PFM[0].Enable := TRUE;
 			FB_PFM[0].DutyCycle := 99;			
-			FB_PFM[0] FUB MTBasicsPFM();						//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+			FB_PFM[0] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[1] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ELSEACTION:	//Fehler: Kein definierter Status
+		ELSEACTION:	// Error: No defined status
 			g_b_error[42] := TRUE;
-			//System ausschalten:
+			//System off:
 			g_i_status_GAL := 0;
 			LOOP l_i = 1 TO 10 DO
 				g_i_status_HZ[l_i] := 0;
@@ -411,10 +410,10 @@ PROGRAM _CYCLIC
 		ENDACTION
 	ENDCASE	
 	
-	//Bei Warnung: Signalampel auf Orange und Ausl�sen der Hupe f�r 2.5 Sekunden bei Warnung
+	// In case of warning: Signal light to orange and trigger the horn for 2.5 seconds in case of warning
 	IF g_i_w_sum > 0 THEN
 		IF g_b_GSM1_active THEN
-			g_b_GSM1_IN4 := TRUE;	//Warnmeldung �ber GSM-Modul
+			g_b_GSM1_IN4 := TRUE;	// Warning message via GSM module
 		ENDIF
 		g_b_SA1[1] := TRUE;
 	ENDIF
@@ -423,15 +422,15 @@ PROGRAM _CYCLIC
 	FB_TP_10ms[0] FUB TP_10ms()
 	g_b_SA1[4] := FB_TP_10ms[0].Q;	
 	
-	//Anlagenzustand in Visualisierung (ContentStatusPage)
+	// System status in visualization (ContentStatusPage)
 	g_b_status_PL[g_i_status_PL] := TRUE;
-	LOOP l_i = 0 TO 9 DO			//Alle anderen = FALSE
+	LOOP l_i = 0 TO 9 DO			// All others = FALSE
 		IF l_i <> g_i_status_PL THEN
 			g_b_status_PL[l_i] := FALSE;
 		ENDIF
 	ENDLOOP
 	
-	//Zur Visualisierung des Anlagenzustands im ContentLeft und im ContentStatus (Siehe EventBinding) 
+	// For visualization of the system status in ContentLeft and ContentStatus (See EventBinding) 
 	IF g_i_w_sum > 0 THEN
 		IF g_i_e_sum > 0 THEN
 			g_i_status_PL_mV := 7;
@@ -442,54 +441,52 @@ PROGRAM _CYCLIC
 		g_i_status_PL_mV := g_i_status_PL;
 	ENDIF
 	
-	//Zur steuerungsseitigen Erkennung der Datenaufzeichnung: 
-	(*Jede Minute wird g_b_data_active auf FALSE gesetzt, 
-	kann nur von Seiten der Datenaufzeichnung auf TRUE gesetzt werden*)
+	// For control-side detection of data recording: 
+	(* Every minute g_b_data_active is set to FALSE, 
+	can only be set to TRUE by the data recording side *)
 	FB_PFM[1].Enable := TRUE;
 	FB_PFM[1].DutyCycle := 99;			
-	FB_PFM[1] FUB MTBasicsPFM();						//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation
+	FB_PFM[1] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
 	IF FB_PFM[1].Out THEN
 		g_b_data_active := FALSE;
 	ENDIF
-	g_b_SA1[3] := g_b_data_active;						//Datenaufzeichnung �ber Signalampel signalisieren
+	g_b_SA1[3] := g_b_data_active;						// Signal data recording via signal light
 
-	//Bei Automatikbetrieb im0 Feldtest - M�glichkeit zum externen Wechsel des Anlagenzustands
+	// In autonomous operation in field test - possibility to externally change the system status
 	IF g_b_auto = TRUE THEN
-		IF g_i_status_PL_extern = 2 THEN	//Anfahren
+		IF g_i_status_PL_extern = 2 THEN	// Startup
 			IF g_i_status_PL = 4 THEN
 				g_i_status_PL := 4;
 			ELSE
 				g_i_status_PL := 2;
 			ENDIF
 		ENDIF
-		IF g_i_status_PL_extern = 6 THEN	//Abfahren
+		IF g_i_status_PL_extern = 6 THEN	// Cooldown
 			IF g_i_status_PL = 0 THEN
 				g_i_status_PL := 0;
 			ELSE
 				g_i_status_PL := 6;
 			ENDIF
 		ENDIF
-		IF g_i_status_PL_extern = 9 THEN	//Standby
+		IF g_i_status_PL_extern = 9 THEN	// Standby
 			g_i_status_PL := 9;
 		ENDIF
 		IF g_i_status_PL = 4 THEN
-			IF g_i_status_PL_extern = 10 THEN	//Standby
-				// g_r_last_ramp_extern := 8.2; // Anpassung bei autonomen Betrieb
-				// g_r_last_ramp_extern := 23.2;
+			IF g_i_status_PL_extern = 10 THEN		// Partial load
+				g_r_last_ramp_extern := 23.2;		// Can be adjusted to different load levels OP1 or OP2
 				g_i_status_PL_extern_auto := 4;
 			ENDIF	
-			IF g_i_status_PL_extern = 11 THEN	//Standby
-				// g_r_last_ramp_extern := 23.2;
-				// g_r_last_ramp_extern := 56.7; // Anpassung bei autonmen Betrieb
+			IF g_i_status_PL_extern = 11 THEN		// Full Load
+				g_r_last_ramp_extern := 100; 		// Can be adjusted to different load levels OP1 or OP2
 				g_i_status_PL_extern_auto := 5;
 			ENDIF
 		ENDIF
 					
-		//Zeitschritterfassung im autonomen Betrieb
+		// Time step recording in autonomous operation
 		FB_PFM[2].Enable := TRUE;
-		FB_PFM[2].DutyCycle := 99;				//Ausnutzung von FB_PFM.MinPause = 1s (Immer abwechselnd Pulse und MinPause)
-		FB_PFM[2] FUB MTBasicsPFM();			//Funktionsaufruf MTBasicsPFM Pulsfrequenzmodulation	
-		IF EDGEPOS(FB_PFM[2].Out) THEN		//Bei positiver Flanke Erh�hung des Zeitschritts um 1
+		FB_PFM[2].DutyCycle := 99;					// Utilization of FB_PFM.MinPause = 1s (Always alternating pulse and MinPause)
+		FB_PFM[2] FUB MTBasicsPFM();				// Function call MTBasicsPFM pulse frequency modulation	
+		IF EDGEPOS(FB_PFM[2].Out) THEN				// On positive edge, increase the time step by 1
 			g_i_time_step_extern_auto := g_i_time_step_extern_auto + 1;
 		ENDIF	
 	ELSE

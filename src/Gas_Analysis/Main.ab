@@ -1,18 +1,18 @@
 (********************************************************************
- * Programm: Gasanalyse
+ * Programm: Gas_Analysis
  * Autor: Markthaler
  * Erstellt: 30.03.2022
  * Info: Definiert Messung der Gaskonzentrationen und berechnet Kennwerte zur Methanisierung
-		(1-Punkt-Kalibrierung der Sensoren wird manuell durchgeführt)
+		(1-Punkt-Kalibrierung der Sensoren wird manuell durchgefï¿½hrt)
  ********************************************************************)
 
 PROGRAM _INIT
-	//Initialisierung einer Zeitverzögerung zur Erfassung der Latenz bei der Messung
+	//Initialisierung einer Zeitverzï¿½gerung zur Erfassung der Latenz bei der Messung
 	FB_TimeDelay.Enable := FALSE;
 	FB_TimeDelay.InitialValue := 0;
-	FB_TimeDelay.DelayTime := 120;			//Latenz der Messung = Messzeitverzögerung (ca. 120s)
+	FB_TimeDelay.DelayTime := 120;			//Latenz der Messung = Messzeitverzï¿½gerung (ca. 120s)
 	
-	//Initialisierung der Parameter für die Pulsfrequenzmodulation zur periodischen Gasmessung
+	//Initialisierung der Parameter fï¿½r die Pulsfrequenzmodulation zur periodischen Gasmessung
 	FB_PFM.PulseWidth := 1500;  
 	FB_PFM.MinPause := 1;
 		
@@ -25,7 +25,7 @@ PROGRAM _CYCLIC
 	CASE g_i_status_GAL OF
 		ACTION 0:			//Gasanalyse AUS
 			LOOP l_i = 0 TO 2 DO
-				g_b_valid_GAL[l_i] := FALSE;	//Status für zulässige Messung deaktiviert
+				g_b_valid_GAL[l_i] := FALSE;	//Status fï¿½r zulï¿½ssige Messung deaktiviert
 				g_b_MV[l_i+8] := FALSE;		//Magnetventile zur Gasanalyse sind geschlossen
 			ENDLOOP
 			g_i_period_GAL := 0;				//Keine periodische Messung
@@ -39,14 +39,14 @@ PROGRAM _CYCLIC
 			ENDLOOP
 			g_b_MV[10] := TRUE;
 			
-			//Erst nach Latenz der Messung, wird eine zulässige Gasmessung erwartet
-			FB_TimeDelay.InitialValue := 0;									//Eingangswert für t < DelayTime
+			//Erst nach Latenz der Messung, wird eine zulï¿½ssige Gasmessung erwartet
+			FB_TimeDelay.InitialValue := 0;									//Eingangswert fï¿½r t < DelayTime
 			FB_TimeDelay.Enable := TRUE;							
-			FB_TimeDelay.In := 1;											//Eingangswert für t >= DelayTime
+			FB_TimeDelay.In := 1;											//Eingangswert fï¿½r t >= DelayTime
 			FB_TimeDelay FUB MTBasicsTimeDelay();							//Funktionsaufruf MTBasicsTimeDelay
 			g_b_valid_GAL[0] :=	BOOL(FB_TimeDelay.Out);				//Ausgabewert
 			
-			//Keine Kalibrierung möglich
+			//Keine Kalibrierung mï¿½glich
 			g_b_kal_GAL[0] := FALSE;
 			g_b_kal_GAL[1] := FALSE;
 		ENDACTION
@@ -59,14 +59,14 @@ PROGRAM _CYCLIC
 			ENDLOOP
 			g_b_MV[8] := TRUE;
 			
-			//Erst nach Latenz der Messung, wird eine zulässige Gasmessung erwartet
-			FB_TimeDelay.InitialValue := 0;									//Eingangswert für t < DelayTime
+			//Erst nach Latenz der Messung, wird eine zulï¿½ssige Gasmessung erwartet
+			FB_TimeDelay.InitialValue := 0;									//Eingangswert fï¿½r t < DelayTime
 			FB_TimeDelay.Enable := TRUE;							
-			FB_TimeDelay.In := 1;											//Eingangswert für t >= DelayTime
+			FB_TimeDelay.In := 1;											//Eingangswert fï¿½r t >= DelayTime
 			FB_TimeDelay FUB MTBasicsTimeDelay();							//Funktionsaufruf MTBasicsTimeDelay
 			g_b_valid_GAL[1] :=	BOOL(FB_TimeDelay.Out);				//Ausgabewert
 			
-			//Keine Kalibrierung möglich
+			//Keine Kalibrierung mï¿½glich
 			g_b_kal_GAL[0] := FALSE;
 			g_b_kal_GAL[1] := FALSE;
 		ENDACTION
@@ -79,18 +79,18 @@ PROGRAM _CYCLIC
 			g_b_MV[9] := TRUE;
 			g_b_MV[10] := FALSE;
 			
-			//Erst nach Latenz der Messung, wird eine zulässige Gasmessung erwartet
-			FB_TimeDelay.InitialValue := 0;									//Eingangswert für t < DelayTime
+			//Erst nach Latenz der Messung, wird eine zulï¿½ssige Gasmessung erwartet
+			FB_TimeDelay.InitialValue := 0;									//Eingangswert fï¿½r t < DelayTime
 			FB_TimeDelay.Enable := TRUE;							
-			FB_TimeDelay.In := 1;											//Eingangswert für t >= DelayTime
+			FB_TimeDelay.In := 1;											//Eingangswert fï¿½r t >= DelayTime
 			FB_TimeDelay FUB MTBasicsTimeDelay();							//Funktionsaufruf MTBasicsTimeDelay
 			g_b_valid_GAL[2] :=	BOOL(FB_TimeDelay.Out);				//Ausgabewert
 			
-			//Keine Kalibrierung möglich
+			//Keine Kalibrierung mï¿½glich
 			g_b_kal_GAL[0] := FALSE;
 			g_b_kal_GAL[1] := FALSE;
 			
-			l_r_y_methan_corr := g_r_y_CH4_percent / 100;   //Methankonzentration + Rest
+			l_r_y_methan := g_r_y_CH4_percent / 100;
 			l_r_y_co2 := g_r_y_CO2_percent / 100;
 			l_r_y_h2_corr := g_r_y_H2_percent / 100;
 		ENDACTION
@@ -185,13 +185,13 @@ PROGRAM _CYCLIC
 	ENDCASE
 	
 	// Bestimmung des synthetisch produzierten Methans
-	g_r_nf_methan := l_r_y_methan_corr * (4 * g_r_nf_in_react[2] + g_r_nf_in_react[0]) / (1 - l_r_y_co2 + 3 * l_r_y_methan_corr) - g_r_nf_in_react[2];
+	g_r_nf_methan := l_r_y_methan * (4 * g_r_nf_in_react[2] + g_r_nf_in_react[0]) / (1 - l_r_y_co2 + 3 * l_r_y_methan) - g_r_nf_in_react[2];
 	IF g_r_nf_methan < 0 THEN
 		g_r_nf_methan := 0;
 	ENDIF
 	
-	IF (g_r_nf_methan > 0) AND (l_r_y_h2_corr >= 0) AND (l_r_y_methan_corr > 0) THEN
-		g_r_nf_h2_res := g_r_nf_methan * l_r_y_h2_corr / l_r_y_methan_corr;
+	IF (g_r_nf_methan > 0) AND (l_r_y_h2_corr >= 0) AND (l_r_y_methan > 0) THEN
+		g_r_nf_h2_res := g_r_nf_methan * l_r_y_h2_corr / l_r_y_methan;
 	ELSE
 		g_r_nf_h2_res := 0;
 	ENDIF

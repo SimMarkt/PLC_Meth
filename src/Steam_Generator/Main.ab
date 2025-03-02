@@ -1,16 +1,16 @@
 (********************************************************************
- * Programm: Dampferzeugerregelung
- * Autor: Markthaler
- * Erstellt: 30.03.2022
- * Info: Regelung des Dampferzeugers
-	(Hinweis: MTBasicsPFM wurde nicht eingesetzt, da falls Dutycycle << 5 % -> OffTime (t_OFF) sehr groß. Beim Umschalten auf 
-	Dutycycle = 100% wartet der Funktionsbaustein dann aber t_OFF ab -> Für lange Zeit keine Leistung, obwohl es nach dem PID nötig wäre.
-	Bei LCRPFM findet eine regelmäßige Überprüfung des Eingangswertes statt, sodass t_OFF korrigiert wird, allerdings wird hier
-	für x = 100% das Signal nicht durchgegehend auf TRUE gesetzt. Aus diesem Grund -> Falls x > 98 -> TRUE)
+ * Program: Steam_Generator
+ * Author: Markthaler
+ * Created: 30.03.2022
+ * Info: Control of the steam generator
+	(Note: MTBasicsPFM was not used because if Dutycycle << 5% -> OffTime (t_OFF) is very large. When switching to 
+	Dutycycle = 100%, the function block then waits for t_OFF -> No power for a long time, although it would be necessary according to the PID.
+	With LCRPFM, a regular check of the input value takes place, so that t_OFF is corrected, but here
+	for x = 100%, the signal is not continuously set to TRUE. For this reason -> If x > 98 -> TRUE)
  ********************************************************************)
 
 PROGRAM _INIT
-	//Initialisierung der PID-Regelparameter
+	//Initialization of the PID control parameters
 	l_r_pid_var[0] := 0.002;
 	l_r_pid_var[1] := 300;
 	l_r_pid_var[2] := 0;
@@ -22,7 +22,7 @@ PROGRAM _INIT
 	g_r_pid_var_DE[2] := l_r_pid_var[2];
 	g_r_pid_var_DE[3] := l_r_pid_var[3];
 	
-	//Übertragung der PID-Regelparameter an PID Funktionsbaustein
+	//Transfer of the PID control parameters to the PID function block
 	FB_PID.PIDParameters.Gain := l_r_pid_var[0];
 	FB_PID.PIDParameters.IntegrationTime := l_r_pid_var[1];
 	FB_PID.PIDParameters.DerivativeTime := l_r_pid_var[2];
@@ -30,23 +30,23 @@ PROGRAM _INIT
 	FB_PID.MinOut := l_r_pid_var[4];
 	FB_PID.MaxOut := l_r_pid_var[5];
 	
-	//Initialstatus: AUS
+	//Initial status: OFF
 	g_i_status_SG := 0;
 END_PROGRAM
 
 PROGRAM _CYCLIC
-	//Regelung: Füllstand im Dampferzeuger
+	//Control: Level in the steam generator
 	CASE g_i_status_SG OF
-		ACTION 0:		//Dampferzeugerregelung AUS
-			g_pm_PM[1].r_soll := 0;				//Ausgabesignal an Membranpumpe zu Null
-			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+		ACTION 0:		//Steam generator control OFF
+			g_pm_PM[1].r_soll := 0;				//Output signal to diaphragm pump to zero
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Steam mass flow [Factor takes into account steam production in condenser 1]
 			g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL_4mA[0]);
 		ENDACTION
 		
-		ACTION 1:		//Manuelle Pumpensteuerung
-			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+		ACTION 1:		//Manual pump control
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Steam mass flow [Factor takes into account steam production in condenser 1]
 			g_pm_PM[1].i_ao := INT((g_pm_PM[1].r_soll * (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[0]) / (g_pm_PM[1].r_max-g_pm_PM[1].r_min)) + G_R_ANALOG_SIGNAL_4mA[0]);
-			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Sicherung bei Rundungsfehlern
+			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
 				g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL);
 			ELSE
 				IF g_pm_PM[1].i_ao <= INT(G_R_ANALOG_SIGNAL_4mA[0]) THEN
@@ -55,13 +55,13 @@ PROGRAM _CYCLIC
 			ENDIF
 		ENDACTION
 		
-		ACTION 2:		//Dampferzeugerregelung AN
-			//PID-Regelung ausführen
-			FB_PID.Enable := TRUE;							//Regler aktivieren
-			FB_PID.SetValue := g_r_T_cat_max_soll[0]; 		//Sollwert setzen, Berechnung im Programm "Kondensatorregelung"
-			FB_PID.ActValue := g_r_T_cat_max[2];			//Istwert einlesen
+		ACTION 2:		//Steam generator control ON
+			//Execute PID control
+			FB_PID.Enable := TRUE;							//Activate controller
+			FB_PID.SetValue := g_r_T_cat_max_soll[0]; 		//Setpoint, calculation in the program "Condenser control"
+			FB_PID.ActValue := g_r_T_cat_max[2];			//Read actual value
 			
-			//Manuelle Anpassung der Regelparameter
+			//Manual adjustment of control parameters
 			IF EDGEPOS(g_pm_PM[1].b_update) THEN
 				l_r_pid_var[0] := g_r_pid_var_DE[0];
 				l_r_pid_var[1] := g_r_pid_var_DE[1];
@@ -79,13 +79,13 @@ PROGRAM _CYCLIC
 				ENDIF
 			ENDIF
 			
-			FB_PID FUB MTBasicsPID(); 									//Funktionsaufruf MTBasicsPID
+			FB_PID FUB MTBasicsPID(); 									//Function call MTBasicsPID
 		
-			//Übertragung der PID-Ausgabewerte an die Membranpumpe
-			g_pm_PM[1].r_soll := (l_r_pid_var[5] - FB_PID.Out) * g_r_DE_adapt; 	//Ausgangsgröße PID -> Eingangsgröße
-			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+			//Transfer of the PID output values to the diaphragm pump
+			g_pm_PM[1].r_soll := (l_r_pid_var[5] - FB_PID.Out) * g_r_DE_adapt; 	//PID output -> input value
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Steam mass flow [Factor takes into account steam production in condenser 1]
 			g_pm_PM[1].i_ao := INT((g_pm_PM[1].r_soll * (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[0]) / (g_pm_PM[1].r_max-g_pm_PM[1].r_min)) + G_R_ANALOG_SIGNAL_4mA[0]);
-			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Sicherung bei Rundungsfehlern
+			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
 				g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL);
 			ELSE
 				IF g_pm_PM[1].i_ao <= INT(G_R_ANALOG_SIGNAL_4mA[0]) THEN
@@ -94,10 +94,10 @@ PROGRAM _CYCLIC
 			ENDIF 
 		ENDACTION
 		
-		ELSEACTION:	//Fehler: Kein definierter Status
+		ELSEACTION:	//Error: No defined status
 			g_b_error[58] := TRUE;
-			g_pm_PM[1].r_soll := 0;				//Ausgabesignal an Membranpumpe zu Null
-			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Dampfmassenstrom [Faktor berücksichtigt Dampfproduktion in Kondensator 1)
+			g_pm_PM[1].r_soll := 0;				//Output signal to diaphragm pump to zero
+			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Steam mass flow [Factor takes into account steam production in condenser 1]
 			g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);
 		ENDACTION
 	ENDCASE	

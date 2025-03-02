@@ -1,0 +1,3 @@
+VAR
+	FB_PFM : MTBasicsPFM; (*Function block: for pulse control*)
+END_VAR

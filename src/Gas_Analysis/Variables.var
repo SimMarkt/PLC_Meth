@@ -1,8 +1,8 @@
 VAR
-	l_i : USINT; (*Index/ Laufvariable*)
-	FB_TimeDelay : MTBasicsTimeDelay; (*Funktionsbaustein: Latenz der Messung in Gasanalyse*)
-	FB_PFM : MTBasicsPFM; (*Funktionsbaustein: zur Pulseansteuerung*)
-	l_r_y_methan_corr : REAL := 0; (*Korrigierte Methankonzentration im Produktgas*)
-	l_r_y_co2 : REAL := 0; (*Konzentration an Kohlenstoffdioxid im Produktgas*)
-	l_r_y_h2_corr : REAL; (*Konzentration an Kohlenstoffdioxid im Produktgas*)
+	l_i : USINT; (*Index/ Loop variable*)
+	FB_TimeDelay : MTBasicsTimeDelay; (*Function block: Latency of the measurement in gas analysis*)
+	FB_PFM : MTBasicsPFM; (*Function block: for pulse control*)
+	l_r_y_methan_corr : REAL := 0; (*Corrected methane concentration in the product gas*)
+	l_r_y_co2 : REAL := 0; (*Concentration of carbon dioxide in the product gas*)
+	l_r_y_h2_corr : REAL; (*Concentration of hydrogen in the product gas*)
 END_VAR

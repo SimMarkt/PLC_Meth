@@ -32,11 +32,28 @@ Chemical methanation plant
  - Gas analysis
  - Water supply
 
+ Block flow sheet
+
+ Pictures of the plant
+
+
+
 ### Programmable logic controller  
 
 Cyclic runs of the different scripts.
-Autonomous control with discrete action ...
+Autonomous control with discrete action ... RB Control with Temperatur in first stage
 Autonmation studio from B&R -> libraries for modules and functions...
+
+ Autonomous control - Rule-based Control based von T_Cat
+
+ Temperature Control based on T_cat_max < T_krit and T_cat_max < T_sinter
+ T_krit based on chemical equilibrium data and linear regression with non-linear basis functions
+
+ T_sat and p_sat in Condenser_Control -> based on Magnus equation
+
+ Visualization in Mappp View
+
+
 
 ---
 
@@ -44,6 +61,20 @@ Autonmation studio from B&R -> libraries for modules and functions...
 
 The project is organized into the following directories and files:
 
+notation l_r_T_cat_max -> local variable (l), type real (r), description
+g_i_status_PL -> global variable (g), type integer (i), description
+FB_PFM > Function block (FB)
+L_R_T_MAX_PL -> CONSTANTS capitalized (*Maximum temperature in °C inside the enclosure*)
+
+Safety_Mechanisms:
+- Definition of warnings and error messages
+- Definition of actions for specific warnings and error messages
+
+Temperature_Control:
+- PID Control
+- Startup rule-based control based von the maximum catalyst temperature
+
+biomethane plant -> plant status and watchdog variable
 
 ---
 
@@ -58,9 +89,11 @@ git clone https://github.com/SimMarkt/PLC_Meth.git
 # Navigate to the project directory
 cd PLC_Meth
 
-# Copy the source code to the folder of your PLC software project
+# Copy the source code to the folder of your PLC software project and adjust the variables in the physical IO settings
+#### CODE FOR POWERSHELL COPY AND PASTE
 
 ```
+
 
 
 ## License
@@ -90,7 +123,7 @@ in industrieller Umgebung und Betriebsoptimierung mittels Reinforcement
 Learning*", DECHEMA Jahrestreffen der Fachsektion Energie, Chemie
 und Klima (11.-12.03.), Frankfurt/Main, 2024
 
-[3] Markthaler S., "*Optimization of Power-to-Gas operation and dispatch using Deep Reinforcement Learning*", Dissertation (PhD Thesis), Friedrich-Alexander-Universität Erlangen-Nürnberg, 2025 (not yet been published).
+[2] Markthaler S., "*Optimization of Power-to-Gas operation and dispatch using Deep Reinforcement Learning*", Dissertation (PhD Thesis), Friedrich-Alexander-Universität Erlangen-Nürnberg, 2025 (not yet been published).
 
 ---
 

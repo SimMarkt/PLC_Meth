@@ -1,0 +1,88 @@
+VAR
+	l_m : INT; (*Loop variable*)
+	l_i_BMA1_wd : INT; (*Local storage for watchdog variable of the biomethane plant signal*)
+	l_b_act_antifrost_active : BOOL := FALSE; (*Action: Activate water flow through the condensers to prevent frost damage*)
+	l_b_act_gasf_inactive_h2_flush : BOOL := FALSE; (*Action: Hydrogen purge and pressure relief during bundle change*)
+	l_b_act_waterf_inactive : BOOL := FALSE; (*Action: Turn off water supply*)
+	l_b_act_SG_inactive : BOOL := FALSE; (*Action: Turn off steam generator control*)
+	l_b_act_pres_descent : BOOL := FALSE; (*Action: Controlled opening of valves and pressure relief*)
+	l_b_act_n2_flush : BOOL := FALSE; (*Action: Nitrogen purge*)
+	l_b_act_n2f_inactive : BOOL := FALSE; (*Action: Turn off nitrogen supply*)
+	l_b_act_BHZ_active : BOOL := FALSE; (*Action: Floor heating*)
+	l_b_act_HZ_inactive : BOOL := FALSE; (*Action: Turn off heaters*)
+	l_b_act_GA_inactive : BOOL := FALSE; (*Action: Turn off gas analysis or close valves for gas analysis*)
+	l_b_act_gasf_inactive : BOOL := FALSE; (*Action: Turn off gas supply*)
+	l_b_act_CON_inactive : BOOL := FALSE; (*Action: Turn off condenser control*)
+	l_b_act_lowHZ_active : BOOL := FALSE; (*Action: Turn on all heaters (except floor heating) to heat the system*)
+	l_b_act_PM2_active : BOOL := FALSE; (*Action: Pump PM2 is activated to empty the storage tank as much as possible*)
+	l_b_t_min : ARRAY[0..7] OF BOOL := [8(FALSE)]; (*Local storage for detecting the exceedance of minimum temperatures*)
+	l_b_warning : ARRAY[0..60] OF BOOL := [61(FALSE)]; (*Local storage for warnings in the safety system of the plant*)
+	l_b_error : ARRAY[0..61] OF BOOL := [62(FALSE)]; (*Local storage for errors in the safety system of the plant*)
+	FB_MpAlarmXCore : MpAlarmXCore; (*Function block: Collects and manages alarms*)
+	FB_MpAlarmXListUI : MpAlarmXListUI; (*Function block: Enables communication between the alarm list and the visualization*)
+	l_MpAlarmXListUIConnectType : MpAlarmXListUIConnectType; (*Data type for communication between the alarm list and the visualization*)
+	FB_PFM : MTBasicsPFM; (*Function block: Pulse frequency modulation to control the signal of the biomethane plant*)
+	FB_TON_10ms : ARRAY[0..2] OF TON_10ms; (*Function block: To initiate the error if no signal from the biomethane plant is received for too long in the field test [0] and in case of interruption of the water supply [1] and the hydrogen supply [2]*)
+	FB_TimeDelay : ARRAY[0..5] OF MTBasicsTimeDelay; (*Function block: Time delay for closing the solenoid valves MV [0=MV1 (hydrogen), 1=MV3 (biogas)] and to capture the opening time of the solenoid valves [2=condensate trap, 3=condenser 1, 4=condenser 2] and for warning message during nitrogen purge in idle state [5]*)
+END_VAR
+VAR CONSTANT
+	L_R_T_MIN_SK1 : REAL := 1; (*Minimum temperature in °C in the control cabinet*)
+	L_R_T_MAX_PL : REAL := 45; (*Maximum temperature in °C inside the enclosure*)
+	L_R_P_MIN_BIO : REAL := 2; (*Minimum pressure for biogas supply in bar (relative)*)
+	L_R_P_MIN_DM1 : REAL := 30; (*Limit for target to actual volume flow at the MFC*)
+	L_R_P_MIN_WS : REAL := 0.1; (*Minimum pressure for water supply in bar (relative)*)
+	L_R_T_MAX_HP : REAL := 340; (*Maximum temperature in °C of the heat pipe*)
+	L_R_T_MIN_SF : REAL := 160; (*Minimum temperature in °C of the steam addition*)
+	L_R_VOLF_MAX : REAL := 3; (*Factor to determine an under-supply of H2*)
+	L_R_DT_MIN_SK1 : REAL := 3; (*Distance to minimum temperature for warning and floor heating in °C*)
+	L_R_T_MIN_WS : REAL := 0.5; (*Minimum temperature in °C of the water supply*)
+	L_R_T_MAX_KAT : REAL := 550; (*Sintering temperature in °C in the catalyst bed*)
+	L_R_T_MAX_KW : REAL := 95; (*Maximum temperature in °C of the cooling water at the outlet of the 1st stage*)
+	L_R_H_MAX_LIRC1 : REAL := 14; (*Maximum level in the steam generator/separator*)
+	L_R_T_MAX_SK1 : REAL := 50; (*Maximum temperature in °C in the control cabinet*)
+	L_R_DT_MIN_WS : REAL := 2; (*Distance to minimum temperature for warning and floor heating in °C*)
+	L_R_DT_MAX_KW : REAL := 20; (*Distance to maximum temperature for warning in °C*)
+	L_R_DT_MIN_PL : REAL := 2; (*Distance to minimum temperature for warning and floor heating in °C*)
+	L_R_DT_MAX_W_HZ : REAL := 25; (*Exceedance of maximum temperature for warning in °C*)
+	L_R_DT_MAX_SK1 : REAL := 10; (*Distance to maximum temperature for warning in °C*)
+	L_R_DT_MAX_PL : REAL := 5; (*Distance to maximum temperature for warning in °C*)
+	L_R_DT_MAX_KAT : REAL := 100; (*Exceedance of maximum temperature for error in °C*)
+	L_R_DT_MAX_HP : REAL := 20; (*Distance to maximum temperature for warning in °C*)
+	L_R_DT_MAX_E_HZ : REAL := 50; (*Exceedance of maximum temperature for error in °C*)
+END_VAR
+VAR
+	L_R_DP_MIN_WS : REAL := 0.3; (*Distance to minimum pressure for warning in bar*)
+END_VAR
+VAR CONSTANT
+	L_R_DP_MIN_BIO_PL : REAL := 0.5; (*Distance between biogas and system pressure for warning in bar*)
+	L_R_DP_MIN_BIO : REAL := 1; (*Distance to minimum pressure for warning in bar*)
+	L_R_T_MIN_PL : REAL := 4; (*Minimum temperature in °C inside the enclosure*)
+END_VAR
+VAR
+	l_r_p_H2O : REAL; (*Partial pressure of water when mixed with process gas in bar (absolute)*)
+END_VAR
+VAR CONSTANT
+	L_R_P_MAX_PIRC : ARRAY[0..2] OF REAL := [0,7.5,7.5]; (*Maximum pressure in bar (relative) [0=empty, PIRC1 steam, PIRC2 process gas]*)
+	L_R_DP_MAX_PIRC : ARRAY[0..2] OF REAL := [0,2(0.2)]; (*Distance to maximum pressure for warning in bar [0=empty, PIRC1 steam, PIRC2 process gas]*)
+	L_R_DP_MAX_PDIR : ARRAY[0..3] OF REAL := [4(0)]; (*Distance to maximum pressure loss for warning in bar [0=empty, PDIR1 level measurement steam generator, PDIR2 heat pipe reactor, PDIR3 fixed bed reactor]*)
+	L_R_P_MAX_PDIR : ARRAY[0..3] OF REAL := [4(0)]; (*Maximum pressure loss in bar [0=empty, PDIR1 level measurement steam generator, PDIR2 heat pipe reactor, PDIR3 fixed bed reactor]*)
+	L_R_DP_MAX_PIR : ARRAY[0..7] OF REAL := [0,0.8,2(0.2),0.5,2(0.2),0.1]; (*Distance to maximum pressure for warning in bar [0=empty, PIR1 (biogas), PIR2 (before desulfurization), PIR3 (heat pipe reactor), PIR4 (water supply), PIR5 (condenser 1), PIR6 (fixed bed reactor), PIR7 (gas analysis)]*)
+	L_R_P_MAX_PIR : ARRAY[0..7] OF REAL := [0,9.8,2(7.5),11,2(7.5),0.28]; (*Maximum pressure in bar (relative) [0=empty, PIR1 (biogas), PIR2 (before desulfurization), PIR3 (heat pipe reactor), PIR4 (water supply), PIR5 (condenser 1), PIR6 (fixed bed reactor), PIR7 (gas analysis)]*)
+	L_R_T_MAX_HZ : ARRAY[0..10] OF REAL := [0,250,4(450),300,100,2(550),65]; (*Maximum temperature in °C of the heaters [0=empty] [1=HZ-HST1; 2=HZ-HSS1; 3=HZ-HSS2; 4=HZ-HSS3; 5=HZ-HSS4; 6=HZ-HSS5; 7=HZ-HBS1; 8=HZ-HBQ1; 9=HZ-HBQ2; 10=HBRA1] (T_max of HBS actually 450°C - activated carbon is secured against too high T; T_max of HBQ actually 900°C - security already intervenes at 550°C)*)
+END_VAR
+VAR
+	l_r_T_ist : ARRAY[0..10] OF REAL; (*Actual temperatures of the heaters*)
+	l_str_temp : STRING[80]; (*Local storage variable for a STRING variable*)
+	l_str_w : ARRAY[0..60] OF STRING[80] := [60('W'),'W61']; (*String array with text for alarm identification of warnings*)
+	l_str_e : ARRAY[0..61] OF STRING[80] := [62('E')]; (*String array with text for alarm identification of errors*)
+	l_i_e : USINT; (*Index/ Loop variable for errors*)
+	l_i_w : USINT; (*Index/ Loop variable for warnings*)
+	l_i_w_sum_temp : USINT := 0; (*Number of warnings (temporarily stored)*)
+	l_i : USINT; (*Index/ Loop variable*)
+	l_i_e_sum_temp : USINT := 0; (*Number of errors (temporarily stored)*)
+END_VAR
+VAR CONSTANT
+	L_R_C1 : REAL := 610.78; (*Pre-exponential factor of the Magnus equation for determining the saturated vapor pressure in Pa*)
+	L_R_C2 : REAL := 17.08085; (*1st exponential factor of the Magnus equation for determining the saturated vapor pressure*)
+	L_R_C3 : REAL := 234.175; (*2nd exponential factor of the Magnus equation for determining the saturated vapor pressure in °C*)
+END_VAR

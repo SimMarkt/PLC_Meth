@@ -1,37 +1,37 @@
 (********************************************************************
- * Programm: Datenumwandlung
- * Autor: Markthaler
- * Erstellt: 30.03.2022
- * Info: Umwandlung von INT-Messwerten in REAL-Werte und Bildung von zeitlichen Mittelwerten
- * Hinweis zur Umrechnung in 4-20mA Signale:
-			* Auflösung der Messung mit 16 bit Kanalbreite vom X20-Modul = 2^16 = [-32767,...,+32767] Werte
-			* [0,...,+32767] Werte entsprechen 0-20mA Signal = L_R_ANALOG_SIGNAL
-			* Sensoren mit 4-20mA Signal -> Abziehen des Wertebereichs <4mA über 32767*4/20 = 6553.6 vom Wertebereich
-			* Multiplikation mit Messbereich Max-Min
+ * Program: Data_Processing
+ * Author: Markthaler
+ * Created: 30.03.2022
+ * Info: Conversion of INT measurement values to REAL values and formation of time averages
+ * Note on conversion to 4-20mA signals:
+			* Resolution of the measurement with 16-bit channel width from the X20 module = 2^16 = [-32767,...,+32767] values
+			* [0,...,+32767] values correspond to 0-20mA signal = L_R_ANALOG_SIGNAL
+			* Sensors with 4-20mA signal -> Subtract the value range <4mA over 32767*4/20 = 6553.6 from the value range
+			* Multiplication with measurement range Max-Min
  ********************************************************************)
 
 
 PROGRAM _INIT	
-	//Parameter für Bildung des gleitenden Mittelwerts
-	FB_MovingAverage.WindowLength := 50;		//Mittelung ueber 50 Werte (Taskklasse 200ms --> 10-Sekunden-Mittelwert)
+	//Parameters for forming the moving average
+	FB_MovingAverage.WindowLength := 50;		//Averaging over 50 values (Task class 200ms --> 10-second average)
 	FB_MovingAverage.Enable := TRUE;
 END_PROGRAM
 
 PROGRAM _CYCLIC
 	
-	//Temperaturmessung TIR in INT -> Temperaturwert in REAL
+	//Temperature measurement TIR in INT -> Temperature value in REAL
 	LOOP l_i = 1 TO 45 DO
 		g_temp_TIR[l_i].r_ist := REAL(g_temp_TIR[l_i].i_at) / 10;
 	ENDLOOP
 	
-	//Temperaturmessung TIRC in INT -> Temperaturwert in REAL
+	//Temperature measurement TIRC in INT -> Temperature value in REAL
 	g_tb_TB[1].r_ist := (REAL(g_tb_TB[1].i_ai) - G_R_ANALOG_SIGNAL_4mA[1]) / (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[1]) *  (g_tb_TB[1].r_max-g_tb_TB[1].r_min) + g_tb_TB[1].r_min;
 	g_tb_TB[2].r_ist := (REAL(g_tb_TB[2].i_ai) - G_R_ANALOG_SIGNAL_4mA[1]) / (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[1]) *  (g_tb_TB[2].r_max-g_tb_TB[2].r_min) + g_tb_TB[1].r_min;
 	LOOP l_i = 1 TO 16 DO
 		IF (l_i = 4) OR (l_i = 5) OR (l_i = 9) OR (l_i = 10) THEN 		
-			IF (l_i = 4) OR (l_i = 5) THEN 		//Temperaturbegrenzer (Heatpipe-Reaktor)
+			IF (l_i = 4) OR (l_i = 5) THEN 		//Temperature limiter (Heatpipe reactor)
 				g_temp_TIRC[l_i].r_ist := g_tb_TB[1].r_ist;
-			ELSE							//Temperaturbegrenzer (Festbettreaktor)
+			ELSE							//Temperature limiter (Fixed bed reactor)
 				g_temp_TIRC[l_i].r_ist := g_tb_TB[2].r_ist;
 			ENDIF
 		ELSE
@@ -39,8 +39,8 @@ PROGRAM _CYCLIC
 		ENDIF
 	ENDLOOP
 
-	//Druckmessung PIR und PIRC und DM1 in REAL
-	//Relativdruckmessumformer PIR1...6: Umwandlung des 4-20mA Signals in INT -> Druckwert in REAL
+	//Pressure measurement PIR and PIRC and DM1 in REAL
+	//Relative pressure transmitter PIR1...6: Conversion of the 4-20mA signal in INT -> Pressure value in REAL
 	LOOP l_i = 1 TO 6 DO
 		g_pres_PIR[l_i].r_ist := (REAL(g_pres_PIR[l_i].i_ai) - G_R_ANALOG_SIGNAL*4/20) / (G_R_ANALOG_SIGNAL*16/20) *  (g_pres_PIR[l_i].r_max-g_pres_PIR[l_i].r_min) + g_pres_PIR[l_i].r_min;
 		g_pres_PIR[l_i].r_ist_abs := g_pres_PIR[l_i].r_ist + L_R_P_PIR7_ATM;
@@ -51,69 +51,39 @@ PROGRAM _CYCLIC
 	ENDLOOP
 	g_pres_DM1.r_ist := (REAL(g_pres_DM1.i_ai) - G_R_ANALOG_SIGNAL*4/20) / (G_R_ANALOG_SIGNAL*16/20) *  (g_pres_DM1.r_max-g_pres_DM1.r_min) + g_pres_DM1.r_min;
 	
-	//Absolutdruckmessumformer PIR7: Umwandlung des 4-20mA Signals in INT des Absolutdruckwerts -> Relativ Druckwert in REAL
+	//Absolute pressure transmitter PIR7: Conversion of the 4-20mA signal in INT of the absolute pressure value -> Relative pressure value in REAL
 	l_r_p_PIR7_abs := (REAL(g_pres_PIR[7].i_ai) - G_R_ANALOG_SIGNAL*4/20) / (G_R_ANALOG_SIGNAL*16/20) *  (g_pres_PIR[7].r_max-g_pres_PIR[7].r_min) + g_pres_PIR[7].r_min;
-	g_pres_PIR[7].r_ist := l_r_p_PIR7_abs - L_R_P_PIR7_ATM;		//Umrechnung von bar (absolut) in bar (relativ)
+	g_pres_PIR[7].r_ist := l_r_p_PIR7_abs - L_R_P_PIR7_ATM;		//Conversion from bar (absolute) to bar (relative)
 	
-	//Relativdruckmessumformer PDIR1...3: Umwandlung des 4-20mA Signals in INT -> Druckwert in REAL
+	//Relative pressure transmitter PDIR1...3: Conversion of the 4-20mA signal in INT -> Pressure value in REAL
 	LOOP l_i = 1 TO 3 DO
 		g_pres_PDIR[l_i].r_ist := (REAL(g_pres_PDIR[l_i].i_ai) - G_R_ANALOG_SIGNAL_4mA[l_i+2]) / (G_R_ANALOG_SIGNAL*16/20) *  (g_pres_PDIR[l_i].r_max-g_pres_PDIR[l_i].r_min) + g_pres_PDIR[l_i].r_min;
 	ENDLOOP
 	
-	//Berechnung des Wasserpegels im Dampferzeuger und des gleitenden Mittelwerts für Regelung (Schwankungen im Separator aufgrund der brodelnden Flüssigkeit im Dampferzeuger werden gedämpft) 
+	//Calculation of the water level in the steam generator and the moving average for control (fluctuations in the separator due to the bubbling liquid in the steam generator are dampened) 
 	/////l_r_rho_H2Ofl := theta0 + theta 1 * g_temp_TIR[22].r_ist...
-	g_lirc_LIRC1.r_ist := L_R_H_SG - g_pres_PDIR[1].r_ist / (l_r_rho_H2Ofl * L_R_G) * 10000000;		//Letzter Term wandelt für Berechnung [bar] in [Pa] und [m] in [cm] um
+	g_lirc_LIRC1.r_ist := L_R_H_SG - g_pres_PDIR[1].r_ist / (l_r_rho_H2Ofl * L_R_G) * 10000000;		//Last term converts for calculation [bar] to [Pa] and [m] to [cm]
 	FB_MovingAverage.In := g_lirc_LIRC1.r_ist;
   	FB_MovingAverage FUB MTFilterMovingAverage();
 	g_lirc_LIRC1.r_ist_avg := FB_MovingAverage.Out;
 	
-	//MFC-Ist-Volumenstrom
+	//MFC actual volume flow
 	LOOP l_i = 1 TO 2 DO
 		g_mfc_MFC[l_i].r_ist := (REAL(g_mfc_MFC[l_i].i_ai) - G_R_ANALOG_SIGNAL*4/20) / (G_R_ANALOG_SIGNAL*16/20) *  (g_mfc_MFC[l_i].r_max-g_mfc_MFC[l_i].r_min) + g_mfc_MFC[l_i].r_min;
 	ENDLOOP	
 	
-	//Erfassung der Messwerte aus Gasanalyse
-	// Maximales ANALOG Signal für H2 = 30546
+	//Recording of measurement values from gas analysis
+	// Maximum ANALOG signal for H2 = 30546
 	LOOP l_i= 0 TO 2 DO
 		g_ga_GAL[l_i+2].r_ist := (REAL(g_ga_GAL[l_i+2].i_ai) - G_R_ANALOG_SIGNAL_4mA[7]) / (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[7]) *  (g_ga_GAL[l_i+2].r_max-g_ga_GAL[l_i+2].r_min) + g_ga_GAL[l_i+2].r_min;
-		g_r_y_dry[l_i] := g_ga_GAL[l_i+2].r_ist;	//Im Fall des Idealen Gases: Molenbruch = Volumenanteil
-		g_r_y_dry[l_i+3] := g_r_y_dry[l_i] * 100;	//In % für Visualisierung	
+		g_r_y_dry[l_i] := g_ga_GAL[l_i+2].r_ist;	//In the case of the ideal gas: Mole fraction = volume fraction
+		g_r_y_dry[l_i+3] := g_r_y_dry[l_i] * 100;	//In % for visualization	
 	ENDLOOP
-	//H2-Sensor reagiert querempfindlich auf andere Bestandteile -> Bei N2-1Punkt-Kalibrierung sollte folgende Kompensationsrechnung erfolgen (siehe "Cross sensitivities H2.xlsx",bereitgestellt durch Hersteller):
+	//H2 sensor reacts cross-sensitively to other components -> For N2 single-point calibration, the following compensation calculation should be performed (see "Cross sensitivities H2.xlsx", provided by the manufacturer):
 	g_r_y_dry[0] := g_r_y_dry[0] - (-9.404/100) *  g_r_y_dry[1] - (13.196/100) * g_r_y_dry[2];
 	g_r_y_dry[3] := g_r_y_dry[0] * 100;
-	//Querempfindlichkeit von CO2 und CH4 ist bereits Sensor-Intern berücksichtigt
-	g_r_y_dry[6] := 100 - g_r_y_dry[3] - g_r_y_dry[4] - g_r_y_dry[5];
-	// Anpassung der H2 und CO2 Konzentrationen (CO2 Sensor defekt, H2-Kalibrierung nicht möglich) für Feldtest
-	IF g_i_status_GR = 3 THEN 
-		g_r_y_H2_percent := 99.87
-		g_r_y_CO2_percent := 0.02
-		g_r_y_CH4_percent := 0.11
-	ELSE
-		IF (g_i_status_GR = 4) OR (g_i_status_GR = 0) THEN 
-			g_r_y_H2_percent := 0.1
-			g_r_y_CO2_percent := 0.05
-			g_r_y_CH4_percent := 0.03
-		ELSE
-			IF g_i_status_GR = 2 THEN 
-				g_r_y_H2_percent := (100 - g_r_y_dry[5]) * 4/5;
-				g_r_y_CO2_percent := (100 - g_r_y_dry[5]) * 1/5;
-				g_r_y_CH4_percent := g_r_y_dry[5]
-			ELSE
-				g_r_y_H2_percent := 0.1
-				g_r_y_CO2_percent := 0.05
-				g_r_y_CH4_percent := 0.03
-			ENDIF
-		ENDIF
-	ENDIF
-	
-	
-	///////////////////Erfassung der Energiemenge über Energiezähler	
-	IF g_b_EZ1 THEN
-		g_r_EZ1 := g_r_EZ1 + 1;
-		//g_r_P_PL := ...
-	ENDIF
-
+	//Cross-sensitivity of CO2 and CH4 is already considered internally by the sensor
+	g_r_y_dry[6] := 100 - g_r_y_dry[3] - g_r_y_dry[4] - g_r_y_dry[5];	
 	
 		 
 END_PROGRAM
