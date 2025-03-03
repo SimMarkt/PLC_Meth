@@ -4,7 +4,7 @@ The **PLC_Meth** project provides the backend software for a programmable logic 
 
 Programming scripts in *Structured Text*, programming language for PLC defined by PLCOpen in IEC 61131-3.
 
-
+![Meth_Plant](img/Meth_Plant.png)
 
 ---
 
@@ -34,6 +34,8 @@ Chemical methanation plant
 
  Block flow sheet
 
+![Block](img/Block.png)
+
  Pictures of the plant
 
 
@@ -52,6 +54,8 @@ Autonmation studio from B&R -> libraries for modules and functions...
  T_sat and p_sat in Condenser_Control -> based on Magnus equation
 
  Visualization in Mappp View
+
+ ![Panel](img/Panel.png)
 
 
 
