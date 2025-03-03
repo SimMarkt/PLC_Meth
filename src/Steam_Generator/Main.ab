@@ -46,7 +46,7 @@ PROGRAM _CYCLIC
 		ACTION 1:		//Manual pump control
 			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Steam mass flow [Factor takes into account steam production in condenser 1]
 			g_pm_PM[1].i_ao := INT((g_pm_PM[1].r_soll * (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[0]) / (g_pm_PM[1].r_max-g_pm_PM[1].r_min)) + G_R_ANALOG_SIGNAL_4mA[0]);
-			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
+			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN		//Safety for rounding errors
 				g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL);
 			ELSE
 				IF g_pm_PM[1].i_ao <= INT(G_R_ANALOG_SIGNAL_4mA[0]) THEN
@@ -57,9 +57,9 @@ PROGRAM _CYCLIC
 		
 		ACTION 2:		//Steam generator control ON
 			//Execute PID control
-			FB_PID.Enable := TRUE;							//Activate controller
-			FB_PID.SetValue := g_r_T_cat_max_soll[0]; 		//Setpoint, calculation in the program "Condenser control"
-			FB_PID.ActValue := g_r_T_cat_max[2];			//Read actual value
+			FB_PID.Enable := TRUE;									//Activate controller
+			FB_PID.SetValue := g_r_T_cat_max_soll[0]; 				//Setpoint, calculation in the program "Condenser control"
+			FB_PID.ActValue := g_r_T_cat_max[2];					//Read actual value
 			
 			//Manual adjustment of control parameters
 			IF EDGEPOS(g_pm_PM[1].b_update) THEN
@@ -79,13 +79,13 @@ PROGRAM _CYCLIC
 				ENDIF
 			ENDIF
 			
-			FB_PID FUB MTBasicsPID(); 									//Function call MTBasicsPID
+			FB_PID FUB MTBasicsPID(); 								//Function call MTBasicsPID
 		
 			//Transfer of the PID output values to the diaphragm pump
 			g_pm_PM[1].r_soll := (l_r_pid_var[5] - FB_PID.Out) * g_r_DE_adapt; 	//PID output -> input value
 			g_r_m_steam := g_pm_PM[1].r_soll * 2.363636				//Steam mass flow [Factor takes into account steam production in condenser 1]
 			g_pm_PM[1].i_ao := INT((g_pm_PM[1].r_soll * (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[0]) / (g_pm_PM[1].r_max-g_pm_PM[1].r_min)) + G_R_ANALOG_SIGNAL_4mA[0]);
-			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
+			IF g_pm_PM[1].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN		//Safety for rounding errors
 				g_pm_PM[1].i_ao := INT(G_R_ANALOG_SIGNAL);
 			ELSE
 				IF g_pm_PM[1].i_ao <= INT(G_R_ANALOG_SIGNAL_4mA[0]) THEN

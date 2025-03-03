@@ -144,7 +144,7 @@ PROGRAM _CYCLIC
 				FB_PID[l_i] FUB MTBasicsPID();												//Function call MTBasicsPID 
 				// If g_r_p_soll_PIRC[l_i] > g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 100 (Valve closed)
 				// If g_r_p_soll_PIRC[l_i] < g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 0	(Valve open)
-				l_r_pid_out[l_i] := g_rv_RV[l_i].r_open_max - FB_PID[l_i].Out; 					//FB_PID[l_i].Out with negative feedback from control and regulated variable
+				l_r_pid_out[l_i] := g_rv_RV[l_i].r_open_max - FB_PID[l_i].Out; 				//FB_PID[l_i].Out with negative feedback from control and regulated variable
 							
 				//Transfer of the PID output values to the valve position (Closed -> Open: i_ao = 6554 -> 32767 / l_r_pid_out = 0 -> 100)
 				IF l_i = 1 THEN			//Distinction: i_ao for steam at higher 4mA signal
@@ -187,7 +187,7 @@ PROGRAM _CYCLIC
     
 			ELSEACTION:	//Error: No defined status
 				g_b_error[l_i+54] := TRUE;
-				g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);	//Process control valves open
+				g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);			//Process control valves open
 			ENDACTION
 		ENDCASE
 	ENDLOOP	 
