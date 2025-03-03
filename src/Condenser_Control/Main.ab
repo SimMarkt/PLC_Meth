@@ -1,0 +1,206 @@
+(********************************************************************
+ * Program: Condenser_Control
+ * Author: Markthaler
+ * Created: 30.03.2022
+ * Info: Control of gas cooling in the condensers and condensate drain + biogas cooling and drying
+ * Note on conversion to 4-20mA signals:
+			* Resolution of the measurement with 16-bit channel width from the X20 module = 2^16 = [-32767,...,+32767] values
+			* [0,...,+32767] values correspond to 0-20mA signal = L_R_ANALOG_SIGNAL
+			* Sensors with 4-20mA signal -> Subtract the value range <4mA over 32767*4/20 = 6553.6 from the value range
+			* Multiplication with measurement range Max-Min
+ ********************************************************************)
+
+PROGRAM _INIT
+	//Initialization of the PID control parameters (individually for each pressure control)
+	l_r_pid_var[0] := 0.25;
+	l_r_pid_var[1] := 150;
+	l_r_pid_var[2] := 0;
+	l_r_pid_var[3] := 0;
+	l_r_pid_var[4] := 0;
+	l_r_pid_var[5] := 100;
+	g_r_pid_var_CON[0] := l_r_pid_var[0];
+	g_r_pid_var_CON[1] := l_r_pid_var[1];
+	g_r_pid_var_CON[2] := l_r_pid_var[2];
+	g_r_pid_var_CON[3] := l_r_pid_var[3];
+	
+	//Transfer of the PID control parameters to the PID function block
+	FB_PID.PIDParameters.Gain := l_r_pid_var[0];
+	FB_PID.PIDParameters.IntegrationTime := l_r_pid_var[1];
+	FB_PID.PIDParameters.DerivativeTime := l_r_pid_var[2];
+	FB_PID.PIDParameters.FilterTime := l_r_pid_var[3];
+	FB_PID.MinOut := l_r_pid_var[4];
+	FB_PID.MaxOut := l_r_pid_var[5];
+	
+	//Initialization of the parameters for the time delay to adjust the critical temperature of the 2nd stage
+	FB_TON_10ms.IN := FALSE;
+	FB_TON_10ms.PT := 90000;					//Measurement after 90000 * 10 ms = 15 min
+	
+	//Initialization of the parameters for pulse frequency modulation for limited opening of the condensate drain
+	LOOP l_i = 0 TO 2 DO
+		FB_PFM[l_i].PulseWidth := 1;  
+		FB_PFM[l_i].MinPause := 3;			//Pause between valve opening cycles
+		FB_PFM[l_i].DutyCycle := 98;	
+	ENDLOOP
+	
+	//Initial status: OFF
+	g_i_status_CON := 0;
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	//Calculation of the steam content in the process after the condensers (Magnus equation)
+	l_r_p_S_H2O[0] := L_R_C1 * EXP(L_R_C2 * g_temp_TIR[26].r_ist / (L_R_C3 + g_temp_TIR[26].r_ist)) / 100000;			
+	l_r_p_S_H2O[1] := L_R_C1 * EXP(L_R_C2 * g_temp_TIR[39].r_ist / (L_R_C3 + g_temp_TIR[39].r_ist)) / 100000;	
+	g_r_y_H2O_CON[0] := l_r_p_S_H2O[0] / (g_pres_PIR[5].r_ist_abs);
+	g_r_y_H2O_CON[1] := g_r_y_H2O_CON[0] * 100;							//In % for visualization
+	g_r_y_H2O_CON[2] := l_r_p_S_H2O[1] / (g_pres_PIRC[2].r_ist_abs);
+	g_r_y_H2O_CON[3] := g_r_y_H2O_CON[2] * 100;							//In % for visualization
+	
+	//Calculation of the critical temperature for carbon formation and the limit temperature for kinetic limitation 
+	//Derived from chemical equilibrium data and linear regression with non-linear basis functions
+	g_r_T_crit[0] := 544.1084+ 80.8203*SQRT(g_pres_PIR[3].r_ist_abs)+ 2574.6029*g_r_y_in_react[2]+ 525.5981*g_r_y_in_react[3]- 476.864*brmpow(g_r_y_in_react[2],2)- 311.5023*brmpow(g_r_y_in_react[3],2)+ 7.5416*g_pres_PIR[3].r_ist_abs*g_r_y_in_react[3]+ 12.4343*g_pres_PIR[3].r_ist_abs*brmpow(g_r_y_in_react[3],2)- 24.5999*g_pres_PIR[3].r_ist_abs*brmpow(g_r_y_in_react[2],2)- 3800.3941*LN(g_r_y_in_react[2]+1);
+
+	IF g_b_valid_GAL[1] THEN				//Only if gas measurement after 1st stage -> Adjustment of CH4 concentration for calculation of critical temperature
+		FB_TON_10ms.IN := TRUE;				//Adjustment of T_crit only 15 min after switching, as only then the correct gas concentration is accurately recorded
+	ELSE
+		FB_TON_10ms.IN := FALSE;
+	ENDIF
+	FB_TON_10ms FUB TON_10ms()
+	IF FB_TON_10ms.Q THEN
+		l_r_y_dry_CH4 := g_r_y_dry[2];
+	ENDIF
+	
+	//Derived from chemical equilibrium data and linear regression with non-linear basis functions
+	g_r_T_crit[1] := 544.1084+ 80.8203*SQRT(g_pres_PIR[6].r_ist_abs)+ 2574.6029*l_r_y_dry_CH4+ 525.5981*g_r_y_H2O_CON[0]- 476.864*brmpow(l_r_y_dry_CH4,2)- 311.5023*brmpow(g_r_y_H2O_CON[0],2)+ 7.5416*g_pres_PIR[6].r_ist_abs*g_r_y_H2O_CON[0]+ 12.4343*g_pres_PIR[3].r_ist_abs*brmpow(g_r_y_H2O_CON[0],2)- 24.5999*g_pres_PIR[6].r_ist_abs*brmpow(l_r_y_dry_CH4,2)- 3800.3941*LN(l_r_y_dry_CH4+1);
+
+	//Setpoint for controlling the temperature in reactors
+	LOOP l_i = 0 TO 1 DO
+		IF g_r_T_crit[l_i] < G_R_T_SIN THEN
+			g_r_T_cat_max_soll[l_i] := g_r_T_crit[l_i] - L_R_DT[l_i];
+		ELSE
+			g_r_T_cat_max_soll[l_i] := G_R_T_SIN - L_R_DT[l_i];
+		ENDIF
+	ENDLOOP
+		
+	CASE g_i_status_CON OF
+		ACTION 0:		//Condenser control OFF
+			FB_PID.Enable := FALSE;
+			g_pv_PV1.i_ao := INT(0); 	//Proportional valve to condenser 1 (cooling water) closed
+			g_b_MV[6] := FALSE;							//Solenoid valve to condenser 1 (condensate drain) closed
+			g_b_MV[7] := FALSE;							//Solenoid valve to condenser 2 (condensate drain) closed
+			g_b_MV[11] := FALSE;						//Solenoid valve to condenser 2 (cooling water) closed
+			g_b_MV[12] := FALSE;						//Solenoid valve to biogas cooling and drying (condensate drain) closed
+		ENDACTION
+		
+		ACTION 1:		//Manual control of the proportional valve and solenoid valve for condenser 2
+			//Transfer of the signal to the proportional valve
+			g_pv_PV1.i_ao := INT((g_pv_PV1.r_ist * (G_R_ANALOG_SIGNAL - G_R_ANALOG_SIGNAL_4mA[2]) / (g_pv_PV1.r_open_max-g_pv_PV1.r_open_min)) + G_R_ANALOG_SIGNAL_4mA[2]);
+			IF g_pv_PV1.i_ao >= G_R_ANALOG_SIGNAL THEN			//Safety for rounding errors
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL);
+			ELSE
+				IF g_pv_PV1.i_ao <= INT(G_R_ANALOG_SIGNAL_4mA[2]) THEN
+					g_pv_PV1.i_ao := INT(0);
+				ENDIF
+			ENDIF
+			
+			//Control: Condensate drain in condensate trap, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
+			LOOP l_i = 2 TO 3 DO
+				IF g_b_LC[l_i] = FALSE THEN
+					FB_PFM[l_i-2].Enable := TRUE;
+					g_b_MV[l_i+4] := FB_PFM[l_i-2].Out;	
+				ELSE
+					FB_PFM[l_i-2].Enable := FALSE;
+					g_b_MV[l_i+4] := FALSE;
+				ENDIF
+				FB_PFM[l_i-2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation	
+			ENDLOOP	
+			
+			//Control: Condensate drain in condensate trap of biogas cooling, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
+			IF g_b_LC[5] = FALSE THEN
+				FB_PFM[2].Enable := TRUE;
+				g_b_MV[12] := FB_PFM[2].Out;	
+			ELSE
+				FB_PFM[2].Enable := FALSE;
+				g_b_MV[12] := FALSE;
+			ENDIF
+			FB_PFM[2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+		ENDACTION
+		
+		ACTION 2:		//Condenser control ON
+			//Execute PID control for gas cooling of condenser 1
+			FB_PID.Enable := TRUE;							//Activate controller
+			FB_PID.SetValue := g_r_T_cat_max_soll[1]; 		//Setpoint
+			FB_PID.ActValue := g_r_T_cat_max[1];			//Read actual value
+			
+			//Manual adjustment of control parameters
+			IF EDGEPOS(g_pv_PV1.b_update) THEN
+				l_r_pid_var[0] := g_r_pid_var_CON[0];
+				l_r_pid_var[1] := g_r_pid_var_CON[1];
+				l_r_pid_var[2] := g_r_pid_var_CON[2];
+				l_r_pid_var[3] := g_r_pid_var_CON[3];
+				FB_PID.PIDParameters.Gain := l_r_pid_var[0];
+				FB_PID.PIDParameters.IntegrationTime := l_r_pid_var[1];
+				FB_PID.PIDParameters.DerivativeTime := l_r_pid_var[2];
+				FB_PID.PIDParameters.FilterTime := l_r_pid_var[3];
+				FB_PID.Update := TRUE;
+			ELSE
+				IF EDGEPOS(FB_PID.UpdateDone) THEN
+					FB_PID.Update := FALSE;
+					g_pv_PV1.b_update := FALSE;
+				ENDIF
+			ENDIF
+			
+			FB_PID FUB MTBasicsPID();						//Function call MTBasicsPID
+
+			//Transfer of the signal to the proportional valve
+			g_pv_PV1.r_ist :=  FB_PID.Out;
+			g_pv_PV1.i_ao := INT((g_pv_PV1.r_ist * (G_R_ANALOG_SIGNAL - G_R_ANALOG_SIGNAL_4mA[2]) / (g_pv_PV1.r_open_max-g_pv_PV1.r_open_min)) + G_R_ANALOG_SIGNAL_4mA[2]);
+			IF g_pv_PV1.i_ao >= G_R_ANALOG_SIGNAL THEN			//Safety for rounding errors
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL);
+			ELSE
+				IF g_pv_PV1.i_ao <= (G_R_ANALOG_SIGNAL_4mA[2]) THEN
+					g_pv_PV1.i_ao := INT(0);
+				ENDIF
+			ENDIF
+			
+			//Activate gas cooling (cooling water inflow) of condenser 2
+			g_b_MV[11] := TRUE;
+			
+			//Control: Condensate drain in condensate trap, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
+			LOOP l_i = 2 TO 3 DO
+				IF g_b_LC[l_i] = FALSE THEN
+					FB_PFM[l_i-2].Enable := TRUE;
+					g_b_MV[l_i+4] := FB_PFM[l_i-2].Out;	
+				ELSE
+					FB_PFM[l_i-2].Enable := FALSE;
+					g_b_MV[l_i+4] := FALSE;
+				ENDIF
+				FB_PFM[l_i-2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation	
+			ENDLOOP	
+				
+			//Control: Condensate drain in condensate trap of biogas cooling, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
+			IF g_b_LC[5] = FALSE THEN
+				FB_PFM[2].Enable := TRUE;
+				g_b_MV[12] := FB_PFM[2].Out;	
+			ELSE
+				FB_PFM[2].Enable := FALSE;
+				g_b_MV[12] := FALSE;
+			ENDIF
+			FB_PFM[2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+		ENDACTION
+		
+		ELSEACTION:	//Error: No defined status
+			g_b_error[59] := TRUE;
+			g_pv_PV1.i_ao := INT(0); 					//Proportional valve to condenser 1 (cooling water) closed
+			g_b_MV[6] := FALSE;							//Solenoid valve to condenser 1 (condensate drain) closed
+			g_b_MV[7] := FALSE;							//Solenoid valve to condenser 2 (condensate drain) closed
+			g_b_MV[11] := FALSE;						//Solenoid valve to condenser 2 (cooling water) closed
+		ENDACTION
+	ENDCASE 
+	 
+END_PROGRAM
+
+PROGRAM _EXIT
+	(* Insert code here *)
+	 
+END_PROGRAM
+

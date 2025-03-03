@@ -1,14 +1,14 @@
 (********************************************************************
- * Programm: Druckregelung
- * Autor: Markthaler
- * Erstellt: 30.03.2022
- * Info: Druckregelung für die Dampfseite (l_i=1) und die Prozessgasseite (l_i=2)
+ * Program: Pressure_Control
+ * Author: Markthaler
+ * Created: 30.03.2022
+ * Info: Pressure control for the steam side (l_i=1) and the process gas side (l_i=2)
  ********************************************************************)
 
 
 PROGRAM _INIT
-	//Initialisierung der PID-Regelparameter und Rampenparameter (individuell für jede Druckregelung)
-	l_i:=1; //Dampf
+	//Initialization of the PID control parameters and ramp parameters (individually for each pressure control)
+	l_i:=1; //Steam
 	l_r_pid_var[l_i,0] := 100;
 	l_r_pid_var[l_i,1] := 14.4;
 	l_r_pid_var[l_i,2] := 1;
@@ -17,7 +17,7 @@ PROGRAM _INIT
 	l_r_ramp_var[l_i,1] := 0.03;
 	l_r_ramp_var[l_i,2] := 0.0;
 	l_r_ramp_var[l_i,3] := 10.0;
-	l_i:=2; //Prozessgas
+	l_i:=2; //Process gas
 	l_r_pid_var[l_i,0] := 140.09;
 	l_r_pid_var[l_i,1] := 14.4;
 	l_r_pid_var[l_i,2] := 3.46;
@@ -26,26 +26,26 @@ PROGRAM _INIT
 	l_r_ramp_var[l_i,1] := 0.03;
 	l_r_ramp_var[l_i,2] := 0.0;
 	l_r_ramp_var[l_i,3] := 10.0;
-	l_i:=3; //Dampf: Kontrollierte Ventilöffnung
-	l_r_ramp_var[l_i,0] := 15;	//Öffnen der Ventile von 0% -> 100% Öffnungsgrad in 6.6s
+	l_i:=3; //Steam: Controlled valve opening
+	l_r_ramp_var[l_i,0] := 15;	//Opening the valves from 0% -> 100% opening degree in 6.6s
 	l_r_ramp_var[l_i,1] := 15;
 	l_r_ramp_var[l_i,2] := 0.0;
 	l_r_ramp_var[l_i,3] := 100.0;
-	l_i:=4; //Prozessgas: Kontrollierte Ventilöffnung
-	l_r_ramp_var[l_i,0] := 15;	//Öffnen der Ventile von 0% -> 100% Öffnungsgrad in 6.6s
+	l_i:=4; //Process gas: Controlled valve opening
+	l_r_ramp_var[l_i,0] := 15;	//Opening the valves from 0% -> 100% opening degree in 6.6s
 	l_r_ramp_var[l_i,1] := 15;
 	l_r_ramp_var[l_i,2] := 0.0;
 	l_r_ramp_var[l_i,3] := 100.0;
 
 	LOOP l_i = 1 TO 2 DO	
-		//Starwerte für die Grenzen des Öffnungsgrads der Ventilstellung
-		g_rv_RV[l_i].r_open_min := 0;  		// entspricht Ventil zu 0% geöffnet
-		g_rv_RV[l_i].r_open_max := 100;		// entspricht Ventil zu 100% geöffnet
+		//Initial values for the limits of the valve position opening degree
+		g_rv_RV[l_i].r_open_min := 0;  		// corresponds to valve 0% open
+		g_rv_RV[l_i].r_open_max := 100;		// corresponds to valve 100% open
 		
-		l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;			//Angepasst an Ventilstellung [MinOut = 0 -> Ventil zu 0% geöffnet]
-		l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;			//Angepasst an Ventilstellung [MaxOut = 100 -> Ventil zu 100% geöffnet]
+		l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;			//Adjusted to valve position [MinOut = 0 -> valve 0% open]
+		l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;			//Adjusted to valve position [MaxOut = 100 -> valve 100% open]
 		
-		//Übertragung der PID-Regelparameter an PID Funktionsbaustein
+		//Transfer of the PID control parameters to the PID function block
 		FB_PID[l_i].PIDParameters.Gain := l_r_pid_var[l_i,0];
 		FB_PID[l_i].PIDParameters.IntegrationTime := l_r_pid_var[l_i,1];
 		FB_PID[l_i].PIDParameters.DerivativeTime := l_r_pid_var[l_i,2];
@@ -53,22 +53,22 @@ PROGRAM _INIT
 		FB_PID[l_i].MinOut:= l_r_pid_var[l_i,4]; 	
 		FB_PID[l_i].MaxOut:= l_r_pid_var[l_i,5];
 		
-		//Initialisierung der Grenzen für PID-Ausgangsgrößen während Tuning
+		//Initialization of the limits for PID output values during tuning
 		FB_OscillationTuning[l_i].MinOut:= l_r_pid_var[l_i,4];	
 		FB_OscillationTuning[l_i].MaxOut:= l_r_pid_var[l_i,5];
 		
-		//Initialisierung Rampenparameter
+		//Initialization of ramp parameters
 		FB_Limiter[l_i].MaxPosSlewRate := l_r_ramp_var[l_i,0];
 		FB_Limiter[l_i].MaxNegSlewRate := l_r_ramp_var[l_i,1];
 		FB_Limiter[l_i].MinOut := l_r_ramp_var[l_i,2];
 		FB_Limiter[l_i].MaxOut := l_r_ramp_var[l_i,3];						
 	 
-		//Initialstatus: AUS
+		//Initial status: OFF
 		g_i_status_PIRC[l_i] := 0;
 	ENDLOOP
 	
 	LOOP l_i = 3 TO 4 DO
-		//Initialisierung Rampenparameter für kontrolliertes Öffnen der Ventile
+		//Initialization of ramp parameters for controlled valve opening
 		FB_Limiter[l_i].MaxPosSlewRate := l_r_ramp_var[l_i,0];
 		FB_Limiter[l_i].MaxNegSlewRate := l_r_ramp_var[l_i,1];
 		FB_Limiter[l_i].MinOut := l_r_ramp_var[l_i,2];
@@ -82,18 +82,18 @@ END_PROGRAM
 PROGRAM _CYCLIC	
 	LOOP l_i = 1 TO 2 DO
 		CASE g_i_status_PIRC[l_i] OF
-			ACTION 0:	//Druckregelung AUS
+			ACTION 0:	//Pressure control OFF
 				FB_PID[l_i].Enable := FALSE;
 				FB_OscillationTuning[l_i].Enable := FALSE;
 				g_b_ramp_active[l_i] := FALSE;
 				g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL);
 			ENDACTION
 			
-			ACTION 1:	//Druckregelung AN
-				//Manuelle Anpassung der minimalen und maximalen Ventilstellung (Visualisierung)
+			ACTION 1:	//Pressure control ON
+				//Manual adjustment of the minimum and maximum valve position (Visualization)
 				IF EDGEPOS(g_rv_RV[l_i].b_update) THEN
-					l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;			//Angepasst an Ventilstellung [MinOut = 0 -> Ventil zu 0% geöffnet]
-					l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;			//Angepasst an Ventilstellung [MaxOut = 100 -> Ventil zu 100% geöffnet]
+					l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;			//Adjusted to valve position [MinOut = 0 -> valve 0% open]
+					l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;			//Adjusted to valve position [MaxOut = 100 -> valve 100% open]
 					FB_PID[l_i].MaxOut:= 100 - l_r_pid_var[l_i,4]; 	
 					FB_PID[l_i].MinOut:= 100 - l_r_pid_var[l_i,5];
 					FB_PID[l_i].Update := TRUE;
@@ -104,15 +104,15 @@ PROGRAM _CYCLIC
 					ENDIF
 				ENDIF
 				
-				//Manuelle Anpassung des Druckniveaus über Rampe (Visualisierung)
+				//Manual adjustment of the pressure level via ramp (Visualization)
 				IF EDGEPOS(g_b_ramp_active[l_i]) THEN
-					FB_Limiter[l_i].OutPresetValue := g_pres_PIRC[l_i].r_ist;   		//Start bei aktuellem Druckwert
+					FB_Limiter[l_i].OutPresetValue := g_pres_PIRC[l_i].r_ist;   		//Start at current pressure value
 					FB_Limiter[l_i].SetOut := TRUE;
-					IF g_r_ramp_time[l_i] <> 0 THEN										//Teilen durch Null führt funktionsintern zu Fehler
-						FB_Limiter[l_i].MaxPosSlewRate := ABS(g_pres_PIRC[l_i].r_soll - g_pres_PIRC[l_i].r_ist) / (g_r_ramp_time[l_i] * 60);	//Steigung berechnen 
+					IF g_r_ramp_time[l_i] <> 0 THEN										//Division by zero leads to internal error
+						FB_Limiter[l_i].MaxPosSlewRate := ABS(g_pres_PIRC[l_i].r_soll - g_pres_PIRC[l_i].r_ist) / (g_r_ramp_time[l_i] * 60);	//Calculate slope 
 						FB_Limiter[l_i].MaxNegSlewRate := ABS(g_pres_PIRC[l_i].r_soll - g_pres_PIRC[l_i].r_ist) / (g_r_ramp_time[l_i] * 60);							
 					ELSE
-						FB_Limiter[l_i].MaxPosSlewRate := 2;	//Steigung berechnen 
+						FB_Limiter[l_i].MaxPosSlewRate := 2;	//Calculate slope 
 						FB_Limiter[l_i].MaxNegSlewRate := 2;							
 					ENDIF
 					FB_Limiter[l_i].Update := TRUE;
@@ -122,7 +122,7 @@ PROGRAM _CYCLIC
 					ENDIF
 				ENDIF
 				
-				//Rampe starten
+				//Start ramp
 				IF g_b_ramp_active[l_i] = TRUE THEN
 					FB_Limiter[l_i].Enable := TRUE;
 					FB_Limiter[l_i].In := g_pres_PIRC[l_i].r_soll;
@@ -132,27 +132,27 @@ PROGRAM _CYCLIC
 					FB_Limiter[l_i].Enable := FALSE;
 				ENDIF					
 				
-				//Sobald Zielwert der Rampe erreicht wird, Rampe beenden
+				//As soon as the target value of the ramp is reached, end ramp
 				IF g_pres_PIRC[l_i].r_soll = g_r_p_soll_PIRC[l_i] THEN
 					g_b_ramp_active[l_i] := FALSE;
 				ENDIF
 				
-				//PID-Regelung ausführen
-				FB_PID[l_i].Enable := TRUE;													//Regler aktivieren
-				FB_PID[l_i].SetValue := g_r_p_soll_PIRC[l_i]; 								//Sollwert setzen
-				FB_PID[l_i].ActValue := g_pres_PIRC[l_i].r_ist;								//Istwert einlesen
-				FB_PID[l_i] FUB MTBasicsPID();												//Funktionsaufruf MTBasicsPID 
-				// Falls g_r_p_soll_PIRC[l_i] > g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 100 (Ventil geschlossen)
-				// Falls g_r_p_soll_PIRC[l_i] < g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 0	(Ventil offen)
-				l_r_pid_out[l_i] := g_rv_RV[l_i].r_open_max - FB_PID[l_i].Out; 					//FB_PID[l_i].Out mit negativer Rückkopplung von Stell- und Regelgröße
+				//Execute PID control
+				FB_PID[l_i].Enable := TRUE;													//Activate controller
+				FB_PID[l_i].SetValue := g_r_p_soll_PIRC[l_i]; 								//Setpoint
+				FB_PID[l_i].ActValue := g_pres_PIRC[l_i].r_ist;								//Read actual value
+				FB_PID[l_i] FUB MTBasicsPID();												//Function call MTBasicsPID 
+				// If g_r_p_soll_PIRC[l_i] > g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 100 (Valve closed)
+				// If g_r_p_soll_PIRC[l_i] < g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 0	(Valve open)
+				l_r_pid_out[l_i] := g_rv_RV[l_i].r_open_max - FB_PID[l_i].Out; 					//FB_PID[l_i].Out with negative feedback from control and regulated variable
 							
-				//Übertragung der PID-Ausgabewerte an die Ventilstellung (Geschlossen -> Offen: i_ao = 6554 -> 32767 / l_r_pid_out = 0 -> 100)
-				IF l_i = 1 THEN			//Unterscheidung: i_ao bei Dampf bei höherem 4mA-Signal
+				//Transfer of the PID output values to the valve position (Closed -> Open: i_ao = 6554 -> 32767 / l_r_pid_out = 0 -> 100)
+				IF l_i = 1 THEN			//Distinction: i_ao for steam at higher 4mA signal
 					g_rv_RV[l_i].i_ao := INT((l_r_pid_out[l_i] * (G_R_ANALOG_SIGNAL - G_R_ANALOG_SIGNAL_4mA[6]) / (g_rv_RV[l_i].r_open_max-g_rv_RV[l_i].r_open_min)) + G_R_ANALOG_SIGNAL_4mA[6]);
 				ELSE
 					g_rv_RV[l_i].i_ao := INT((l_r_pid_out[l_i] * (G_R_ANALOG_SIGNAL*16/20) / (g_rv_RV[l_i].r_open_max-g_rv_RV[l_i].r_open_min)) + G_R_ANALOG_SIGNAL*4/20);
 				ENDIF
-				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Sicherung bei Rundungsfehlern
+				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
 					g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL);
 				ELSE
 					IF g_rv_RV[l_i].i_ao <= INT(G_R_ANALOG_SIGNAL*4/20) THEN
@@ -161,22 +161,22 @@ PROGRAM _CYCLIC
 				ENDIF
 			ENDACTION
 				
-			ACTION 2: 	//Langsames Öffnen der Ventile für kontrollierten Druckabbau
+			ACTION 2: 	//Slow opening of the valves for controlled pressure relief
 				FB_PID[l_i].Enable := FALSE;
 				FB_OscillationTuning[l_i].Enable := FALSE;
 				g_rv_RV[l_i].b_update := FALSE;
-				g_pres_PIRC[l_i].r_soll := 0;				//Soll-Druck zu Null
+				g_pres_PIRC[l_i].r_soll := 0;				//Set pressure to zero
 				g_r_p_soll_PIRC[l_i] := 0;
 				g_b_ramp_active[l_i] := FALSE;
-				//Kontrolliertes Öffnen des Ventils
+				//Controlled opening of the valve
 				FB_Limiter[l_i+2].OutPresetValue := 40;
 				FB_Limiter[l_i+2].SetOut := TRUE;
 				FB_Limiter[l_i+2].Enable := TRUE;
 				FB_Limiter[l_i+2].In := 100;
 				FB_Limiter[l_i+2] FUB MTBasicsLimiter();
-				//Übertragung der Ausgabewerte an die Ventilstellung
+				//Transfer of the output values to the valve position
 				g_rv_RV[l_i].i_ao := INT((FB_Limiter[l_i+2].Out * (G_R_ANALOG_SIGNAL*16/20) / (g_rv_RV[l_i].r_open_max-g_rv_RV[l_i].r_open_min)) + G_R_ANALOG_SIGNAL*4/20);
-				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Sicherung bei Rundungsfehlern
+				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
 					g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL);
 				ELSE
 					IF g_rv_RV[l_i].i_ao <= INT(G_R_ANALOG_SIGNAL*4/20) THEN
@@ -185,9 +185,9 @@ PROGRAM _CYCLIC
 				ENDIF
 			ENDACTION
     
-			ELSEACTION:	//Fehler: Kein definierter Status
+			ELSEACTION:	//Error: No defined status
 				g_b_error[l_i+54] := TRUE;
-				g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);	//Prozessregelventile offen
+				g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);	//Process control valves open
 			ENDACTION
 		ENDCASE
 	ENDLOOP	 

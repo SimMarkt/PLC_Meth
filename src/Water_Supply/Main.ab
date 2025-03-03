@@ -1,0 +1,72 @@
+(********************************************************************
+ * Program: Water_Supply
+ * Author: Markthaler
+ * Created: 30.03.2022
+ * Info: Control of the water level in the storage tank and the condensate trap
+ ********************************************************************)
+
+PROGRAM _INIT
+	//Initial status: OFF
+	g_i_status_WS := 0;
+	
+	//Initialization of the parameters for pulse frequency modulation for limited opening of the condensate drain
+	FB_PFM.PulseWidth := 1;  
+	FB_PFM.MinPause := 3;			//Pause between valve opening cycles
+	FB_PFM.DutyCycle := 98;				
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	CASE g_i_status_WS OF
+		ACTION 0:		//Process water control OFF - Valves closed
+			g_b_MV[4] := FALSE;
+			g_b_MV[5] := FALSE;
+		ENDACTION
+		
+		ACTION 1:		//Process water control OFF - Manual supply
+			//Control of the process water supply via g_b_MV[4] 
+			
+			//Control: Condensate drain in condensate trap, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
+			IF g_b_LC[4] = FALSE THEN
+				FB_PFM.Enable := TRUE;
+				g_b_MV[5] := FB_PFM.Out;	
+			ELSE
+				FB_PFM.Enable := FALSE;
+				g_b_MV[5] := FALSE;
+			ENDIF
+			FB_PFM FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+		ENDACTION
+		
+		ACTION 2:		//Process water control ON
+			//Control: Level in the storage tank
+			IF g_b_LC[0] = TRUE THEN
+				g_b_MV[4] := TRUE;
+			ELSE
+				g_b_MV[4] := FALSE;
+			ENDIF
+			
+			//Control: Condensate drain in condensate trap, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
+			IF g_b_LC[4] = FALSE THEN
+				FB_PFM.Enable := TRUE;
+				g_b_MV[5] := FB_PFM.Out;	
+			ELSE
+				FB_PFM.Enable := FALSE;
+				g_b_MV[5] := FALSE;
+			ENDIF
+			FB_PFM FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+		ENDACTION
+		
+		ELSEACTION: //Error: No defined status
+			g_b_error[60] := TRUE;
+			g_b_MV[4] := FALSE;
+			g_b_MV[5] := FALSE;
+			g_i_status_CON := 0;	//Condenser control off
+		ENDACTION
+	ENDCASE 
+END_PROGRAM		
+
+PROGRAM _EXIT
+	(* Insert code here *)
+	
+END_PROGRAM
+
+

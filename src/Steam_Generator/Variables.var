@@ -1,4 +1,4 @@
 VAR
-	l_r_pid_var : ARRAY[0..5] OF REAL := [6(0.0)]; (*Array mit Regelungsparametern [0=Gain,1=IntegrationTime, 2=DerivativeTime, 3=FilterTime, 4=MinOut, 5=MaxOut]*)
-	FB_PID : MTBasicsPID; (*Funktionsbaustein:: PID-Regelung*)
+	l_r_pid_var : ARRAY[0..5] OF REAL := [6(0.0)]; (*Array with control parameters [0=Gain, 1=IntegrationTime, 2=DerivativeTime, 3=FilterTime, 4=MinOut, 5=MaxOut]*)
+	FB_PID : MTBasicsPID; (*Function block: PID control*)
 END_VAR

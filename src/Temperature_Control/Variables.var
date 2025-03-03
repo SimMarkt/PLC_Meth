@@ -1,0 +1,11 @@
+VAR
+	l_i : USINT; (*Index/ Loop variable*)
+	l_r_pid_var : ARRAY[0..10,0..5] OF REAL; (*2D array with control parameters [Row: Heater l_i with 0=empty; Column: 0=Gain,1=IntegrationTime, 2=DerivativeTime, 3=FilterTime, 4=MinOut, 5=MaxOut]*)
+	l_r_ramp_var : ARRAY[0..10,0..3] OF REAL; (*2D array with parameters for the ramp [Row: Heater l_i with 0=empty; Column: 0=MaxPosSlewRate, 1=MaxNegSlewRate, 2=MinOut, 3=MaxOut]*)
+	FB_PID : ARRAY[0..10] OF MTBasicsPID; (*Function block [0=empty]: PID control*)
+	FB_LCRPFM : ARRAY[0..10] OF LCRPFM; (*Function block [0=empty]: for pulse control*)
+	FB_MovingAverage : ARRAY[0..10] OF MTFilterMovingAverage; (*Function block: Moving average*)
+END_VAR
+VAR CONSTANT
+	L_R_P_EL_MAX_HZ : ARRAY[0..10] OF REAL := [0.0,100,500,350,100,2(500),600,2(700),600]; (*Electrical power of the heaters when activated in W [0: empty, 1=HZ-HST1; 2=HZ-HSS1; 3=HZ-HSS2; 4=HZ-HSS3; 5=HZ-HSS4; 6=HZ-HSS5; 7=HZ-HBS1; 8=HZ-HBQ1; 9=HZ-HBQ2; 10=HBRA1]*)
+END_VAR

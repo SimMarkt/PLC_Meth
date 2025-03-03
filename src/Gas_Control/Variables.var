@@ -1,0 +1,21 @@
+VAR
+	l_r_last_ramp_slewrate_pos : REAL := 2.14286; (*Local storage variable for positive load gradients in automatic operation in load%/min*)
+	l_r_last_ramp_slewrate_neg : REAL := 3.57143; (*Local storage variable for negative load gradients in automatic operation in load%/min*)
+	l_r_sigma_H2_CO2 : REAL; (*Local storage variable for corrected H2/CO2 ratio*)
+	l_i : USINT; (*Index/ Loop variable*)
+	l_i_r : USINT; (*Index/ Loop variable*)
+	l_i_status_GR : USINT; (*Local storage variable for gas control status*)
+	l_vofl_in_bio : VOLF := (m3_s:=0.0,l_min:=0.0); (*Local storage variable for biogas standard volume flow*)
+	l_vofl_in_h2 : VOLF := (m3_s:=0,l_min:=0); (*Local storage variable for H2 standard volume flow*)
+	l_r_ramp_var : ARRAY[0..1,0..3] OF REAL; (*Array with parameters for the ramp [0= manual operation, 1 = automatic operation | 0=MaxPosSlewRate, 1=MaxNegSlewRate, 2=MinOut, 3=MaxOut]*)
+END_VAR
+VAR CONSTANT
+	L_R_M_H2O : REAL := 18.015268; (*Molar mass of water in g/mol*)
+	L_R_VOL_R : REAL := 0.00183; (*Total fixed bed volume in both reactors in m³*)
+	L_R_H_U_CH4 : REAL := 35883; (*Heating value of methane in kJ/m³*)
+	L_R_H_U_H2 : REAL := 10783; (*Heating value of hydrogen in kJ/m³*)
+END_VAR
+VAR
+	FB_TimeDelay : ARRAY[0..4] OF MTBasicsTimeDelay; (*Function block: Time delay for H2 excess in ramp mode [0=empty, 1=hydrogen, 2=biogas] and for valve closing [3=MV1, 4=MV3]*)
+	FB_Limiter : ARRAY[0..1] OF MTBasicsLimiter; (*Function block: Control of a ramp [0= manual operation, 1 = automatic operation]*)
+END_VAR

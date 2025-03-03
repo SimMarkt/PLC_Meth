@@ -1,15 +1,15 @@
 VAR
-	l_i : USINT; (*Index/ Laufvariable*)
-	l_i_status_PL : USINT; (*Lokaler Speicher des Anlagenstatus [0=Stillstand, 1=Anfahren (Labor), 2=Anfahren (Feldtest), 3=Betrieb (Labor), 4=Betrieb (Feldttest), 5=Abfahren (Labor), 6=Abfahren (Feldtest), 7=Fehler, 8=Manuelle Bedienung, 9=Standby]*)
-	l_b_status_PL : ARRAY[0..8] OF BOOL; (*Lokaler Speicher des Anlagenzustands*)
-	l_r_T_cat_max : REAL := 0; (*Maximale Katalysatorbetttemperatur im Anfahrprozess*)
+	l_i : USINT; (*Index/ Loop variable*)
+	l_i_status_PL : USINT; (*Local storage of the system status [0=Idle, 1=Startup (Laboratory), 2=Startup (Field test), 3=Operation (Laboratory), 4=Operation (Field test), 5=Cooldown (Laboratory), 6=Cooldown (Field test), 7=Error, 8=Manual operation, 9=Standby]*)
+	l_b_status_PL : ARRAY[0..8] OF BOOL; (*Local storage of the system state*)
+	l_r_T_cat_max : REAL := 0; (*Maximum catalyst bed temperature during startup process*)
 END_VAR
 VAR CONSTANT
-	L_R_P_START : REAL := 4; (*Druck beim Anfahrprozess*)
+	L_R_P_START : REAL := 4; (*Pressure during startup process*)
 END_VAR
 VAR
-	FB_PFM : ARRAY[0..2] OF MTBasicsPFM; (*Funktionsbaustein: zur Pulseansteuerung [0= Signalampel blinkend, 1= Für Datenaufzeichnung, 2= Zeiterfassung im autonomen Betrieb]*)
-	FB_TP_10ms : ARRAY[0..1] OF TP_10ms; (*Funktionsbaustein: Timerfunktion [0= Hupe, 1= H2-Spülung bei Standby]*)
-	l_b_GR_H2 : BOOL := FALSE; (*Ermöglicht Zeitverzögerung für H2-Spülung beim Wechsel vom Feldtest auf Standby*)
-	l_b_enabled : BOOL := FALSE; (*Werte von p und Last werden beim Anfahren nur einmal gesetzt*)
+	FB_PFM : ARRAY[0..2] OF MTBasicsPFM; (*Function block: for pulse control [0= Signal light flashing, 1= For data recording, 2= Time recording in autonomous operation]*)
+	FB_TP_10ms : ARRAY[0..1] OF TP_10ms; (*Function block: Timer function [0= Horn, 1= H2 purge in standby]*)
+	l_b_GR_H2 : BOOL := FALSE; (*Enables time delay for H2 purge when switching from field test to standby*)
+	l_b_enabled : BOOL := FALSE; (*Values of p and load are set only once during startup*)
 END_VAR

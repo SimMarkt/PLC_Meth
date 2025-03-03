@@ -1,0 +1,18 @@
+VAR
+	l_i : USINT; (*Index/ Loop variable*)
+	l_r_y_dry_CH4 : REAL := 0; (*Local storage variable for the measured methane concentration in the sample gas after the heat pipe reactor*)
+	l_r_pid_var : ARRAY[0..5] OF REAL; (*Array with control parameters [0=Gain,1=IntegrationTime, 2=DerivativeTime, 3=FilterTime, 4=MinOut, 5=MaxOut]*)
+	l_r_p_S_H2O : ARRAY[0..1] OF REAL; (*Saturated vapor pressure in bar [0=After condenser 1, 1=After condenser 2]*)
+	FB_PID : MTBasicsPID := (0); (*Function block: PID control*)
+END_VAR
+VAR CONSTANT
+	L_R_DT : ARRAY[0..1] OF REAL := [30,20]; (*Distance to the critical temperature in °C*)
+	L_R_C1 : REAL := 610.78; (*Pre-exponential factor of the Magnus equation for determining the saturated vapor pressure in Pa*)
+	L_R_C2 : REAL := 17.08085; (*1st exponential factor of the Magnus equation for determining the saturated vapor pressure*)
+	L_R_C3 : REAL := 234.175; (*2nd exponential factor of the Magnus equation for determining the saturated vapor pressure in °C*)
+	L_R_P_0 : REAL := 1.01325; (*Standard atmospheric pressure in bar*)
+END_VAR
+VAR
+	FB_TON_10ms : TON_10ms; (*Function block: Time delay for adjusting the critical temperature of the 2nd stage*)
+	FB_PFM : ARRAY[0..2] OF MTBasicsPFM; (*Function block: for pulse control*)
+END_VAR

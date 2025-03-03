@@ -1,0 +1,14 @@
+VAR
+	l_i : UINT; (*Index/ Loop variable*)
+	l_i_2 : UINT; (*Index/ Loop variable*)
+	l_i_temp_0 : UINT; (*Lower limit of the interpolation range*)
+	l_i_temp_1 : UINT; (*Upper limit of the interpolation range*)
+END_VAR
+VAR CONSTANT
+	L_I_Z_AXIS_HP : ARRAY[0..9] OF INT := [0,10,20,30,50,70,120,180,240,293]; (*Fixed bed depth in the heat pipe reactor in axial direction in mm*)
+	L_I_Z_AXIS_FB : ARRAY[0..9] OF INT := [-3,10,20,30,53,80,146,212,278,334]; (*Fixed bed depth in the fixed bed reactor in axial direction in mm*)
+	L_R_Z_AXIS_HP_W : ARRAY[0..2] OF REAL := [11,147,239]; (*Fixed bed depth of the thermocouples on the wall in the heat pipe reactor in axial direction in mm*)
+END_VAR
+VAR
+	l_r_nf_out_react : ARRAY[0..2] OF REAL; (*Molar flow rate of the process gas species in mol/s [0=H2, 1=CO2, 2=CH4, 3=H2O]*)
+END_VAR
