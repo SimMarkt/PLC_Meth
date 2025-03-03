@@ -18,7 +18,6 @@ PROGRAM _INIT
 END_PROGRAM
 
 PROGRAM _CYCLIC
-	
 	//Temperature measurement TIR in INT -> Temperature value in REAL
 	LOOP l_i = 1 TO 45 DO
 		g_temp_TIR[l_i].r_ist := REAL(g_temp_TIR[l_i].i_at) / 10;
@@ -31,7 +30,7 @@ PROGRAM _CYCLIC
 		IF (l_i = 4) OR (l_i = 5) OR (l_i = 9) OR (l_i = 10) THEN 		
 			IF (l_i = 4) OR (l_i = 5) THEN 		//Temperature limiter (Heatpipe reactor)
 				g_temp_TIRC[l_i].r_ist := g_tb_TB[1].r_ist;
-			ELSE							//Temperature limiter (Fixed bed reactor)
+			ELSE								//Temperature limiter (Fixed bed reactor)
 				g_temp_TIRC[l_i].r_ist := g_tb_TB[2].r_ist;
 			ENDIF
 		ELSE
@@ -76,8 +75,8 @@ PROGRAM _CYCLIC
 	// Maximum ANALOG signal for H2 = 30546
 	LOOP l_i= 0 TO 2 DO
 		g_ga_GAL[l_i+2].r_ist := (REAL(g_ga_GAL[l_i+2].i_ai) - G_R_ANALOG_SIGNAL_4mA[7]) / (G_R_ANALOG_SIGNAL-G_R_ANALOG_SIGNAL_4mA[7]) *  (g_ga_GAL[l_i+2].r_max-g_ga_GAL[l_i+2].r_min) + g_ga_GAL[l_i+2].r_min;
-		g_r_y_dry[l_i] := g_ga_GAL[l_i+2].r_ist;	//In the case of the ideal gas: Mole fraction = volume fraction
-		g_r_y_dry[l_i+3] := g_r_y_dry[l_i] * 100;	//In % for visualization	
+		g_r_y_dry[l_i] := g_ga_GAL[l_i+2].r_ist;		//In the case of the ideal gas: Mole fraction = volume fraction
+		g_r_y_dry[l_i+3] := g_r_y_dry[l_i] * 100;		//In % for visualization	
 	ENDLOOP
 	//H2 sensor reacts cross-sensitively to other components -> For N2 single-point calibration, the following compensation calculation should be performed (see "Cross sensitivities H2.xlsx", provided by the manufacturer):
 	g_r_y_dry[0] := g_r_y_dry[0] - (-9.404/100) *  g_r_y_dry[1] - (13.196/100) * g_r_y_dry[2];

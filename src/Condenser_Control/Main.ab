@@ -38,7 +38,7 @@ PROGRAM _INIT
 	//Initialization of the parameters for pulse frequency modulation for limited opening of the condensate drain
 	LOOP l_i = 0 TO 2 DO
 		FB_PFM[l_i].PulseWidth := 1;  
-		FB_PFM[l_i].MinPause := 3;			//Pause between valve opening cycles
+		FB_PFM[l_i].MinPause := 3;				//Pause between valve opening cycles
 		FB_PFM[l_i].DutyCycle := 98;	
 	ENDLOOP
 	
@@ -84,7 +84,7 @@ PROGRAM _CYCLIC
 	CASE g_i_status_CON OF
 		ACTION 0:		//Condenser control OFF
 			FB_PID.Enable := FALSE;
-			g_pv_PV1.i_ao := INT(0); 	//Proportional valve to condenser 1 (cooling water) closed
+			g_pv_PV1.i_ao := INT(0); 					//Proportional valve to condenser 1 (cooling water) closed
 			g_b_MV[6] := FALSE;							//Solenoid valve to condenser 1 (condensate drain) closed
 			g_b_MV[7] := FALSE;							//Solenoid valve to condenser 2 (condensate drain) closed
 			g_b_MV[11] := FALSE;						//Solenoid valve to condenser 2 (cooling water) closed
@@ -111,7 +111,7 @@ PROGRAM _CYCLIC
 					FB_PFM[l_i-2].Enable := FALSE;
 					g_b_MV[l_i+4] := FALSE;
 				ENDIF
-				FB_PFM[l_i-2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation	
+				FB_PFM[l_i-2] FUB MTBasicsPFM();				//Function call MTBasicsPFM pulse frequency modulation	
 			ENDLOOP	
 			
 			//Control: Condensate drain in condensate trap of biogas cooling, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
@@ -122,14 +122,14 @@ PROGRAM _CYCLIC
 				FB_PFM[2].Enable := FALSE;
 				g_b_MV[12] := FALSE;
 			ENDIF
-			FB_PFM[2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM[2] FUB MTBasicsPFM();						//Function call MTBasicsPFM pulse frequency modulation
 		ENDACTION
 		
 		ACTION 2:		//Condenser control ON
 			//Execute PID control for gas cooling of condenser 1
-			FB_PID.Enable := TRUE;							//Activate controller
-			FB_PID.SetValue := g_r_T_cat_max_soll[1]; 		//Setpoint
-			FB_PID.ActValue := g_r_T_cat_max[1];			//Read actual value
+			FB_PID.Enable := TRUE;								//Activate controller
+			FB_PID.SetValue := g_r_T_cat_max_soll[1]; 			//Setpoint
+			FB_PID.ActValue := g_r_T_cat_max[1];				//Read actual value
 			
 			//Manual adjustment of control parameters
 			IF EDGEPOS(g_pv_PV1.b_update) THEN
@@ -149,7 +149,7 @@ PROGRAM _CYCLIC
 				ENDIF
 			ENDIF
 			
-			FB_PID FUB MTBasicsPID();						//Function call MTBasicsPID
+			FB_PID FUB MTBasicsPID();							//Function call MTBasicsPID
 
 			//Transfer of the signal to the proportional valve
 			g_pv_PV1.r_ist :=  FB_PID.Out;
@@ -174,7 +174,7 @@ PROGRAM _CYCLIC
 					FB_PFM[l_i-2].Enable := FALSE;
 					g_b_MV[l_i+4] := FALSE;
 				ENDIF
-				FB_PFM[l_i-2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation	
+				FB_PFM[l_i-2] FUB MTBasicsPFM();				//Function call MTBasicsPFM pulse frequency modulation	
 			ENDLOOP	
 				
 			//Control: Condensate drain in condensate trap of biogas cooling, delayed recording of the measurement value from the float switch - 1s = open, 3s = closed
@@ -185,7 +185,7 @@ PROGRAM _CYCLIC
 				FB_PFM[2].Enable := FALSE;
 				g_b_MV[12] := FALSE;
 			ENDIF
-			FB_PFM[2] FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM[2] FUB MTBasicsPFM();				//Function call MTBasicsPFM pulse frequency modulation
 		ENDACTION
 		
 		ELSEACTION:	//Error: No defined status

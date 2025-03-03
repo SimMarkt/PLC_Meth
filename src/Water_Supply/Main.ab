@@ -55,11 +55,11 @@ PROGRAM _CYCLIC
 			FB_PFM FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
 		ENDACTION
 		
-		ELSEACTION: //Error: No defined status
+		ELSEACTION: 	//Error: No defined status
 			g_b_error[60] := TRUE;
 			g_b_MV[4] := FALSE;
 			g_b_MV[5] := FALSE;
-			g_i_status_CON := 0;	//Condenser control off
+			g_i_status_CON := 0;				//Condenser control off
 		ENDACTION
 	ENDCASE 
 END_PROGRAM		

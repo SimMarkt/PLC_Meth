@@ -7,617 +7,617 @@
   <body>
     <tu tuid="E62">
       <tuv xml:lang="de">
-        <seg>Störmeldung / Alarm von Gaswarnanlage GWA1!</seg>
+        <seg>Error message / Alarm from gas warning system GWA1!</seg>
       </tuv>
     </tu>
     <tu tuid="E61">
       <tuv xml:lang="de">
-        <seg>Status (Prozesswasserregelung) nicht eindeutig definiert!</seg>
+        <seg>Status (process water control) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E60">
       <tuv xml:lang="de">
-        <seg>Status (Kondensatorregelung) nicht eindeutig definiert!</seg>
+        <seg>Status (condenser control) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E59">
       <tuv xml:lang="de">
-        <seg>Status (Dampferzeugerregelung) nicht eindeutig definiert!</seg>
+        <seg>Status (steam generator control) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E58">
       <tuv xml:lang="de">
-        <seg>Status (Gasregelung) nicht eindeutig definiert!</seg>
+        <seg>Status (gas control) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E57">
       <tuv xml:lang="de">
-        <seg>Status der Druckregelung (PIRC2) auf Prozessgasseite nicht eindeutig definiert!</seg>
+        <seg>Status of pressure control (PIRC2) on process gas side not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E56">
       <tuv xml:lang="de">
-        <seg>Status der Druckregelung (PIRC1) auf Dampfseite nicht eindeutig definiert!</seg>
+        <seg>Status of pressure control (PIRC1) on steam side not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E55">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC13) an Heizung / Frostschutz (HZ-HBRA1, Bodenheizung) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC13) on heater / frost protection (HZ-HBRA1, floor heating) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E54">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC9) an Heizung (HZ-HBQ2, Festbettreaktor) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC9) on heater (HZ-HBQ2, fixed bed reactor) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E53">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC4) an Heizung (HZ-HBQ1, Heatpipe-Reaktor) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC4) on heater (HZ-HBQ1, heat pipe reactor) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E52">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC2) an Heizung (HZ-HBS1, Entschwefelung) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC2) on heater (HZ-HBS1, desulfurization) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E51">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC7) an Heizung (HZ-HSS5, Dampfzudosierung) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC7) on heater (HZ-HSS5, steam addition) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E50">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC11) an Heizung (HZ-HSS4, Heatpipe-Reaktor - Kondensator1 + Festbettreaktor - Kondensator2) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC11) on heater (HZ-HSS4, heat pipe reactor - condenser 1 + fixed bed reactor - condenser 2) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E49">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC1) an Heizung (HZ-HSS3, Gasregelstrecke - Entschwefelung) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC1) on heater (HZ-HSS3, gas control line - desulfurization) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E48">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC8) an Heizung (HZ-HSS2, Kondensator1 - Festbettreaktor) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC8) on heater (HZ-HSS2, condenser 1 - fixed bed reactor) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E47">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC3) an Heizung (HZ-HSS1, Entschwefelung - Heatpipe-Reaktor) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC3) on heater (HZ-HSS1, desulfurization - heat pipe reactor) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E46">
       <tuv xml:lang="de">
-        <seg>Status der Temperaturregelung (TIRC6) an Heizung (HZ-HST1, Festbettreaktor - Produktgasabfuhr, Dampferzeuger - Dampfabfuhr) nicht eindeutig definiert!</seg>
+        <seg>Status of temperature control (TIRC6) on heater (HZ-HST1, fixed bed reactor - product gas discharge, steam generator - steam discharge) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E45">
       <tuv xml:lang="de">
-        <seg>Status (Periodische Gasmessung) nicht eindeutig definiert!</seg>
+        <seg>Status (periodic gas measurement) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E44">
       <tuv xml:lang="de">
-        <seg>Status (Gasanalyse) nicht eindeutig definiert!</seg>
+        <seg>Status (gas analysis) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E43">
       <tuv xml:lang="de">
-        <seg>Status (Anlagenstatus) nicht eindeutig definiert!</seg>
+        <seg>Status (system status) not clearly defined!</seg>
       </tuv>
     </tu>
     <tu tuid="E42">
       <tuv xml:lang="de">
-        <seg>Sicherungen im Schaltschrank ausgelöst! </seg>
+        <seg>Fuses in the control cabinet triggered!</seg>
       </tuv>
     </tu>
     <tu tuid="E41">
       <tuv xml:lang="de">
-        <seg>Not-Aus betätigt!</seg>
+        <seg>Emergency stop activated!</seg>
       </tuv>
     </tu>
     <tu tuid="E40">
       <tuv xml:lang="de">
-        <seg>Biomethananlage außer Betrieb!</seg>
+        <seg>Biomethane plant out of operation!</seg>
       </tuv>
     </tu>
     <tu tuid="E39">
       <tuv xml:lang="de">
-        <seg>Magnetventil (MV7) bei Kondensator2 zu lange geöffnet! (Gase entweichen)</seg>
+        <seg>Solenoid valve (MV7) at condenser 2 open too long! (Gases escaping)</seg>
       </tuv>
     </tu>
     <tu tuid="E38">
       <tuv xml:lang="de">
-        <seg>Magnetventil (MV6) bei Kondensator1 zu lange geöffnet! (Gase entweichen)</seg>
+        <seg>Solenoid valve (MV6) at condenser 1 open too long! (Gases escaping)</seg>
       </tuv>
     </tu>
     <tu tuid="E37">
       <tuv xml:lang="de">
-        <seg>Magnetventil (MV5) bei Kondensatfalle zu lange geöffnet! (Gase entweichen)</seg>
+        <seg>Solenoid valve (MV5) at condensate trap open too long! (Gases escaping)</seg>
       </tuv>
     </tu>
     <tu tuid="E36">
       <tuv xml:lang="de">
-        <seg>Versorgung mit Biogas (MFC1) unterbrochen!  </seg>
+        <seg>Supply with biogas (MFC1) interrupted!</seg>
       </tuv>
     </tu>
     <tu tuid="E35">
       <tuv xml:lang="de">
-        <seg>Versorgung mit Wasserstoff (MFC1) unterbrochen!  </seg>
+        <seg>Supply with hydrogen (MFC1) interrupted!</seg>
       </tuv>
     </tu>
     <tu tuid="E34">
       <tuv xml:lang="de">
-        <seg>Druck (PIR1) an Biogasversorgung zu niedrig! (Versorgung unterbrochen)</seg>
+        <seg>Pressure (PIR1) at biogas supply too low! (Supply interrupted)</seg>
       </tuv>
     </tu>
     <tu tuid="E33">
       <tuv xml:lang="de">
-        <seg>Füllstand (LC1) im Vorlagebehälter zu hoch! (Überlaufen)</seg>
+        <seg>Level (LC1) in storage tank too high! (Overflow)</seg>
       </tuv>
     </tu>
     <tu tuid="E32">
       <tuv xml:lang="de">
-        <seg>Füllstand (LIR1) im Dampferzeuger zu hoch! (Überlaufen)</seg>
+        <seg>Level (LIR1) in steam generator too high! (Overflow)</seg>
       </tuv>
     </tu>
     <tu tuid="E31">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR43) im Schaltschrank zu niedrig! </seg>
+        <seg>Temperature (TIR43) in control cabinet too low!</seg>
       </tuv>
     </tu>
     <tu tuid="E30">
       <tuv xml:lang="de">
-        <seg>Temperaturen innerhalb der Einhausung zu niedrig! </seg>
+        <seg>Temperatures inside the enclosure too low!</seg>
       </tuv>
     </tu>
     <tu tuid="E29">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR21) im Vorlagebehälter zu niedrig! (Einfrieren)</seg>
+        <seg>Temperature (TIR21) in storage tank too low! (Freezing)</seg>
       </tuv>
     </tu>
     <tu tuid="E28">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR20) der Wasserversorgung zu niedrig! (Einfrieren)</seg>
+        <seg>Temperature (TIR20) of water supply too low! (Freezing)</seg>
       </tuv>
     </tu>
     <tu tuid="E27">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR43) im Schaltschrank zu hoch! </seg>
+        <seg>Temperature (TIR43) in control cabinet too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E26">
       <tuv xml:lang="de">
-        <seg>Temperaturen innerhalb der Einhausung zu hoch! </seg>
+        <seg>Temperatures inside the enclosure too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E25">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR25) des Kühlwassers nach Kondensator1 zu hoch! (Verdampfung)</seg>
+        <seg>Temperature (TIR25) of cooling water after condenser 1 too high! (Evaporation)</seg>
       </tuv>
     </tu>
     <tu tuid="E24">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR19) in Heatpipe  zu hoch! </seg>
+        <seg>Temperature (TIR19) in heat pipe too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E23">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Festbettreaktor zu hoch! (Sintern)</seg>
+        <seg>Catalyst temperature in fixed bed reactor too high! (Sintering)</seg>
       </tuv>
     </tu>
     <tu tuid="E22">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Heatpipe-Reaktor zu hoch! (Sintern)</seg>
+        <seg>Catalyst temperature in heat pipe reactor too high! (Sintering)</seg>
       </tuv>
     </tu>
     <tu tuid="E21">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC13) an Heizung / Frostschutz (HZ-HBRA1, Bodenheizung) zu hoch! </seg>
+        <seg>Temperature (TIRC13) on heater / frost protection (HZ-HBRA1, floor heating) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E20">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC9) an Heizung (HZ-HBQ2, Festbettreaktor) zu hoch! </seg>
+        <seg>Temperature (TIRC9) on heater (HZ-HBQ2, fixed bed reactor) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E19">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC4) an Heizung (HZ-HBQ1, Heatpipe-Reaktor) zu hoch! </seg>
+        <seg>Temperature (TIRC4) on heater (HZ-HBQ1, heat pipe reactor) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E18">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC2) an Heizung (HZ-HBS1, Entschwefelung) zu hoch! </seg>
+        <seg>Temperature (TIRC2) on heater (HZ-HBS1, desulfurization) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E17">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC7) an Heizung (HZ-HSS5, Dampfzudosierung) zu hoch! </seg>
+        <seg>Temperature (TIRC7) on heater (HZ-HSS5, steam addition) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E16">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC11) an Heizung (HZ-HSS4, Heatpipe-Reaktor - Kondensator1 + Festbettreaktor - Kondensator2) zu hoch! </seg>
+        <seg>Temperature (TIRC11) on heater (HZ-HSS4, heat pipe reactor - condenser 1 + fixed bed reactor - condenser 2) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E15">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC1) an Heizung (HZ-HSS3, Gasregelstrecke - Entschwefelung) zu hoch! </seg>
+        <seg>Temperature (TIRC1) on heater (HZ-HSS3, gas control line - desulfurization) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E14">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC8) an Heizung (HZ-HSS2, Kondensator1 - Festbettreaktor) zu hoch! </seg>
+        <seg>Temperature (TIRC8) on heater (HZ-HSS2, condenser 1 - fixed bed reactor) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E13">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC3) an Heizung (HZ-HSS1, Entschwefelung - Heatpipe-Reaktor) zu hoch! </seg>
+        <seg>Temperature (TIRC3) on heater (HZ-HSS1, desulfurization - heat pipe reactor) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E12">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC6) an Heizung (HZ-HST1, Festbettreaktor - Produktgasabfuhr, Dampferzeuger - Dampfabfuhr) zu hoch! </seg>
+        <seg>Temperature (TIRC6) on heater (HZ-HST1, fixed bed reactor - product gas discharge, steam generator - steam discharge) too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E11">
       <tuv xml:lang="de">
-        <seg>Füllstand (LIR1) im Vorlagebehälter zu niedrig! (Trockenlaufen der Pumpen)</seg>
+        <seg>Level (LIR1) in storage tank too low! (Pump dry running)</seg>
       </tuv>
     </tu>
     <tu tuid="E10">
       <tuv xml:lang="de">
-        <seg>Druck (PIR4) in Wasserzuleitung zu niedrig! (Versorgung unterbrochen)</seg>
+        <seg>Pressure (PIR4) in water supply line too low! (Supply interrupted)</seg>
       </tuv>
     </tu>
     <tu tuid="E9">
       <tuv xml:lang="de">
-        <seg>Druck (PIRC2) auf Prozessgasseite zu hoch! </seg>
+        <seg>Pressure (PIRC2) on process gas side too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E8">
       <tuv xml:lang="de">
-        <seg>Druck (PIRC1) auf Dampfseite zu hoch! </seg>
+        <seg>Pressure (PIRC1) on steam side too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E7">
       <tuv xml:lang="de">
-        <seg>Druck (PIR7) an Gasanalyse zu hoch! </seg>
+        <seg>Pressure (PIR7) at gas analysis too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E6">
       <tuv xml:lang="de">
-        <seg>Druck (PIR6) im Festbettreaktor zu hoch! </seg>
+        <seg>Pressure (PIR6) in fixed bed reactor too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E5">
       <tuv xml:lang="de">
-        <seg>Druck (PIR5) nach Kondensator1 zu hoch! </seg>
+        <seg>Pressure (PIR5) after condenser 1 too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E4">
       <tuv xml:lang="de">
-        <seg>Druck (PIR4) in Wasserzuleitung zu hoch! </seg>
+        <seg>Pressure (PIR4) in water supply line too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E3">
       <tuv xml:lang="de">
-        <seg>Druck (PIR3) im Heatpipe-Reaktor zu hoch! </seg>
+        <seg>Pressure (PIR3) in heat pipe reactor too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E2">
       <tuv xml:lang="de">
-        <seg>Druck (PIR2) vor Entschwefelung zu hoch! </seg>
+        <seg>Pressure (PIR2) before desulfurization too high!</seg>
       </tuv>
     </tu>
     <tu tuid="E1">
       <tuv xml:lang="de">
-        <seg>Druck (PIR1) an Biogasversorgung zu hoch! </seg>
+        <seg>Pressure (PIR1) at biogas supply too high!</seg>
       </tuv>
     </tu>
     <tu tuid="W61">
       <tuv xml:lang="de">
-        <seg>Maximal möglicher Förderstrom in PM1 überschritten!  </seg>
+        <seg>Maximum possible flow rate in PM1 exceeded!</seg>
       </tuv>
     </tu>
     <tu tuid="W60">
       <tuv xml:lang="de">
-        <seg>Stickstoffversorgung über MV2 ist aktiviert!  </seg>
+        <seg>Nitrogen supply via MV2 is activated!</seg>
       </tuv>
     </tu>
     <tu tuid="W59">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC13) an Heizung / Frostschutz (HZ-HBRA1, Bodenheizung) defekt! </seg>
+        <seg>Thermocouple (TIRC13) on heater / frost protection (HZ-HBRA1, floor heating) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W58">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC9) an Heizung (HZ-HBQ2, Festbettreaktor) defekt! </seg>
+        <seg>Thermocouple (TIRC9) on heater (HZ-HBQ2, fixed bed reactor) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W57">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC4) an Heizung (HZ-HBQ1, Heatpipe-Reaktor) defekt! </seg>
+        <seg>Thermocouple (TIRC4) on heater (HZ-HBQ1, heat pipe reactor) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W56">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC2) an Heizung (HZ-HBS1, Entschwefelung) defekt! </seg>
+        <seg>Thermocouple (TIRC2) on heater (HZ-HBS1, desulfurization) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W55">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC7) an Heizung (HZ-HSS5, Dampfzudosierung) defekt! </seg>
+        <seg>Thermocouple (TIRC7) on heater (HZ-HSS5, steam addition) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W54">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC11) an Heizung (HZ-HSS4, Heatpipe-Reaktor - Kondensator1 + Festbettreaktor - Kondensator2) defekt! </seg>
+        <seg>Thermocouple (TIRC11) on heater (HZ-HSS4, heat pipe reactor - condenser 1 + fixed bed reactor - condenser 2) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W53">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC1) an Heizung (HZ-HSS3, Gasregelstrecke - Entschwefelung) defekt! </seg>
+        <seg>Thermocouple (TIRC1) on heater (HZ-HSS3, gas control line - desulfurization) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W52">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC8) an Heizung (HZ-HSS2, Kondensator1 - Festbettreaktor) defekt! </seg>
+        <seg>Thermocouple (TIRC8) on heater (HZ-HSS2, condenser 1 - fixed bed reactor) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W51">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC3) an Heizung (HZ-HSS1, Entschwefelung - Heatpipe-Reaktor) defekt! </seg>
+        <seg>Thermocouple (TIRC3) on heater (HZ-HSS1, desulfurization - heat pipe reactor) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W50">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIRC6) an Heizung (HZ-HST1, Festbettreaktor - Produktgasabfuhr, Dampferzeuger - Dampfabfuhr) defekt! </seg>
+        <seg>Thermocouple (TIRC6) on heater (HZ-HST1, fixed bed reactor - product gas discharge, steam generator - steam discharge) defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W49">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIR45) im Reaktorteststand- Zulauf Kondensator2 defekt! </seg>
+        <seg>Thermocouple (TIR45) in reactor test stand - inlet condenser 2 defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W48">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIR44) im Reaktorteststand - Wasserversorgung defekt! </seg>
+        <seg>Thermocouple (TIR44) in reactor test stand - water supply defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W47">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIR43) im Schaltschrank defekt! </seg>
+        <seg>Thermocouple (TIR43) in control cabinet defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W46">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIR42) im Reaktorteststand - Gaswarnanlage defekt! </seg>
+        <seg>Thermocouple (TIR42) in reactor test stand - gas warning system defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W45">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIR41) im Reaktorteststand - Gasanalyse defekt! </seg>
+        <seg>Thermocouple (TIR41) in reactor test stand - gas analysis defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W44">
       <tuv xml:lang="de">
-        <seg>Thermoelement (TIR21) im Vorlagebehälter defekt! </seg>
+        <seg>Thermocouple (TIR21) in storage tank defective!</seg>
       </tuv>
     </tu>
     <tu tuid="W43">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Festbettreaktor kleiner als Temperatur mit ausreichender Kinetik! </seg>
+        <seg>Catalyst temperature in fixed bed reactor lower than temperature with sufficient kinetics!</seg>
       </tuv>
     </tu>
     <tu tuid="W42">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Festbettreaktor größer als kritische Temperatur für Kohlenstoffbildung! </seg>
+        <seg>Catalyst temperature in fixed bed reactor higher than critical temperature for carbon formation!</seg>
       </tuv>
     </tu>
     <tu tuid="W41">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Heatpipe-Reaktor kleiner als Temperatur mit ausreichender Kinetik! </seg>
+        <seg>Catalyst temperature in heat pipe reactor lower than temperature with sufficient kinetics!</seg>
       </tuv>
     </tu>
     <tu tuid="W40">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Heatpipe-Reaktor größer als kritische Temperatur für Kohlenstoffbildung! </seg>
+        <seg>Catalyst temperature in heat pipe reactor higher than critical temperature for carbon formation!</seg>
       </tuv>
     </tu>
     <tu tuid="W39">
       <tuv xml:lang="de">
-        <seg>Druck in Wasserstoff-Bündel niedrig!   </seg>
+        <seg>Pressure in hydrogen bundle low!</seg>
       </tuv>
     </tu>
     <tu tuid="W38">
       <tuv xml:lang="de">
-        <seg>Druck (PIR1) an Biogasversorgung zu niedrig für Anlagenbetrieb! (Anpassung des Druckniveaus)</seg>
+        <seg>Pressure (PIR1) at biogas supply too low for plant operation! (Adjustment of pressure level)</seg>
       </tuv>
     </tu>
     <tu tuid="W37">
       <tuv xml:lang="de">
-        <seg>Druck (PIR1) an Biogasversorgung niedrig! </seg>
+        <seg>Pressure (PIR1) at biogas supply low!</seg>
       </tuv>
     </tu>
     <tu tuid="W36">
       <tuv xml:lang="de">
-        <seg>Füllstand (LIRC1) im Dampferzeuger hoch! </seg>
+        <seg>Level (LIRC1) in steam generator high!</seg>
       </tuv>
     </tu>
     <tu tuid="W35">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR43) im Schaltschrank niedrig! </seg>
+        <seg>Temperature (TIR43) in control cabinet low!</seg>
       </tuv>
     </tu>
     <tu tuid="W34">
       <tuv xml:lang="de">
-        <seg>Temperaturen innerhalb der Einhausung niedrig! </seg>
+        <seg>Temperatures inside the enclosure low!</seg>
       </tuv>
     </tu>
     <tu tuid="W33">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR21) im Vorlagebehälter niedrig! (Einfrieren)</seg>
+        <seg>Temperature (TIR21) in storage tank low! (Freezing)</seg>
       </tuv>
     </tu>
     <tu tuid="W32">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR20) der Wasserversorgung niedrig! (Einfrieren)</seg>
+        <seg>Temperature (TIR20) of water supply low! (Freezing)</seg>
       </tuv>
     </tu>
     <tu tuid="W31">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR4) des Dampfes im Bereich der Zudosierung zu niedrig! (Kondensation)</seg>
+        <seg>Temperature (TIR4) of steam in the area of addition too low! (Condensation)</seg>
       </tuv>
     </tu>
     <tu tuid="W30">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR23) des Dampfes vor Zudosierung niedrig! </seg>
+        <seg>Temperature (TIR23) of steam before addition low!</seg>
       </tuv>
     </tu>
     <tu tuid="W29">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR43) im Schaltschrank hoch! </seg>
+        <seg>Temperature (TIR43) in control cabinet high!</seg>
       </tuv>
     </tu>
     <tu tuid="W28">
       <tuv xml:lang="de">
-        <seg>Temperaturen innerhalb der Einhausung hoch! </seg>
+        <seg>Temperatures inside the enclosure high!</seg>
       </tuv>
     </tu>
     <tu tuid="W27">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR25) des Kühlwassers nach Kondensator1 hoch! (Verdampfung)</seg>
+        <seg>Temperature (TIR25) of cooling water after condenser 1 high! (Evaporation)</seg>
       </tuv>
     </tu>
     <tu tuid="W26">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIR19) in Heatpipe hoch! </seg>
+        <seg>Temperature (TIR19) in heat pipe high!</seg>
       </tuv>
     </tu>
     <tu tuid="W25">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Festbettreaktor hoch! (Sintern)</seg>
+        <seg>Catalyst temperature in fixed bed reactor high! (Sintering)</seg>
       </tuv>
     </tu>
     <tu tuid="W24">
       <tuv xml:lang="de">
-        <seg>Katalysatortemperatur im Heatpipe-Reaktor hoch! (Sintern)</seg>
+        <seg>Catalyst temperature in heat pipe reactor high! (Sintering)</seg>
       </tuv>
     </tu>
     <tu tuid="W23">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC13) an Heizung / Frostschutz (HZ-HBRA1, Bodenheizung) hoch! </seg>
+        <seg>Temperature (TIRC13) on heater / frost protection (HZ-HBRA1, floor heating) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W22">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC9) an Heizung (HZ-HBQ2, Festbettreaktor) hoch! </seg>
+        <seg>Temperature (TIRC9) on heater (HZ-HBQ2, fixed bed reactor) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W21">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC4) an Heizung (HZ-HBQ1, Heatpipe-Reaktor) hoch! </seg>
+        <seg>Temperature (TIRC4) on heater (HZ-HBQ1, heat pipe reactor) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W20">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC2) an Heizung (HZ-HBS1, Entschwefelung) hoch! </seg>
+        <seg>Temperature (TIRC2) on heater (HZ-HBS1, desulfurization) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W19">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC7) an Heizung (HZ-HSS5, Dampfzudosierung) hoch! </seg>
+        <seg>Temperature (TIRC7) on heater (HZ-HSS5, steam addition) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W18">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC11) an Heizung (HZ-HSS4, Heatpipe-Reaktor - Kondensator1 + Festbettreaktor - Kondensator2) hoch! </seg>
+        <seg>Temperature (TIRC11) on heater (HZ-HSS4, heat pipe reactor - condenser 1 + fixed bed reactor - condenser 2) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W17">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC1) an Heizung (HZ-HSS3, Gasregelstrecke - Entschwefelung) hoch! </seg>
+        <seg>Temperature (TIRC1) on heater (HZ-HSS3, gas control line - desulfurization) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W16">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC8) an Heizung (HZ-HSS2, Kondensator1 - Festbettreaktor) hoch! </seg>
+        <seg>Temperature (TIRC8) on heater (HZ-HSS2, condenser 1 - fixed bed reactor) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W15">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC3) an Heizung (HZ-HSS1, Entschwefelung - Heatpipe-Reaktor) hoch! </seg>
+        <seg>Temperature (TIRC3) on heater (HZ-HSS1, desulfurization - heat pipe reactor) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W14">
       <tuv xml:lang="de">
-        <seg>Temperatur (TIRC6) an Heizung (HZ-HST1, Festbettreaktor - Produktgasabfuhr, Dampferzeuger - Dampfabfuhr) hoch! </seg>
+        <seg>Temperature (TIRC6) on heater (HZ-HST1, fixed bed reactor - product gas discharge, steam generator - steam discharge) high!</seg>
       </tuv>
     </tu>
     <tu tuid="W13">
       <tuv xml:lang="de">
-        <seg>Füllstand (LIR1) im Vorlagebehälter niedrig! </seg>
+        <seg>Level (LIR1) in storage tank low!</seg>
       </tuv>
     </tu>
     <tu tuid="W12">
       <tuv xml:lang="de">
-        <seg>Druck (PIR4) in Wasserzuleitung niedrig! </seg>
+        <seg>Pressure (PIR4) in water supply line low!</seg>
       </tuv>
     </tu>
     <tu tuid="W11">
       <tuv xml:lang="de">
-        <seg>Druckverlust (PDIR3) im Festbettreaktor hoch! (Kohlenstoffbildung)</seg>
+        <seg>Pressure loss (PDIR3) in fixed bed reactor high! (Carbon formation)</seg>
       </tuv>
     </tu>
     <tu tuid="W10">
       <tuv xml:lang="de">
-        <seg>Druckverlust (PDIR2) im Heatpipe-Reaktor hoch! (Kohlenstoffbildung)</seg>
+        <seg>Pressure loss (PDIR2) in heat pipe reactor high! (Carbon formation)</seg>
       </tuv>
     </tu>
     <tu tuid="W9">
       <tuv xml:lang="de">
-        <seg>Druck (PIRC2) auf Prozessgasseite hoch! </seg>
+        <seg>Pressure (PIRC2) on process gas side high!</seg>
       </tuv>
     </tu>
     <tu tuid="W8">
       <tuv xml:lang="de">
-        <seg>Druck (PIRC1) auf Dampfseite hoch! </seg>
+        <seg>Pressure (PIRC1) on steam side high!</seg>
       </tuv>
     </tu>
     <tu tuid="W7">
       <tuv xml:lang="de">
-        <seg>Druck (PIR7) an Gasanalyse hoch! </seg>
+        <seg>Pressure (PIR7) at gas analysis high!</seg>
       </tuv>
     </tu>
     <tu tuid="W6">
       <tuv xml:lang="de">
-        <seg>Druck (PIR6) im Festbettreaktor hoch! </seg>
+        <seg>Pressure (PIR6) in fixed bed reactor high!</seg>
       </tuv>
     </tu>
     <tu tuid="W5">
       <tuv xml:lang="de">
-        <seg>Druck (PIR5) nach Kondensator1 hoch! </seg>
+        <seg>Pressure (PIR5) after condenser 1 high!</seg>
       </tuv>
     </tu>
     <tu tuid="W4">
       <tuv xml:lang="de">
-        <seg>Druck (PIR4) in Wasserzuleitung hoch! </seg>
+        <seg>Pressure (PIR4) in water supply line high!</seg>
       </tuv>
     </tu>
     <tu tuid="W3">
       <tuv xml:lang="de">
-        <seg>Druck (PIR3) im Heatpipe-Reaktor hoch! </seg>
+        <seg>Pressure (PIR3) in heat pipe reactor high!</seg>
       </tuv>
     </tu>
     <tu tuid="W2">
       <tuv xml:lang="de">
-        <seg>Druck (PIR2) vor Entschwefelung hoch! </seg>
+        <seg>Pressure (PIR2) before desulfurization high!</seg>
       </tuv>
     </tu>
     <tu tuid="W1">
       <tuv xml:lang="de">
-        <seg>Druck (PIR1) an Biogasversorgung hoch! </seg>
+        <seg>Pressure (PIR1) at biogas supply high!</seg>
       </tuv>
       <tuv xml:lang="en">
         <seg>Hello world!</seg>

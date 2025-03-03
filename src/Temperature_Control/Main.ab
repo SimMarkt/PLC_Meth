@@ -122,7 +122,7 @@ PROGRAM _INIT
 		
 		//Initialization of the parameters for the moving average to determine the heating power
 		FB_MovingAverage[l_i].WindowLength	:=	50;		//Averaging over 50 values (Task class 200ms --> 10-second average)
-		FB_MovingAverage[l_i].Enable			:=	TRUE;
+		FB_MovingAverage[l_i].Enable :=	TRUE;
 	
 		//Initial status: OFF
 		g_i_status_HZ[l_i] := 0;
@@ -257,7 +257,7 @@ PROGRAM _CYCLIC
 				FB_PID[l_i].Enable := TRUE;										//Activate controller
 				FB_PID[l_i].SetValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll; 	//Setpoint
 				FB_PID[l_i].ActValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;	//Read actual value
-				FB_PID[l_i] FUB MTBasicsPID();										//Function call MTBasicsPID
+				FB_PID[l_i] FUB MTBasicsPID();									//Function call MTBasicsPID
 		
 				//Conversion of the analog PID output signals into pulsed digital signals
 				FB_LCRPFM[l_i].x := FB_PID[l_i].Out;

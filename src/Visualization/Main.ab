@@ -31,7 +31,7 @@ END_PROGRAM
 
 PROGRAM _CYCLIC
 	//Assignment of the measured temperature values in the heat pipe reactor to the temperature profile 
-	g_r_Tprofile_HP[0] := g_temp_TIR[5].r_ist;					//Temperature above fixed bed
+	g_r_Tprofile_HP[0] := g_temp_TIR[5].r_ist;										//Temperature above fixed bed
 	LOOP l_i = 0 TO 9 DO															//l_r_T_profile_HP[0] at z = -9 mm
 		g_r_Tprofile_HP[L_I_Z_AXIS_HP[l_i]+9] := g_temp_TIR[l_i+9].r_ist;			//Top measurement value in the multipoint thermocouple = TIR9
 	ENDLOOP
@@ -94,12 +94,12 @@ PROGRAM _CYCLIC
 	
 	//Equilibrium conversion of H2
 	IF g_b_valid_GAL[1] THEN			//In the heat pipe reactor
-		//g_r_X_H2_eq[0] := theta1 + theta2 * g_temp_TIR[18] + theta3 * g_pres_PIR[3] + theta3 * 	g_r_y_in_react[0] + ...
+		//g_r_X_H2_eq[0] := theta1 + theta2 * g_temp_TIR[18] + theta3 * g_pres_PIR[3] + theta3 * g_r_y_in_react[0] + ...
 		g_r_X_H2[0] := (g_r_nf_in_react[0] - l_r_nf_out_react[0]) / g_r_nf_in_react[0] * 100;			
 		g_r_Y_CH4_CO2[0] := (l_r_nf_out_react[2] - g_r_nf_in_react[2]) / g_r_nf_in_react[1] * 100;
 	ELSE
-		IF g_b_valid_GAL[2] THEN			//In the fixed bed reactor
-			//g_r_X_H2_eq[1] := theta1 + theta2 * g_temp_TIR[36]  + theta3 * g_pres_PIR[6] + theta3 * 	g_r_y_in_react[0] + ...
+		IF g_b_valid_GAL[2] THEN		//In the fixed bed reactor
+			//g_r_X_H2_eq[1] := theta1 + theta2 * g_temp_TIR[36]  + theta3 * g_pres_PIR[6] + theta3 * g_r_y_in_react[0] + ...
 			g_r_X_H2[1] := (g_r_nf_in_react[0] - l_r_nf_out_react[0]) / g_r_nf_in_react[0] * 100;
 			g_r_Y_CH4_CO2[1] := (l_r_nf_out_react[2] - g_r_nf_in_react[2]) / g_r_nf_in_react[1] * 100;
 		ENDIF
