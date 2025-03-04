@@ -4,7 +4,7 @@ The **PLC_Meth** project provides the source code for full automation of a two-s
 
 Long-term tests at an industrial biomethane production plant in the *Power-to-Biogas* project (Project ID: 03KB165) for a over a year and at a waste water treatment plant in the *Kläffizient* project (Project ID: 03EI5421) for several months has proven the reliability of the software and hardware architecture for operating the plant [1]. 
 
-In addition, **PLC_Meth** includes routines for fully automated operation of the plant with startup, load changes, and cooldown on the basis of rule-based control for dynamic optimization. This has further been used for dynamic real-time optimization and autonomous operation of the plant by using deep Reinforcement learning. For more information, please refer to [2].
+In addition, **PLC_Meth** includes routines for fully automated operation of the plant with startup, load changes, and cooldown on the basis of *rule-based control* for *dynamic optimization* and *Supervised Learning* methods for temperature control. This has further been used for *dynamic real-time optimization* and autonomous operation of the plant by using *deep Reinforcement Learning*. For more information, please refer to [2].
 
 ![Meth_Plant](img/Meth_Plant.png)
 
@@ -33,6 +33,7 @@ In addition, **PLC_Meth** includes routines for fully automated operation of the
 Methanation defines the conversion of hydrogen (H<sub>2</sub>) and carbon monoxide (CO) or carbon dioxide (CO<sub>2</sub>) into methane (CH<sub>4</sub>). They are typically catalyzed to facilitate the underlying reactions. In chemical methanation, the reactors apply chemical catalysts, such as Nickel (Ni), to perform the reaction and typically operate at temperatures and pressures in a range of 473–823 K (200-600 °C) and 0.1-10 MPa (1-100 bar) [3,4]. The following equations delineate the reactions where water (H<sub>2</sub>O) also arises as a byproduct:
 
 CO<sub>2</sub> + 3 H<sub>2</sub> <-> CH<sub>4</sub> + 2 H<sub>2</sub>O
+
 CO + 3 H<sub>2</sub> <-> CH<sub>4</sub> + H<sub>2</sub>O
 
 Both reaction pathways from CO and CO<sub>2</sub> are highly exothermic, i.e., produce considerable reaction heat. To maintain the material limits and avoid overtemperatures, the reactors are cooled and the waste heat is used to produce steam. Figure 2 portrays the block diagram of the methanation plant.
@@ -52,26 +53,38 @@ The two-stage methanation plant contains the following units for methane product
 
 ### Programmable logic controller 
 
-**PLC_Meth** contains several different programming scripts developed with *Structured Text*, a programming language for PLC defined by PLCOpen in IEC 61131-3. The scripts are running in high frequency (0.001 - 0.1 seconds) in the PLC. Note that the source code only provides the software code for processing and automation of the plant including definition of global types, variables, and error messages, but neglects the part which assigns the variables to the hardware I/O block of the PLC, since this might be specific for a single plant.
+**PLC_Meth** contains several different programming scripts developed with *Structured Text*, a programming language for PLC defined by PLCOpen in IEC 61131-3. The scripts are running in high frequency (0.001 - 0.1 seconds) in the PLC. Note that the source code only provides the software code for processing and automation of the plant including definition of global types, variables, and error messages, but it neglects the part which assigns the variables to the hardware I/O block of the PLC, since this might be specific for a single plant.
 
-Cyclic runs of the different scripts.
-Autonomous control with discrete action ... RB Control with Temperatur in first stage
-Autonmation studio from B&R -> libraries for modules and functions...
+The code contains 11 programming scripts:
+| Script | Description |  
+|-----------|------------|  
+| **Condenser_Control** | Controls the cooling water flow, the water level, and condensate removal. |  
+| **Data_Processing** | Converts the analog and digital signals from the I/O hardware block into values suitable for computations within the scripts and vice versa.|  
+| **Gas_Analysis** | Controls the gas measurments since the plant allows to measure only one gas stream (reactant gas, gas after first stage, product gas) at a time. |  
+| **Gas_Control** | Controls feed gas flow rates in the MFCs. | 
+| **Pressure_Control** | Controls operating pressure of the plant. | 
+| **Safety_Mechanisms** | Defines the safety mechanism to ensure stable and safe operation of the plant with temperatures and pressure within the limits. | 
+| **Steam_Generator** | Controls the diaphragm pump for water supply to the steam generator and cooling of the first methanation stage. |
+| **System_Status** | Defines the plant status, i.e., idle state, startup in the lab/ field, operation in the lab/field, cooldown in the lab/field, error state, hot standby, and manual operation. | 
+| **Temperature_Control** | Controls the electric trace heating elements for heating the reactors and peripherie. | 
+| **Visualization** | Contains data conversion for visualization of temperature profiles in the human machine interface (HMI). |
+| **Water_Supply** | Controls the valves for water supply and water level regulation in the condensate traps. |
 
- Autonomous control - Rule-based Control based von T_Cat
+Note that most of the control methods for set point tracking of values (*regulatory control*) use proportional-integral-derivative controllers (PID), which have been to tuned manually to good control performance in the plant. 
 
- Temperature Control based on T_cat_max < T_krit and T_cat_max < T_sinter
- T_krit based on chemical equilibrium data and linear regression with non-linear basis functions
+For full autonmation of the plant, **PLC_Meth** moreover uses *rule-based control* for *dynamic optimization* of startup, load changes, and cooldown. This *rule-based control* decides on different actions depend on the maximum catalyst temperature in the first methanation stage. This quantity is key for overall control of the plant because it indicates the progress of reactor heating during startup, the changes of the temperature profile during load changes, and the progress of reactor cooling during cooldown.
 
- T_sat and p_sat in Condenser_Control -> based on Magnus equation
+For temperature control in the reactors, the plant controls the heatpipe cooling in the first methanation stage and the water content in the second methanation stage. The temperature thresholds are hereby defined by two catalyst deactivation phenomena present in direct methanation of biogas. The first deactivation mechanism which appears at temperatures > 883 K is sintering, which signifies the thermally induced alteration and the loss of catalytic surface area. On the other hand, the direct methanation of biogas is prone to carbon formation, the second deactivation mechanism. 
 
- Visualization in Mappp View
+Carbon formation strongly depends on the gas composition and temperatures. However, as soon as the temperature is below the *critical temperature for carbon formation* (T_crit) [5]. T_crit can be derived from chemical equilibrium data at distinct gas compositions and pressure. **PLC_Meth** incorporates an empirical equation based on large equilibium data and *linear regression with non-linear basis functions* (*Supervised Learning*). 
 
- ![Panel](img/Panel.png)
+The human machine interface comprises a panel surface at the front of the control cabinet, which can also be accessed by a web browser. The corresponding visualization with pages for the different control parts has been modelled using *mapp View*.
 
- *Figure 3: Human machine interface of the methanation plant.*
+![Panel](img/Panel.png)
 
+*Figure 3: Human machine interface of the methanation plant.*
 
+The alarm system of the plant has moreover been implemented based on the warning and error signals delivered by the `Safety_Mechanisms` script and *mapp AlarmX*. 
 
 ---
 
@@ -79,20 +92,41 @@ Autonmation studio from B&R -> libraries for modules and functions...
 
 The project is organized into the following directories and files:
 
-notation l_r_T_cat_max -> local variable (l), type real (r), description
-g_i_status_PL -> global variable (g), type integer (i), description
-FB_PFM > Function block (FB)
-L_R_T_MAX_PL -> CONSTANTS capitalized (*Maximum temperature in °C inside the enclosure*)
+```plaintext
+PLC_Meth/
+│
+├── img/
+│
+└── src/
+    ├── Condenser_Control/
+    ├── Data_Processing/
+    ├── Gas_Analysis/
+    ├── Gas_Control/
+    ├── Pressure_Control/
+    ├── Safety_Mechanisms/
+    ├── Steam_Generator/
+    ├── System_Status/
+    ├── Temperature_Control/
+    ├── Visualization/
+    ├── Water_Supply/
+    ├── Global.typ
+    ├── Global.var
+    └── LocalizableTexts.tmx
 
-Safety_Mechanisms:
-- Definition of warnings and error messages
-- Definition of actions for specific warnings and error messages
+```
 
-Temperature_Control:
-- PID Control
-- Startup rule-based control based von the maximum catalyst temperature
+Every folder in `src/` is ascribed to one programming script and includes a main script `main.ab` and files for declaration of local types `Types.typ` and variables `Variables.var`.
+In addition, `src/` contains also two files for global types `Global.typ` and variables `Global.var`. The `.var` files not only feature variables of the process, but also constants and special *function modules* (`FB`) loaded from external libraries. To keep the code consistent and easy to understand, the notation follows the following syntax, while variables are defined in lower case letters and constants in capital letters:
 
-biomethane plant -> plant status and watchdog variable
+`<global/local>_<type>_<description>` 
+
+| Syntax | Description |  
+|-----------|------------|  
+| `global/local` | Global and local variables/constants feature a `g`/`G` and a `l`/`L` as first letter, respectively. |  
+| `type` | The variable/constant types are declared by `b`/`B` (boolean), `i`/`I` (integer), and `r`/`R` (real), or by special types defined in `Global.typ`.|  
+| `description` | Every variable/constant features a short descriptions or abbreviation for identification.| 
+
+
 
 ---
 
@@ -144,6 +178,10 @@ und Klima (11.-12.03.), Frankfurt/Main, 2024
 [3] S. Rönsch, J. Schneider, S. Matthischke, M. Schlüter, M. Götz, J. Lefebvre, P. Prabhakaran, S. Bajohr, "*Review on methanation – From fundamentals to current projects*", Fuel, 166, 2016, 276–296.
 
 [4] M. Götz, J. Lefebvre, F. Mörs, A. McDaniel Koch, F. Graf, S. Bajohr, R. Reimert, T. Kolb, "*Renewable Power-to-Gas: A technological and economic review*", Renewable Energy, 85, 2016, 1371–1390
+
+[5] S. Markthaler, F. Grimm, J. Karl, “Direct catalytic methanation of Biogas (DMB):
+From laboratory experiments to demonstration scale”, 4th Doctoral Colloquium
+BIOENERGY (13.-14.09.), Karlsruhe, 2021
 
 
 
