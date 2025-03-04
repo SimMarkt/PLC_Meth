@@ -30,7 +30,7 @@ PROGRAM _CYCLIC
 		IF (l_i = 4) OR (l_i = 5) OR (l_i = 9) OR (l_i = 10) THEN 		
 			IF (l_i = 4) OR (l_i = 5) THEN 		//Temperature limiter (Heatpipe reactor)
 				g_temp_TIRC[l_i].r_ist := g_tb_TB[1].r_ist;
-			ELSE								//Temperature limiter (Fixed bed reactor)
+			ELSE		//Temperature limiter (Fixed bed reactor)
 				g_temp_TIRC[l_i].r_ist := g_tb_TB[2].r_ist;
 			ENDIF
 		ELSE

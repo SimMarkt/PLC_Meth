@@ -24,15 +24,15 @@
 PROGRAM _INIT
 	//Initialization of the ramp parameters for field test operation
 	l_i:=0;		//Manual operation
-	l_r_ramp_var[l_i,0] := g_r_last_ramp_slewrate / 60;				//Set in visualization
-	l_r_ramp_var[l_i,1] := g_r_last_ramp_slewrate / 60;				//Set in visualization
+	l_r_ramp_var[l_i,0] := g_r_last_ramp_slewrate / 60;		//Set in visualization
+	l_r_ramp_var[l_i,1] := g_r_last_ramp_slewrate / 60;		//Set in visualization
 	l_r_ramp_var[l_i,2] := 0.0;
 	l_r_ramp_var[l_i,3] := 100.0;
-	l_i:=1;		//Autonomous operation
+	l_i:=1;		//Automatic operation
 	l_r_ramp_var[l_i,0] := l_r_last_ramp_slewrate_pos / 60;		
 	l_r_ramp_var[l_i,1] := l_r_last_ramp_slewrate_neg / 60;		
-	l_r_ramp_var[l_i,2] := 23.2;									// In autonomous operation, partial load
-	l_r_ramp_var[l_i,3] := 100.0;									// In autonomous operation, full load
+	l_r_ramp_var[l_i,2] := 23.2;		// In automatic operation, partial load
+	l_r_ramp_var[l_i,3] := 100.0;		// In automatic operation, full load
 
 	LOOP l_i = 0 TO 1 DO
 		FB_Limiter[l_i].MaxPosSlewRate := l_r_ramp_var[l_i,0]; 	
@@ -50,7 +50,7 @@ PROGRAM _INIT
 	ENDLOOP
 	
 	//Initialization of the time delay when closing the valves
-	LOOP l_i = 3 TO 4 DO						//Close gas supply valves
+	LOOP l_i = 3 TO 4 DO		//Close gas supply valves
 		FB_TimeDelay[l_i].Enable := TRUE;
 		FB_TimeDelay[l_i].DelayTime := 0.8;
 		FB_TimeDelay[l_i].InitialValue := 1;
@@ -64,16 +64,16 @@ PROGRAM _CYCLIC
 	CASE g_i_status_GR OF
 		ACTION 0:		//Gas control OFF	
 			l_i_status_GR := 0;
-			g_volf_in_bio.l_min := 0;			//Biogas flow rate to zero
+			g_volf_in_bio.l_min := 0;		//Biogas flow rate to zero
 			g_volf_in_bio.m3_h := g_volf_in_bio.l_min * 60 / 1000;
 			g_r_nf_in_react[0] := 0;
 			g_volf_in_react[0].m3_s := 0;
 			g_volf_in_react[1].m3_s := 0;
 			g_volf_in_react[2].m3_s := 0;
 			g_volf_in.m3_s := 0;
-			g_b_MV[1] := FALSE;					//Solenoid valves closed
+			g_b_MV[1] := FALSE;		//Solenoid valves closed
 			g_b_MV[3] := FALSE;
-			LOOP l_i = 1 TO 2 DO				//Output signal to MFCs to zero
+			LOOP l_i = 1 TO 2 DO		//Output signal to MFCs to zero
 				g_mfc_MFC[l_i].r_soll := 0;
 				g_mfc_MFC[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);
 			ENDLOOP	
@@ -87,24 +87,24 @@ PROGRAM _CYCLIC
 			//Values for biogas flow rate, CO2 biogas content, H2/CO2 ratio must match the gas control loop,
 			//so that steam dosing is executed correctly!
 			//Calculation of feed gas quantities based on manual input (visualization)
-			g_r_y_in_react_percent[3] := 0;										//Can be commented out in case of feed gas steam addition
-			g_r_y_in_react[3] := g_r_y_in_react_percent[3] / 100;				//Conversion of the percentage values specified in the visualization to mole fraction
+			g_r_y_in_react_percent[3] := 0;		//Can be commented out in case of feed gas steam addition
+			g_r_y_in_react[3] := g_r_y_in_react_percent[3] / 100;		//Conversion of the percentage values specified in the visualization to mole fraction
 			g_r_y_in_bio_react[0] := g_r_y_in_bio_react_percent[0] / 100;
-			g_r_y_in_bio_react[1] := 1 - g_r_y_in_bio_react[0]; 							//CH4 content in biogas
+			g_r_y_in_bio_react[1] := 1 - g_r_y_in_bio_react[0];		//CH4 content in biogas
 			g_volf_in_bio.m3_s := g_volf_in_bio.l_min / G_R_VOFL_U;	
-			g_r_nf_in_bio := G_R_P0 * 100000 * g_volf_in_bio.m3_s / (G_R_R_UNI * G_R_T0);	//Biogas molar flow rate
-			g_r_nf_in_react[1] := g_r_y_in_bio_react[0] * g_r_nf_in_bio;					//Species molar flow rate
+			g_r_nf_in_bio := G_R_P0 * 100000 * g_volf_in_bio.m3_s / (G_R_R_UNI * G_R_T0);		//Biogas molar flow rate
+			g_r_nf_in_react[1] := g_r_y_in_bio_react[0] * g_r_nf_in_bio;		//Species molar flow rate
 			g_r_nf_in_react[2] := g_r_y_in_bio_react[1] * g_r_nf_in_bio;					
 			g_r_nf_in_react[0] := g_r_sigma_H2_CO2 * g_r_nf_in_react[1];
 			g_r_nf_in_react[3] := g_r_y_in_react[3] * (g_r_nf_in_react[0] + g_r_nf_in_react[1] + g_r_nf_in_react[2]) / (1 - g_r_y_in_react[3]);
 			g_r_nf_in :=  g_r_nf_in_react[0] + g_r_nf_in_react[1] + g_r_nf_in_react[2] + g_r_nf_in_react[3];
-			g_volf_in.m3_s := g_r_nf_in * G_R_R_UNI * G_R_T0 / (G_R_P0 * 100000);			//Total standard volume flow
+			g_volf_in.m3_s := g_r_nf_in * G_R_R_UNI * G_R_T0 / (G_R_P0 * 100000);		//Total standard volume flow
 			g_volf_in.l_min := g_volf_in.m3_s * G_R_VOFL_U;
-			LOOP l_i_r = 0 TO 2 DO															//Mole fraction and percentage
+			LOOP l_i_r = 0 TO 2 DO		//Mole fraction and percentage
 				g_r_y_in_react[l_i_r] := g_r_nf_in_react[l_i_r] / g_r_nf_in;
 				g_r_y_in_react_percent[l_i_r] := g_r_y_in_react[l_i_r] * 100;
 			ENDLOOP
-			LOOP l_i_r = 0 TO 3 DO															//Species standard volume flows
+			LOOP l_i_r = 0 TO 3 DO		//Species standard volume flows
 				g_volf_in_react[l_i_r].m3_s := g_r_y_in_react[l_i_r] * g_volf_in.m3_s;
 				g_volf_in_react[l_i_r].l_min := g_volf_in_react[l_i_r].m3_s * G_R_VOFL_U;
 			ENDLOOP
@@ -119,7 +119,7 @@ PROGRAM _CYCLIC
 			//Manual adjustment of the biogas flow rate via ramp (visualization)
 			IF EDGEPOS(g_b_ramp_active[0]) THEN
 				//Adjustment of ramp parameters
-				FB_Limiter[0].OutPresetValue := g_r_last;   		//Start at current flow rate value
+				FB_Limiter[0].OutPresetValue := g_r_last;		//Start at current flow rate value
 				FB_Limiter[0].SetOut := TRUE;
 				FB_Limiter[0].MaxNegSlewRate := g_r_last_ramp_slewrate / 60;
 				FB_Limiter[0].MaxPosSlewRate := g_r_last_ramp_slewrate / 60;
@@ -131,8 +131,8 @@ PROGRAM _CYCLIC
 			ENDIF
 						
 			//Start ramp
-			IF g_b_auto = FALSE THEN			//Manual operation
-				IF g_b_ramp_active[0] = TRUE THEN					//Execute ramp
+			IF g_b_auto = FALSE THEN		//Manual operation
+				IF g_b_ramp_active[0] = TRUE THEN		//Execute ramp
 					FB_Limiter[0].Enable := TRUE;
 					FB_Limiter[0].In := g_r_last_ramp;
 					FB_Limiter[0] FUB MTBasicsLimiter();
@@ -140,10 +140,10 @@ PROGRAM _CYCLIC
 				ELSE
 					FB_Limiter[0].Enable := FALSE;
 				ENDIF
-			ELSE								//Automatic operation with external assignment of the load value
+			ELSE		//Automatic operation with external assignment of the load value
 				IF g_i_status_PL = 4 THEN
 					FB_Limiter[1].Enable := TRUE;
-					FB_Limiter[1].OutPresetValue := g_r_last;  		//Start at current flow rate value
+					FB_Limiter[1].OutPresetValue := g_r_last;		//Start at current flow rate value
 					FB_Limiter[1].SetOut := TRUE;
 					FB_Limiter[1].In := g_r_last_ramp_extern;
 					FB_Limiter[1] FUB MTBasicsLimiter();
@@ -172,12 +172,12 @@ PROGRAM _CYCLIC
 			l_r_sigma_H2_CO2 := 4.2887 * brmpow(g_r_last,-0.094) + g_r_sigma_korr - 0.16 * (g_r_last - 23.2) / (100.0 - 23.2) - 6 - g_r_sigma_H2_CO2;
 			
 			//Calculation of feed gas quantities based on manual input (visualization)
-			g_r_y_in_react_percent[3] := 0;										//Can be commented out in case of feed gas steam addition
-			g_r_y_in_react[3] := g_r_y_in_react_percent[3] / 100;				//Conversion of the percentage values specified in the visualization to mole fraction
+			g_r_y_in_react_percent[3] := 0;		//Can be commented out in case of feed gas steam addition
+			g_r_y_in_react[3] := g_r_y_in_react_percent[3] / 100;		//Conversion of the percentage values specified in the visualization to mole fraction
 			g_r_y_in_bio_react[0] := g_r_y_in_bio_react_percent[0] / 100;
-			g_r_y_in_bio_react[1] := 1 - g_r_y_in_bio_react[0]; 				//CH4 content in biogas
+			g_r_y_in_bio_react[1] := 1 - g_r_y_in_bio_react[0];		//CH4 content in biogas
 			
-			g_volf_in_react[0].l_min := g_r_last / 100 * g_mfc_MFC[1].r_max; //at full load -> 115 Nl/min
+			g_volf_in_react[0].l_min := g_r_last / 100 * g_mfc_MFC[1].r_max; 	//at full load -> 115 Nl/min
 			g_volf_in_react[0].m3_s := g_volf_in_react[0].l_min / G_R_VOFL_U;
 			g_r_nf_in_react[0] := G_R_P0 * 100000 * g_volf_in_react[0].m3_s / (G_R_R_UNI * G_R_T0);
 			g_r_nf_in_react[1] := g_r_nf_in_react[0] / l_r_sigma_H2_CO2;
@@ -187,12 +187,12 @@ PROGRAM _CYCLIC
 			g_volf_in_bio.l_min := g_volf_in_bio.m3_s * G_R_VOFL_U;
 			g_volf_in_bio.m3_h := g_volf_in_bio.m3_s * 3600;
 			g_r_nf_in :=  g_r_nf_in_react[0] + g_r_nf_in_react[1] + g_r_nf_in_react[2] + g_r_nf_in_react[3];
-			g_volf_in.m3_s := g_r_nf_in * G_R_R_UNI * G_R_T0 / (G_R_P0 * 100000);			//Total standard volume flow
+			g_volf_in.m3_s := g_r_nf_in * G_R_R_UNI * G_R_T0 / (G_R_P0 * 100000);		//Total standard volume flow
 			g_volf_in.l_min := g_volf_in.m3_s * G_R_VOFL_U;	
-			LOOP l_i_r = 0 TO 2 DO															//Mole fraction
+			LOOP l_i_r = 0 TO 2 DO		//Mole fraction
 				g_r_y_in_react[l_i_r] := g_r_nf_in_react[l_i_r] / g_r_nf_in;
 			ENDLOOP
-			LOOP l_i_r = 1 TO 3 DO															//Species standard volume flows
+			LOOP l_i_r = 1 TO 3 DO		//Species standard volume flows
 				g_volf_in_react[l_i_r].m3_s := g_r_y_in_react[l_i_r] * g_volf_in.m3_s;
 				g_volf_in_react[l_i_r].l_min := g_volf_in_react[l_i_r].m3_s * G_R_VOFL_U;
 			ENDLOOP
@@ -202,48 +202,48 @@ PROGRAM _CYCLIC
 				IF FB_Limiter[0].Enable THEN	//Manual operation
 					IF g_r_last >= g_r_last_ramp THEN 	//In descending ramp: H2 delayed
 						g_r_DE_adapt := g_r_DE_adapt_des;
-						FB_TimeDelay[1].InitialValue := l_vofl_in_h2.l_min;					//Input value for t < DelayTime
-						FB_TimeDelay[1].DelayTime := 3;										//Set delay
+						FB_TimeDelay[1].InitialValue := l_vofl_in_h2.l_min;		//Input value for t < DelayTime
+						FB_TimeDelay[1].DelayTime := 3;		//Set delay
 						FB_TimeDelay[1].Enable := TRUE;							
-						FB_TimeDelay[1].In := g_volf_in_react[0].l_min;						//Input value for t >= DelayTime
-						FB_TimeDelay[1] FUB MTBasicsTimeDelay();							//Function call MTBasicsTimeDelay
-						l_vofl_in_h2.l_min :=	FB_TimeDelay[1].Out;						//Output value
+						FB_TimeDelay[1].In := g_volf_in_react[0].l_min;		//Input value for t >= DelayTime
+						FB_TimeDelay[1] FUB MTBasicsTimeDelay();		//Function call MTBasicsTimeDelay
+						l_vofl_in_h2.l_min :=	FB_TimeDelay[1].Out;		//Output value
 						FB_TimeDelay[2].Enable := FALSE;
 						l_vofl_in_bio.l_min :=	g_volf_in_bio.l_min;
 					ELSE
 						//In ascending ramp: Biogas delayed
 						g_r_DE_adapt := g_r_DE_adapt_asc;
 						FB_TimeDelay[1].Enable := FALSE;
-						FB_TimeDelay[2].InitialValue := l_vofl_in_bio.l_min;				//Input value for t < DelayTime
-						FB_TimeDelay[2].DelayTime := 3;										//Set delay
+						FB_TimeDelay[2].InitialValue := l_vofl_in_bio.l_min;		//Input value for t < DelayTime
+						FB_TimeDelay[2].DelayTime := 3;		//Set delay
 						FB_TimeDelay[2].Enable := TRUE;							
-						FB_TimeDelay[2].In := g_volf_in_bio.l_min;							//Input value for t >= DelayTime
-						FB_TimeDelay[2] FUB MTBasicsTimeDelay();							//Function call MTBasicsTimeDelay
-						l_vofl_in_bio.l_min :=	FB_TimeDelay[2].Out;						//Output value
+						FB_TimeDelay[2].In := g_volf_in_bio.l_min;		//Input value for t >= DelayTime
+						FB_TimeDelay[2] FUB MTBasicsTimeDelay();		//Function call MTBasicsTimeDelay
+						l_vofl_in_bio.l_min :=	FB_TimeDelay[2].Out;		//Output value
 						l_vofl_in_h2.l_min :=	g_volf_in_react[0].l_min;
 					ENDIF
 				ENDIF
 				IF FB_Limiter[1].Enable THEN	//Automatic operation
 					IF g_r_last >= g_r_last_ramp_extern THEN 	//In descending ramp: H2 delayed
 						g_r_DE_adapt := g_r_DE_adapt_des;
-						FB_TimeDelay[1].InitialValue := l_vofl_in_h2.l_min;					//Input value for t < DelayTime
-						FB_TimeDelay[1].DelayTime := 3;										//Set delay
+						FB_TimeDelay[1].InitialValue := l_vofl_in_h2.l_min;		//Input value for t < DelayTime
+						FB_TimeDelay[1].DelayTime := 3;		//Set delay
 						FB_TimeDelay[1].Enable := TRUE;							
-						FB_TimeDelay[1].In := g_volf_in_react[0].l_min;						//Input value for t >= DelayTime
-						FB_TimeDelay[1] FUB MTBasicsTimeDelay();							//Function call MTBasicsTimeDelay
-						l_vofl_in_h2.l_min :=	FB_TimeDelay[1].Out;						//Output value
+						FB_TimeDelay[1].In := g_volf_in_react[0].l_min;		//Input value for t >= DelayTime
+						FB_TimeDelay[1] FUB MTBasicsTimeDelay();		//Function call MTBasicsTimeDelay
+						l_vofl_in_h2.l_min :=	FB_TimeDelay[1].Out;		//Output value
 						FB_TimeDelay[2].Enable := FALSE;
 						l_vofl_in_bio.l_min :=	g_volf_in_bio.l_min;
 					ELSE
 						//In ascending ramp: Biogas delayed
 						g_r_DE_adapt := g_r_DE_adapt_asc;
 						FB_TimeDelay[1].Enable := FALSE;
-						FB_TimeDelay[2].InitialValue := l_vofl_in_bio.l_min;				//Input value for t < DelayTime
-						FB_TimeDelay[2].DelayTime := 3;										//Set delay
+						FB_TimeDelay[2].InitialValue := l_vofl_in_bio.l_min;		//Input value for t < DelayTime
+						FB_TimeDelay[2].DelayTime := 3;		//Set delay
 						FB_TimeDelay[2].Enable := TRUE;							
-						FB_TimeDelay[2].In := g_volf_in_bio.l_min;							//Input value for t >= DelayTime
-						FB_TimeDelay[2] FUB MTBasicsTimeDelay();							//Function call MTBasicsTimeDelay
-						l_vofl_in_bio.l_min :=	FB_TimeDelay[2].Out;						//Output value
+						FB_TimeDelay[2].In := g_volf_in_bio.l_min;		//Input value for t >= DelayTime
+						FB_TimeDelay[2] FUB MTBasicsTimeDelay();		//Function call MTBasicsTimeDelay
+						l_vofl_in_bio.l_min :=	FB_TimeDelay[2].Out;		//Output value
 						l_vofl_in_h2.l_min :=	g_volf_in_react[0].l_min;
 					ENDIF
 				ENDIF				
@@ -260,7 +260,7 @@ PROGRAM _CYCLIC
 			g_mfc_MFC[2].r_soll := l_vofl_in_bio.l_min;
 			LOOP l_i = 1 TO 2 DO
 				g_mfc_MFC[l_i].i_ao := INT((g_mfc_MFC[l_i].r_soll * (G_R_ANALOG_SIGNAL*16/20) / (g_mfc_MFC[l_i].r_max-g_mfc_MFC[l_i].r_min)) + G_R_ANALOG_SIGNAL*4/20);
-				IF g_mfc_MFC[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN						//Safety for rounding errors
+				IF g_mfc_MFC[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN		//Safety for rounding errors
 					g_mfc_MFC[l_i].i_ao := INT(G_R_ANALOG_SIGNAL);
 				ELSE
 					IF g_mfc_MFC[l_i].i_ao <= INT(G_R_ANALOG_SIGNAL*4/20) THEN
@@ -289,7 +289,7 @@ PROGRAM _CYCLIC
 		ENDACTION
 		
 		ACTION 4: 	//Nitrogen purge 
-			IF l_i_status_GR <> 4 THEN				//One-time action when switching to nitrogen purge
+			IF l_i_status_GR <> 4 THEN		//One-time action when switching to nitrogen purge
 				LOOP l_i = 3 TO 4 DO					
 					FB_TimeDelay[l_i].In := 0;					
 				ENDLOOP
@@ -297,7 +297,7 @@ PROGRAM _CYCLIC
 			l_i_status_GR := 4;
 			g_b_MV[2] := TRUE;
 			
-			g_r_last := 0;							//Biogas flow rate and thus also H2 and H2O flow to zero
+			g_r_last := 0;		//Biogas flow rate and thus also H2 and H2O flow to zero
 			g_r_last_ramp := 0;
 			g_volf_in_bio.l_min := 0;
 			g_volf_in_bio.m3_h := g_volf_in_bio.l_min * 60 / 1000;
@@ -310,7 +310,7 @@ PROGRAM _CYCLIC
 			LOOP l_i = 1 TO 2 DO
 				g_mfc_MFC[1].r_soll := 0;
 				g_mfc_MFC[l_i].i_ao := INT((g_mfc_MFC[1].r_soll * (G_R_ANALOG_SIGNAL*16/20) / (g_mfc_MFC[1].r_max-g_mfc_MFC[1].r_min)) + G_R_ANALOG_SIGNAL*4/20);
-				IF g_mfc_MFC[l_i].i_ao >= G_R_ANALOG_SIGNAL THEN			//Safety for rounding errors
+				IF g_mfc_MFC[l_i].i_ao >= G_R_ANALOG_SIGNAL THEN		//Safety for rounding errors
 					g_mfc_MFC[l_i].i_ao := INT(G_R_ANALOG_SIGNAL);
 				ELSE
 					IF g_mfc_MFC[l_i].i_ao <= (G_R_ANALOG_SIGNAL*4/20) THEN
@@ -320,7 +320,7 @@ PROGRAM _CYCLIC
 			ENDLOOP
 			
 			LOOP l_i = 3 TO 4 DO
-				FB_TimeDelay[l_i] FUB MTBasicsTimeDelay();					//Time-delayed closing of the solenoid valves						
+				FB_TimeDelay[l_i] FUB MTBasicsTimeDelay();		//Time-delayed closing of the solenoid valves						
 			ENDLOOP
 			
 			IF EDGENEG(BOOL(FB_TimeDelay[3].Out)) THEN	
@@ -336,12 +336,12 @@ PROGRAM _CYCLIC
 		ELSEACTION:	//Error: No defined status
 			l_i_status_GR := 5;
 			g_b_error[57] := TRUE;
-			g_volf_in_bio.l_min := 0;			//Biogas flow rate to zero
+			g_volf_in_bio.l_min := 0;		//Biogas flow rate to zero
 			g_volf_in_bio.m3_h := g_volf_in_bio.l_min * 60 / 1000;
-			g_b_MV[1] := FALSE;					//Solenoid valves closed
+			g_b_MV[1] := FALSE;		//Solenoid valves closed
 			g_b_MV[3] := FALSE;
 
-			LOOP l_i = 1 TO 2 DO				//Output signal to MFCs to zero
+			LOOP l_i = 1 TO 2 DO		//Output signal to MFCs to zero
 				g_mfc_MFC[l_i].r_soll := 0;
 				g_mfc_MFC[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);
 			ENDLOOP	

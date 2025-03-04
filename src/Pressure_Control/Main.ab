@@ -39,11 +39,11 @@ PROGRAM _INIT
 
 	LOOP l_i = 1 TO 2 DO	
 		//Initial values for the limits of the valve position opening degree
-		g_rv_RV[l_i].r_open_min := 0;  		// corresponds to valve 0% open
+		g_rv_RV[l_i].r_open_min := 0;		// corresponds to valve 0% open
 		g_rv_RV[l_i].r_open_max := 100;		// corresponds to valve 100% open
 		
-		l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;			//Adjusted to valve position [MinOut = 0 -> valve 0% open]
-		l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;			//Adjusted to valve position [MaxOut = 100 -> valve 100% open]
+		l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;		//Adjusted to valve position [MinOut = 0 -> valve 0% open]
+		l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;		//Adjusted to valve position [MaxOut = 100 -> valve 100% open]
 		
 		//Transfer of the PID control parameters to the PID function block
 		FB_PID[l_i].PIDParameters.Gain := l_r_pid_var[l_i,0];
@@ -92,8 +92,8 @@ PROGRAM _CYCLIC
 			ACTION 1:	//Pressure control ON
 				//Manual adjustment of the minimum and maximum valve position (Visualization)
 				IF EDGEPOS(g_rv_RV[l_i].b_update) THEN
-					l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;			//Adjusted to valve position [MinOut = 0 -> valve 0% open]
-					l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;			//Adjusted to valve position [MaxOut = 100 -> valve 100% open]
+					l_r_pid_var[l_i,4] := g_rv_RV[l_i].r_open_min;		//Adjusted to valve position [MinOut = 0 -> valve 0% open]
+					l_r_pid_var[l_i,5] := g_rv_RV[l_i].r_open_max;		//Adjusted to valve position [MaxOut = 100 -> valve 100% open]
 					FB_PID[l_i].MaxOut:= 100 - l_r_pid_var[l_i,4]; 	
 					FB_PID[l_i].MinOut:= 100 - l_r_pid_var[l_i,5];
 					FB_PID[l_i].Update := TRUE;
@@ -106,13 +106,13 @@ PROGRAM _CYCLIC
 				
 				//Manual adjustment of the pressure level via ramp (Visualization)
 				IF EDGEPOS(g_b_ramp_active[l_i]) THEN
-					FB_Limiter[l_i].OutPresetValue := g_pres_PIRC[l_i].r_ist;   		//Start at current pressure value
+					FB_Limiter[l_i].OutPresetValue := g_pres_PIRC[l_i].r_ist;		//Start at current pressure value
 					FB_Limiter[l_i].SetOut := TRUE;
-					IF g_r_ramp_time[l_i] <> 0 THEN										//Division by zero leads to internal error
+					IF g_r_ramp_time[l_i] <> 0 THEN		//Division by zero leads to internal error
 						FB_Limiter[l_i].MaxPosSlewRate := ABS(g_pres_PIRC[l_i].r_soll - g_pres_PIRC[l_i].r_ist) / (g_r_ramp_time[l_i] * 60);	//Calculate slope 
 						FB_Limiter[l_i].MaxNegSlewRate := ABS(g_pres_PIRC[l_i].r_soll - g_pres_PIRC[l_i].r_ist) / (g_r_ramp_time[l_i] * 60);							
 					ELSE
-						FB_Limiter[l_i].MaxPosSlewRate := 2;	//Calculate slope 
+						FB_Limiter[l_i].MaxPosSlewRate := 2;		//Calculate slope 
 						FB_Limiter[l_i].MaxNegSlewRate := 2;							
 					ENDIF
 					FB_Limiter[l_i].Update := TRUE;
@@ -138,21 +138,21 @@ PROGRAM _CYCLIC
 				ENDIF
 				
 				//Execute PID control
-				FB_PID[l_i].Enable := TRUE;													//Activate controller
-				FB_PID[l_i].SetValue := g_r_p_soll_PIRC[l_i]; 								//Setpoint
-				FB_PID[l_i].ActValue := g_pres_PIRC[l_i].r_ist;								//Read actual value
-				FB_PID[l_i] FUB MTBasicsPID();												//Function call MTBasicsPID 
+				FB_PID[l_i].Enable := TRUE;		//Activate controller
+				FB_PID[l_i].SetValue := g_r_p_soll_PIRC[l_i];		//Setpoint
+				FB_PID[l_i].ActValue := g_pres_PIRC[l_i].r_ist;		//Read actual value
+				FB_PID[l_i] FUB MTBasicsPID();		//Function call MTBasicsPID 
 				// If g_r_p_soll_PIRC[l_i] > g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 100 (Valve closed)
 				// If g_r_p_soll_PIRC[l_i] < g_pres_PIRC[l_i].r_ist -> FB_PID[l_i].Out = 0	(Valve open)
-				l_r_pid_out[l_i] := g_rv_RV[l_i].r_open_max - FB_PID[l_i].Out; 				//FB_PID[l_i].Out with negative feedback from control and regulated variable
+				l_r_pid_out[l_i] := g_rv_RV[l_i].r_open_max - FB_PID[l_i].Out;		//FB_PID[l_i].Out with negative feedback from control and regulated variable
 							
 				//Transfer of the PID output values to the valve position (Closed -> Open: i_ao = 6554 -> 32767 / l_r_pid_out = 0 -> 100)
-				IF l_i = 1 THEN			//Distinction: i_ao for steam at higher 4mA signal
+				IF l_i = 1 THEN		//Distinction: i_ao for steam at higher 4mA signal
 					g_rv_RV[l_i].i_ao := INT((l_r_pid_out[l_i] * (G_R_ANALOG_SIGNAL - G_R_ANALOG_SIGNAL_4mA[6]) / (g_rv_RV[l_i].r_open_max-g_rv_RV[l_i].r_open_min)) + G_R_ANALOG_SIGNAL_4mA[6]);
 				ELSE
 					g_rv_RV[l_i].i_ao := INT((l_r_pid_out[l_i] * (G_R_ANALOG_SIGNAL*16/20) / (g_rv_RV[l_i].r_open_max-g_rv_RV[l_i].r_open_min)) + G_R_ANALOG_SIGNAL*4/20);
 				ENDIF
-				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
+				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN		//Safety for rounding errors
 					g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL);
 				ELSE
 					IF g_rv_RV[l_i].i_ao <= INT(G_R_ANALOG_SIGNAL*4/20) THEN
@@ -165,7 +165,7 @@ PROGRAM _CYCLIC
 				FB_PID[l_i].Enable := FALSE;
 				FB_OscillationTuning[l_i].Enable := FALSE;
 				g_rv_RV[l_i].b_update := FALSE;
-				g_pres_PIRC[l_i].r_soll := 0;				//Set pressure to zero
+				g_pres_PIRC[l_i].r_soll := 0		//Set pressure to zero
 				g_r_p_soll_PIRC[l_i] := 0;
 				g_b_ramp_active[l_i] := FALSE;
 				//Controlled opening of the valve
@@ -176,7 +176,7 @@ PROGRAM _CYCLIC
 				FB_Limiter[l_i+2] FUB MTBasicsLimiter();
 				//Transfer of the output values to the valve position
 				g_rv_RV[l_i].i_ao := INT((FB_Limiter[l_i+2].Out * (G_R_ANALOG_SIGNAL*16/20) / (g_rv_RV[l_i].r_open_max-g_rv_RV[l_i].r_open_min)) + G_R_ANALOG_SIGNAL*4/20);
-				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN			//Safety for rounding errors
+				IF g_rv_RV[l_i].i_ao >= INT(G_R_ANALOG_SIGNAL) THEN		//Safety for rounding errors
 					g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL);
 				ELSE
 					IF g_rv_RV[l_i].i_ao <= INT(G_R_ANALOG_SIGNAL*4/20) THEN
@@ -187,7 +187,7 @@ PROGRAM _CYCLIC
     
 			ELSEACTION:	//Error: No defined status
 				g_b_error[l_i+54] := TRUE;
-				g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);			//Process control valves open
+				g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);		//Process control valves open
 			ENDACTION
 		ENDCASE
 	ENDLOOP	 

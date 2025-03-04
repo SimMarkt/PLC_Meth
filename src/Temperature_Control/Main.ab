@@ -100,8 +100,8 @@ PROGRAM _INIT
 	
 	LOOP l_i = 1 TO 10 DO
 		l_r_pid_var[l_i,3] := 0;
-		l_r_pid_var[l_i,4] := 0;			//Adjusted to input range DutyCycle of the PFM [0...100]
-		l_r_pid_var[l_i,5] := 100;			//Adjusted to input range DutyCycle of the PFM [0...100]
+		l_r_pid_var[l_i,4] := 0;		//Adjusted to input range DutyCycle of the PFM [0...100]
+		l_r_pid_var[l_i,5] := 100;		//Adjusted to input range DutyCycle of the PFM [0...100]
 				
 		//Transfer of the PID control parameters to the PID function block
 		FB_PID[l_i].PIDParameters.Gain := l_r_pid_var[l_i,0];
@@ -133,8 +133,8 @@ PROGRAM _CYCLIC
 	LOOP l_i = 1 TO 10 DO
 		CASE g_i_status_HZ[l_i] OF
 			ACTION 0:	//Heater OFF
-				FB_PID[l_i].Enable := FALSE;			//Controller inactive
-				g_b_SR_HZ[l_i] := FALSE;				//No pulse signal to solid-state relay        
+				FB_PID[l_i].Enable := FALSE;		//Controller inactive
+				g_b_SR_HZ[l_i] := FALSE;		//No pulse signal to solid-state relay        
 			ENDACTION
 			
 			ACTION 1:	//Heater ON - Startup process (rule-based control based von the maximum catalyst temperature)			
@@ -254,10 +254,10 @@ PROGRAM _CYCLIC
 				ENDIF
 				
 				//Execute PID control
-				FB_PID[l_i].Enable := TRUE;										//Activate controller
-				FB_PID[l_i].SetValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll; 	//Setpoint
-				FB_PID[l_i].ActValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;	//Read actual value
-				FB_PID[l_i] FUB MTBasicsPID();									//Function call MTBasicsPID
+				FB_PID[l_i].Enable := TRUE;		//Activate controller
+				FB_PID[l_i].SetValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll;		//Setpoint
+				FB_PID[l_i].ActValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;		//Read actual value
+				FB_PID[l_i] FUB MTBasicsPID();		//Function call MTBasicsPID
 		
 				//Conversion of the analog PID output signals into pulsed digital signals
 				FB_LCRPFM[l_i].x := FB_PID[l_i].Out;
@@ -277,10 +277,10 @@ PROGRAM _CYCLIC
 		
 			ACTION 2:	//Heater ON
 				//Execute PID control
-				FB_PID[l_i].Enable := TRUE;										//Activate controller
-				FB_PID[l_i].SetValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll; 	//Setpoint
-				FB_PID[l_i].ActValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;	//Read actual value
-				FB_PID[l_i] FUB MTBasicsPID();									//Function call MTBasicsPID
+				FB_PID[l_i].Enable := TRUE;		//Activate controller
+				FB_PID[l_i].SetValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll;		//Setpoint
+				FB_PID[l_i].ActValue := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;		//Read actual value
+				FB_PID[l_i] FUB MTBasicsPID();		//Function call MTBasicsPID
 		
 				//Conversion of the analog PID output signals into pulsed digital signals
 				FB_LCRPFM[l_i].x := FB_PID[l_i].Out;
@@ -300,7 +300,7 @@ PROGRAM _CYCLIC
 						
 			ELSEACTION:	//Error: No defined status
 				g_b_error[l_i+44] := TRUE;
-				g_b_SR_HZ[l_i] := FALSE;				//No pulse signal to solid-state relay
+				g_b_SR_HZ[l_i] := FALSE;		//No pulse signal to solid-state relay
 			ENDACTION
 		ENDCASE
 		

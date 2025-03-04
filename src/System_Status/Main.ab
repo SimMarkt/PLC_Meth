@@ -89,19 +89,19 @@ PROGRAM _CYCLIC
 		ENDACTION
 		
 		ACTION 1:		// System: Startup - Laboratory
-			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when switching to startup
-				g_i_status_GAL := 0;							// Gas measurement off
-				g_i_period_GAL := 0;							// and periodic measurement off
-				LOOP l_i = 1 TO 9 DO							// Start up heaters
+			IF l_i_status_PL <> g_i_status_PL THEN		// One-time action when switching to startup
+				g_i_status_GAL := 0;		// Gas measurement off
+				g_i_period_GAL := 0;		// and periodic measurement off
+				LOOP l_i = 1 TO 9 DO		// Start up heaters
 					g_i_status_HZ[l_i] := 1;	
 				ENDLOOP
-				g_i_status_GR := 1;				 				// Gas regulation to laboratory operation
-				g_i_status_CON := 1;							// Condenser cooling to manual
-				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	// Proportional valve to condenser 1 (cooling water) closed
-				g_b_MV[11] := FALSE;							// Solenoid valve to condenser 2 (cooling water) closed
-				g_i_status_WS := 2;								// Level control in the storage tank ON
-				g_b_FG1 := TRUE;								// Activate release relay
-				g_b_FG2 := TRUE;								// Activate release relay
+				g_i_status_GR := 1;		// Gas regulation to laboratory operation
+				g_i_status_CON := 1;		// Condenser cooling to manual
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20);		// Proportional valve to condenser 1 (cooling water) closed
+				g_b_MV[11] := FALSE;		// Solenoid valve to condenser 2 (cooling water) closed
+				g_i_status_WS := 2;		// Level control in the storage tank ON
+				g_b_FG1 := TRUE;		// Activate release relay
+				g_b_FG2 := TRUE;		// Activate release relay
 				l_i_status_PL := g_i_status_PL;
 			ENDIF
 			
@@ -110,28 +110,28 @@ PROGRAM _CYCLIC
 						
 			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 99;							// Utilization of FB_PFM.MinPause (Always alternating pulse and MinPause)
-			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM[0].DutyCycle := 99;		// Utilization of FB_PFM.MinPause (Always alternating pulse and MinPause)
+			FB_PFM[0] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
 		ACTION 2:		 // System: Startup - Field test
-			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when switching to startup
-				g_i_status_GAL := 0;							// Gas measurement off 
-				g_i_period_GAL := 0;							// and periodic measurement off
-				LOOP l_i = 1 TO 9 DO							// Start up heaters
+			IF l_i_status_PL <> g_i_status_PL THEN		// One-time action when switching to startup
+				g_i_status_GAL := 0;		// Gas measurement off 
+				g_i_period_GAL := 0;		// and periodic measurement off
+				LOOP l_i = 1 TO 9 DO		// Start up heaters
 					g_i_status_HZ[l_i] := 1;	
 				ENDLOOP
-				g_i_status_GR := 0;								// Gas regulation OFF
-				g_i_status_CON := 0;							// Condenser cooling OFF
-				g_i_status_SG := 2;								// Steam generator control ON
-				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	// Proportional valve to condenser 1 (cooling water) closed
-				g_b_MV[11] := TRUE;								// Solenoid valve to condenser 2 (cooling water) closed
-				g_i_status_WS := 2;								// Level control in the storage tank ON
-				g_b_FG1 := TRUE;								// Activate release relay
-				g_b_FG2 := TRUE;								// Activate release relay
-				g_b_GSM1_active := TRUE;						// Activate GSM module
+				g_i_status_GR := 0;		// Gas regulation OFF
+				g_i_status_CON := 0;		// Condenser cooling OFF
+				g_i_status_SG := 2;		// Steam generator control ON
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20);		// Proportional valve to condenser 1 (cooling water) closed
+				g_b_MV[11] := TRUE;		// Solenoid valve to condenser 2 (cooling water) closed
+				g_i_status_WS := 2;		// Level control in the storage tank ON
+				g_b_FG1 := TRUE;		// Activate release relay
+				g_b_FG2 := TRUE;		// Activate release relay
+				g_b_GSM1_active := TRUE;		// Activate GSM module
 				l_b_enabled := TRUE;
 				l_i_status_PL := g_i_status_PL;
 				g_r_startup := 0;
@@ -140,24 +140,24 @@ PROGRAM _CYCLIC
 
 			// Routine for the autonomous startup of the system via rule-based control
 			IF g_r_startup >= 3 THEN
-				g_i_status_GR := 3;								// Gas regulation H2 purge
+				g_i_status_GR := 3;		// Gas regulation H2 purge
 				IF g_r_startup >= 4 THEN
-					g_i_status_GR := 2;							// Gas regulation field test ON
-					g_i_status_PIRC[2] := 1;					// Pressure control of the process gas side ON
-					g_r_last := 8.2;							// Current load at 8.2%
+					g_i_status_GR := 2;		// Gas regulation field test ON
+					g_i_status_PIRC[2] := 1;		// Pressure control of the process gas side ON
+					g_r_last := 8.2;		// Current load at 8.2%
 					g_r_last_ramp := 8.2;
-					IF l_b_enabled THEN							// Executed only once
+					IF l_b_enabled THEN		// Executed only once
 						g_r_last_ramp_extern := 8.2;		
-						g_r_p_soll_PIRC[2] := 4;				// Pressure for process gas side in bar_rel
+						g_r_p_soll_PIRC[2] := 4;		// Pressure for process gas side in bar_rel
 						g_pres_PIRC[2].r_soll := 4;		
 						l_b_enabled := FALSE;
 					ENDIF
-					g_i_status_CON := 2;			 			// Condenser cooling ON
-					g_i_status_GAL := 3;						// Gas measurement 2nd stage
+					g_i_status_CON := 2;		// Condenser cooling ON
+					g_i_status_GAL := 3;		// Gas measurement 2nd stage
 					IF g_r_startup >= 7 THEN
-						g_i_period_GAL := 4;					// Gas analysis periodic ON
+						g_i_period_GAL := 4;		// Gas analysis periodic ON
 						IF g_r_startup >= 8 THEN
-							g_i_status_PL := 4; 				// Operation field test		
+							g_i_status_PL := 4;		// Operation field test		
 						ENDIF
 					ENDIF
 				ENDIF
@@ -179,24 +179,24 @@ PROGRAM _CYCLIC
 						
 			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 99;							// Utilization of FB_PFM.MinPause (Always alternating pulse and MinPause)
-			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM[0].DutyCycle := 99;		// Utilization of FB_PFM.MinPause (Always alternating pulse and MinPause)
+			FB_PFM[0] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
 		ACTION 3:		// System: Operation - Laboratory
-			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
-				g_i_period_GAL := 0;							// Periodic GAL measurement off
-				LOOP l_i = 1 TO 9 DO							// Heaters ON
+			IF l_i_status_PL <> g_i_status_PL THEN		// One-time action when starting up
+				g_i_period_GAL := 0;		// Periodic GAL measurement off
+				LOOP l_i = 1 TO 9 DO		// Heaters ON
 					g_i_status_HZ[l_i] := 2;	
 				ENDLOOP
-				g_i_status_GR := 2;								// Gas regulation ON - field test
-				g_i_status_CON := 2;							// Condenser cooling initially manual
-				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20); 	// Proportional valve to condenser 1 (cooling water) initially closed
-				g_i_status_WS := 2;								// Level control in the storage tank ON
-				g_b_FG1 := TRUE;								// Activate release relay
-				g_b_FG2 := TRUE;								// Activate release relay
+				g_i_status_GR := 2;		// Gas regulation ON - field test
+				g_i_status_CON := 2;		// Condenser cooling initially manual
+				g_pv_PV1.i_ao := INT(G_R_ANALOG_SIGNAL*4/20);		// Proportional valve to condenser 1 (cooling water) initially closed
+				g_i_status_WS := 2;		// Level control in the storage tank ON
+				g_b_FG1 := TRUE;		// Activate release relay
+				g_b_FG2 := TRUE;		// Activate release relay
 				l_i_status_PL := g_i_status_PL;
 			ENDIF
 			
@@ -210,17 +210,17 @@ PROGRAM _CYCLIC
 		
 		ACTION 4:		// System: Operation - Field test
 			// From outside, the load and thus the set biogas flow rate can be specified
-			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
-				LOOP l_i = 1 TO 9 DO							// Heaters ON
+			IF l_i_status_PL <> g_i_status_PL THEN		// One-time action when starting up
+				LOOP l_i = 1 TO 9 DO		// Heaters ON
 					g_i_status_HZ[l_i] := 2;	
 				ENDLOOP
-				g_i_status_GR := 2;								// Gas regulation ON - field test
-				g_i_status_CON := 2;							// Condenser cooling ON
-				g_i_status_SG := 2;								// Steam generator control ON
-				g_i_status_WS := 2;								// Level control in the storage tank ON
-				g_b_FG1 := TRUE;								// Activate release relay
-				g_b_FG2 := TRUE;								// Activate release relay
-				g_b_GSM1_active := TRUE;						// Activate GSM module
+				g_i_status_GR := 2;		// Gas regulation ON - field test
+				g_i_status_CON := 2;		// Condenser cooling ON
+				g_i_status_SG := 2;		// Steam generator control ON
+				g_i_status_WS := 2;		// Level control in the storage tank ON
+				g_b_FG1 := TRUE;		// Activate release relay
+				g_b_FG2 := TRUE;		// Activate release relay
+				g_b_GSM1_active := TRUE;		// Activate GSM module
 				l_i_status_PL := g_i_status_PL;
 				g_i_status_PL_extern_auto := 4;
 			ENDIF
@@ -231,16 +231,16 @@ PROGRAM _CYCLIC
 		ENDACTION
 		
 		ACTION 5:		// System: Cooldown - Laboratory
-			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
-				g_i_status_GAL := 2;							// Gas measurement to 1st stage and 
-				g_i_period_GAL := 1;							// and periodic measurement
-				LOOP l_i = 2 TO 5 DO							// Heaters OFF (except product gas discharge and steam addition)
+			IF l_i_status_PL <> g_i_status_PL THEN		// One-time action when starting up
+				g_i_status_GAL := 2;		// Gas measurement to 1st stage and 
+				g_i_period_GAL := 1;		// and periodic measurement
+				LOOP l_i = 2 TO 5 DO		// Heaters OFF (except product gas discharge and steam addition)
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
 				LOOP l_i = 7 TO 10 DO			
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
-				LOOP l_i = 1 TO 2 DO							// Pressure control still ON
+				LOOP l_i = 1 TO 2 DO		// Pressure control still ON
 					g_i_status_PIRC[l_i] := 1;	
 				ENDLOOP
 				l_i_status_PL := g_i_status_PL;
@@ -251,49 +251,49 @@ PROGRAM _CYCLIC
 			
 			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 20;							// During cooldown, pause times are increased
-			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM[0].DutyCycle := 20;		// During cooldown, pause times are increased
+			FB_PFM[0] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
 		ACTION 6:		// System: Cooldown - Field test
-			IF l_i_status_PL <> g_i_status_PL THEN				// One-time action when starting up
-				g_i_status_GAL := 0;							// Gas measurement OFF
-				g_i_period_GAL := 0;							// and periodic measurement OFF
-				LOOP l_i = 1 TO 5 DO							// Heaters OFF
+			IF l_i_status_PL <> g_i_status_PL THEN		// One-time action when starting up
+				g_i_status_GAL := 0;		// Gas measurement OFF
+				g_i_period_GAL := 0;		// and periodic measurement OFF
+				LOOP l_i = 1 TO 5 DO		// Heaters OFF
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
-				g_i_status_HZ[6] := 2;							// Biogas supply: Heater remains on to avoid droplet formation there when restarting from shutdown status
+				g_i_status_HZ[6] := 2;		// Biogas supply: Heater remains on to avoid droplet formation there when restarting from shutdown status
 				g_temp_TIRC[16].r_soll := 80;	
-				LOOP l_i = 7 TO 9 DO							// Heaters OFF
+				LOOP l_i = 7 TO 9 DO		// Heaters OFF
 					g_i_status_HZ[l_i] := 0;	
 				ENDLOOP
-				g_i_status_GR := 3;								// Gas regulation H2 purge
-				g_i_status_PIRC[2] := 2;						// Controlled opening of the process gas valve
-				g_i_status_CON := 0;							// Condenser cooling OFF
-				g_i_status_SG := 0;								// Steam generator control OFF
-				g_i_status_WS := 0;								// Level control in the storage tank OFF
-				g_b_FG1 := TRUE;								// Activate release relay
-				g_b_FG2 := TRUE;								// Activate release relay
-				g_b_GSM1_active := TRUE;						// Activate GSM module
+				g_i_status_GR := 3;			// Gas regulation H2 purge
+				g_i_status_PIRC[2] := 2;		// Controlled opening of the process gas valve
+				g_i_status_CON := 0;		// Condenser cooling OFF
+				g_i_status_SG := 0;		// Steam generator control OFF
+				g_i_status_WS := 0;		// Level control in the storage tank OFF
+				g_b_FG1 := TRUE;		// Activate release relay
+				g_b_FG2 := TRUE;		// Activate release relay
+				g_b_GSM1_active := TRUE;		// Activate GSM module
 				l_i_status_PL := g_i_status_PL;
 				g_i_status_PL_extern_auto := 2;
 			ENDIF
 
 			# Cooldown routine is based on rule-based control w.r.t. the catalyst temperature		
 			IF g_r_T_cat_max[2] < 310 THEN
-				g_i_status_GR := 0;								// Gas regulation OFF
+				g_i_status_GR := 0;		// Gas regulation OFF
 			ENDIF
 			
 			IF g_r_T_cat_max[2] < 175 THEN
-				g_i_status_PL := 0;								// System shutdown
+				g_i_status_PL := 0;		// System shutdown
 			ENDIF
 						
 			// Control of the signal light (Green = flashing)
 			FB_PFM[0].Enable := TRUE;
-			FB_PFM[0].DutyCycle := 20;							// During cooldown, pause times are increased
-			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM[0].DutyCycle := 20;		// During cooldown, pause times are increased
+			FB_PFM[0] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[0] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
@@ -334,30 +334,30 @@ PROGRAM _CYCLIC
 			// Control of the signal light (Yellow = flashing)
 			FB_PFM[0].Enable := TRUE;
 			FB_PFM[0].DutyCycle := 99;			
-			FB_PFM[0] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM[0] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation
 			g_b_SA1[1] := FB_PFM[0].Out;
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
 		ACTION 9:		// System: Standby -> Reactors are kept at temperature
 			IF l_i_status_PL <> g_i_status_PL THEN
-				g_i_status_GAL := 0;							// Gas measurement OFF
-				g_i_period_GAL := 0;							// and periodic measurement OFF
-				LOOP l_i = 1 TO 2 DO							// Pressure control OFF
+				g_i_status_GAL := 0;		// Gas measurement OFF
+				g_i_period_GAL := 0;		// and periodic measurement OFF
+				LOOP l_i = 1 TO 2 DO		// Pressure control OFF
 					g_i_status_PIRC[l_i] := 0;
 					g_rv_RV[l_i].i_ao := INT(G_R_ANALOG_SIGNAL*4/20);
 				ENDLOOP
 				IF (l_i_status_PL = 2) OR (l_i_status_PL = 4) OR (l_i_status_PL = 6) THEN		// If previously in field test
-					g_i_status_GR := 3;							// Gas regulation H2 purge
+					g_i_status_GR := 3;		// Gas regulation H2 purge
 					l_b_GR_H2 := TRUE;						
 				ELSE
-					g_i_status_GR := 0;							// Gas regulation OFF
+					g_i_status_GR := 0;		// Gas regulation OFF
 					l_b_GR_H2 := FALSE;		
 				ENDIF
 				
-				g_i_status_CON := 0;			// Condenser cooling OFF
-				g_i_status_SG := 0;				// Steam generator control OFF
-				g_i_status_WS := 0;				// Level control in the storage tank OFF
+				g_i_status_CON := 0;		// Condenser cooling OFF
+				g_i_status_SG := 0;		// Steam generator control OFF
+				g_i_status_WS := 0;		// Level control in the storage tank OFF
 			
 				// Activate release relay
 				g_b_FG1 := TRUE;
@@ -367,9 +367,9 @@ PROGRAM _CYCLIC
 				LOOP l_i = 1 TO 9 DO			
 					g_i_status_HZ[l_i] := 0;
 				ENDLOOP
-				g_i_status_HZ[8] := 2;			// HP reactor ON
-				g_temp_TIRC[4].r_soll := 220; 	// HP reactor heating temperature in standby
-				g_i_status_HZ[6] := 2;			// Biogas supply ON, to avoid droplet formation there when restarting from standby
+				g_i_status_HZ[8] := 2;		// HP reactor ON
+				g_temp_TIRC[4].r_soll := 220;		// HP reactor heating temperature in standby
+				g_i_status_HZ[6] := 2;		// Biogas supply ON, to avoid droplet formation there when restarting from standby
 				g_temp_TIRC[16].r_soll := 70;
 				l_i_status_PL := g_i_status_PL;
 				g_i_status_PL_extern_auto := 1;
@@ -379,7 +379,7 @@ PROGRAM _CYCLIC
 			FB_TP_10ms[1].PT = 30000;
 			FB_TP_10ms[1] FUB TP_10ms()
 			IF FB_TP_10ms[1].Q = FALSE THEN
-				g_i_status_GR := 0;				// Gas regulation OFF
+				g_i_status_GR := 0;		// Gas regulation OFF
 				l_b_GR_H2 := FALSE;
 			ENDIF
 			
@@ -413,7 +413,7 @@ PROGRAM _CYCLIC
 	// In case of warning: Signal light to orange and trigger the horn for 2.5 seconds in case of warning
 	IF g_i_w_sum > 0 THEN
 		IF g_b_GSM1_active THEN
-			g_b_GSM1_IN4 := TRUE;	// Warning message via GSM module
+			g_b_GSM1_IN4 := TRUE;		// Warning message via GSM module
 		ENDIF
 		g_b_SA1[1] := TRUE;
 	ENDIF
@@ -424,7 +424,7 @@ PROGRAM _CYCLIC
 	
 	// System status in visualization (ContentStatusPage)
 	g_b_status_PL[g_i_status_PL] := TRUE;
-	LOOP l_i = 0 TO 9 DO			// All others = FALSE
+	LOOP l_i = 0 TO 9 DO		// All others = FALSE
 		IF l_i <> g_i_status_PL THEN
 			g_b_status_PL[l_i] := FALSE;
 		ENDIF
@@ -446,13 +446,13 @@ PROGRAM _CYCLIC
 	can only be set to TRUE by the data recording side *)
 	FB_PFM[1].Enable := TRUE;
 	FB_PFM[1].DutyCycle := 99;			
-	FB_PFM[1] FUB MTBasicsPFM();						// Function call MTBasicsPFM pulse frequency modulation
+	FB_PFM[1] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation
 	IF FB_PFM[1].Out THEN
 		g_b_data_active := FALSE;
 	ENDIF
-	g_b_SA1[3] := g_b_data_active;						// Signal data recording via signal light
+	g_b_SA1[3] := g_b_data_active;		// Signal data recording via signal light
 
-	// In autonomous operation in field test - possibility to externally change the system status
+	// In automatic/ autonomous operation in field test - possibility to externally change the system status
 	IF g_b_auto = TRUE THEN
 		IF g_i_status_PL_extern = 2 THEN	// Startup
 			IF g_i_status_PL = 4 THEN
@@ -477,16 +477,16 @@ PROGRAM _CYCLIC
 				g_i_status_PL_extern_auto := 4;
 			ENDIF	
 			IF g_i_status_PL_extern = 11 THEN		// Full Load
-				g_r_last_ramp_extern := 100; 		// Can be adjusted to different load levels OP1 or OP2
+				g_r_last_ramp_extern := 100;		// Can be adjusted to different load levels OP1 or OP2
 				g_i_status_PL_extern_auto := 5;
 			ENDIF
 		ENDIF
 					
 		// Time step recording in autonomous operation
 		FB_PFM[2].Enable := TRUE;
-		FB_PFM[2].DutyCycle := 99;					// Utilization of FB_PFM.MinPause = 1s (Always alternating pulse and MinPause)
-		FB_PFM[2] FUB MTBasicsPFM();				// Function call MTBasicsPFM pulse frequency modulation	
-		IF EDGEPOS(FB_PFM[2].Out) THEN				// On positive edge, increase the time step by 1
+		FB_PFM[2].DutyCycle := 99;		// Utilization of FB_PFM.MinPause = 1s (Always alternating pulse and MinPause)
+		FB_PFM[2] FUB MTBasicsPFM();		// Function call MTBasicsPFM pulse frequency modulation	
+		IF EDGEPOS(FB_PFM[2].Out) THEN		// On positive edge, increase the time step by 1
 			g_i_time_step_extern_auto := g_i_time_step_extern_auto + 1;
 		ENDIF	
 	ELSE
