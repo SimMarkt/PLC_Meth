@@ -31,14 +31,14 @@ END_PROGRAM
 
 PROGRAM _CYCLIC
 	//Assignment of the measured temperature values in the heat pipe reactor to the temperature profile 
-	g_r_Tprofile_HP[0] := g_temp_TIR[5].r_ist;										//Temperature above fixed bed
-	LOOP l_i = 0 TO 9 DO															//l_r_T_profile_HP[0] at z = -9 mm
-		g_r_Tprofile_HP[L_I_Z_AXIS_HP[l_i]+9] := g_temp_TIR[l_i+9].r_ist;			//Top measurement value in the multipoint thermocouple = TIR9
+	g_r_Tprofile_HP[0] := g_temp_TIR[5].r_ist;		//Temperature above fixed bed
+	LOOP l_i = 0 TO 9 DO		//l_r_T_profile_HP[0] at z = -9 mm
+		g_r_Tprofile_HP[L_I_Z_AXIS_HP[l_i]+9] := g_temp_TIR[l_i+9].r_ist;		//Top measurement value in the multipoint thermocouple = TIR9
 	ENDLOOP
 	
 	//Assignment of the measured temperature values in the fixed bed reactor to the temperature profile 
-	LOOP l_i = 0 TO 9 DO															//l_r_T_profile_HP[0] at z = -3 mm
-		g_r_Tprofile_FB[L_I_Z_AXIS_FB[l_i]+3] := g_temp_TIR[l_i+27].r_ist;			//Top measurement value in the multipoint thermocouple = TIR27
+	LOOP l_i = 0 TO 9 DO		//l_r_T_profile_HP[0] at z = -3 mm
+		g_r_Tprofile_FB[L_I_Z_AXIS_FB[l_i]+3] := g_temp_TIR[l_i+27].r_ist;		//Top measurement value in the multipoint thermocouple = TIR27
 	ENDLOOP
 	
 	//Section-wise: Linear interpolation of values between measurements (heat pipe reactor)

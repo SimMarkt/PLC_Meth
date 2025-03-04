@@ -11,7 +11,7 @@
 
 PROGRAM _INIT
 	//Initialization of the time delay when closing the valves
-	LOOP l_i = 0 TO 1 DO							//Close gas supply valves
+	LOOP l_i = 0 TO 1 DO		//Close gas supply valves
 		FB_TimeDelay[l_i].Enable := TRUE;
 		FB_TimeDelay[l_i].InitialValue := 1;
 		FB_TimeDelay[l_i].DelayTime := 0.8;
@@ -22,43 +22,43 @@ PROGRAM _INIT
 	LOOP l_i = 2 TO 4 DO							
 		FB_TimeDelay[l_i].Enable := FALSE;
 		FB_TimeDelay[l_i].InitialValue := 0;
-		FB_TimeDelay[l_i].DelayTime := 5;			//Time a solenoid valve can be open
+		FB_TimeDelay[l_i].DelayTime := 5;		//Time a solenoid valve can be open
 		FB_TimeDelay[l_i].In := 1;
 	ENDLOOP
 	
 	//Initialization of the time delay to capture the ongoing nitrogen supply in idle state
 	FB_TimeDelay[5].Enable := FALSE;
 	FB_TimeDelay[5].InitialValue := 0;
-	FB_TimeDelay[5].DelayTime := 600;				//Time until warning message
+	FB_TimeDelay[5].DelayTime := 600;		//Time until warning message
 	
 	//Initialization of the time delay to capture a connection error with the biomethane plant
 	FB_TON_10ms[0].IN := FALSE;
-	FB_TON_10ms[0].PT := 800;						//Measurement after 800 * 10 ms = 8 s
+	FB_TON_10ms[0].PT := 800;		//Measurement after 800 * 10 ms = 8 s
 	
 	//Initialization of the time delay to capture the interruption of the water supply
 	FB_TON_10ms[1].IN := FALSE;
-	FB_TON_10ms[1].PT := 5 * 6000;					//Measurement after 5 * 6000 * 10 ms = 5 min
+	FB_TON_10ms[1].PT := 5 * 6000;		//Measurement after 5 * 6000 * 10 ms = 5 min
 	
 	//Initialization of the time delay to capture the interruption of the H2 supply
 	FB_TON_10ms[2].IN := FALSE;
-	FB_TON_10ms[2].PT := 200;						//Measurement after 5 * 6000 * 10 ms = 5 min
+	FB_TON_10ms[2].PT := 200;		//Measurement after 5 * 6000 * 10 ms = 5 min
 	
 	//To control the signal of the biomethane plant
 	FB_PFM.PulseWidth := 0.5;  
 	FB_PFM.MinPause := 60;
 	
 	//Initialization of the alarm management
-	FB_MpAlarmXCore.Enable := TRUE;							//Activate alarm management
-	FB_MpAlarmXCore.MpLink := ADR(MPLink20kWgAlarmXCore);	//Set pointer to alarm library (found in Configuration View)
+	FB_MpAlarmXCore.Enable := TRUE;		//Activate alarm management
+	FB_MpAlarmXCore.MpLink := ADR(MPLink20kWgAlarmXCore);		//Set pointer to alarm library (found in Configuration View)
 	LOOP l_i = 0 TO 59 DO
-		brsitoa(l_i+1, ADR(l_str_temp));					//Convert the INT loop variable to STRING
-		strcat(ADR(l_str_w[l_i]), ADR(l_str_temp));			//Insert the loop variable for warning identification: "W" + l_i
+		brsitoa(l_i+1, ADR(l_str_temp));		//Convert the INT loop variable to STRING
+		strcat(ADR(l_str_w[l_i]), ADR(l_str_temp));		//Insert the loop variable for warning identification: "W" + l_i
 	ENDLOOP
 	LOOP l_i = 0 TO 61 DO
-		brsitoa(l_i+1, ADR(l_str_temp));					//Convert the INT loop variable to STRING
-		strcat(ADR(l_str_e[l_i]), ADR(l_str_temp));			//Insert the loop variable for error identification: "E" + l_i
+		brsitoa(l_i+1, ADR(l_str_temp));		//Convert the INT loop variable to STRING
+		strcat(ADR(l_str_e[l_i]), ADR(l_str_temp));		//Insert the loop variable for error identification: "E" + l_i
 	ENDLOOP
-	FB_MpAlarmXListUI.MpLink = ADR(MPLink20kWgAlarmXCore);	//For visualization of the alarm list
+	FB_MpAlarmXListUI.MpLink = ADR(MPLink20kWgAlarmXCore);		//For visualization of the alarm list
 	FB_MpAlarmXListUI.Enable = TRUE;
 	FB_MpAlarmXListUI.UIConnect = ADR(l_MpAlarmXListUIConnectType);
 	
@@ -126,7 +126,7 @@ PROGRAM _CYCLIC
 			l_b_error[l_i] := FALSE;
 			MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_e[l_i_e]);
 		ENDLOOP
-		l_MpAlarmXListUIConnectType.AcknowledgeAll := TRUE;						//Acknowledge all alarms
+		l_MpAlarmXListUIConnectType.AcknowledgeAll := TRUE;			//Acknowledge all alarms
 		g_na_NA1.b_do := FALSE;
 		g_b_GSM1_IN4 := FALSE;
 		g_b_GSM1_IN5 := FALSE;
@@ -137,8 +137,8 @@ PROGRAM _CYCLIC
 	l_i_w := 0;
 	l_i_e := 0;
 	
-	FB_MpAlarmXCore FUB MpAlarmXCore();							//Execute alarm management
-	FB_MpAlarmXListUI FUB MpAlarmXListUI();						//For visualization of the alarm list
+	FB_MpAlarmXCore FUB MpAlarmXCore();		//Execute alarm management
+	FB_MpAlarmXListUI FUB MpAlarmXListUI();		//For visualization of the alarm list
 	
 	//Safety against overpressure: 
 	LOOP l_i = 1 TO 7 DO		
@@ -252,7 +252,7 @@ PROGRAM _CYCLIC
 	FB_TON_10ms[1] FUB TON_10ms()
 	l_i_e := l_i_e + 1;
 	
-	IF g_b_LIR[1] = FALSE THEN				//Warning: Low level in storage tank
+	IF g_b_LIR[1] = FALSE THEN		//Warning: Low level in storage tank
 		g_b_warning[l_i_w] := TRUE;
 		g_b_SR11_PM2 := FALSE;
 		IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
@@ -263,7 +263,7 @@ PROGRAM _CYCLIC
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
 	ENDIF
 	l_i_w := l_i_w + 1;
-	IF g_b_LIR[2] = FALSE THEN				//Error: Level in storage tank too low
+	IF g_b_LIR[2] = FALSE THEN		//Error: Level in storage tank too low
 		g_b_error[l_i_e] := TRUE;
 		g_b_SR11_PM2 := FALSE;
 		IF (g_volf_in_react[3].l_min > 0) OR (g_i_status_SG <> 0) THEN		 
@@ -283,7 +283,7 @@ PROGRAM _CYCLIC
 	
 	//Safety against exceeding the maximum temperature:
 	LOOP l_i = 1 TO 10 DO	
-		l_r_T_ist[l_i] := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;				//Assignment of temperature values to the corresponding heaters l_i
+		l_r_T_ist[l_i] := g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_ist;		//Assignment of temperature values to the corresponding heaters l_i
 		IF l_r_T_ist[l_i] > (L_R_T_MAX_HZ[l_i] + L_R_DT_MAX_W_HZ) THEN 		// Warning: High temperature of the heaters!
 			g_b_warning[l_i_w] := TRUE;
 			IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
@@ -346,7 +346,7 @@ PROGRAM _CYCLIC
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
 	ENDIF
 	l_i_w := l_i_w + 1;
-	IF g_temp_TIR[19].r_ist >  L_R_T_MAX_HP  THEN	//Error: High temperature in heatpipe!
+	IF g_temp_TIR[19].r_ist >  L_R_T_MAX_HP  THEN		//Error: High temperature in heatpipe!
 		g_b_error[l_i_e] := TRUE;	 
 		l_b_act_HZ_inactive := TRUE;
 		l_b_act_gasf_inactive := TRUE;
@@ -370,7 +370,7 @@ PROGRAM _CYCLIC
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
 	ENDIF
 	l_i_w := l_i_w + 1;
-	IF g_temp_TIR[25].r_ist >  L_R_T_MAX_KW  THEN	//Error: High temperature of the cooling water in condenser 1!
+	IF g_temp_TIR[25].r_ist >  L_R_T_MAX_KW  THEN		//Error: High temperature of the cooling water in condenser 1!
 		g_b_error[l_i_e] := TRUE;		 
 		l_b_act_HZ_inactive := TRUE;
 		l_b_act_gasf_inactive := TRUE;
@@ -418,7 +418,7 @@ PROGRAM _CYCLIC
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
 	ENDIF
 	l_i_w := l_i_w + 1;
-	IF g_temp_TIR[43].r_ist > L_R_T_MAX_SK1  THEN					//Error: High temperature in the control cabinet!
+	IF g_temp_TIR[43].r_ist > L_R_T_MAX_SK1  THEN		//Error: High temperature in the control cabinet!
 		g_b_error[l_i_e] := TRUE;		 
 		l_b_act_HZ_inactive := TRUE;
 		l_b_act_pres_descent := TRUE;
@@ -435,7 +435,7 @@ PROGRAM _CYCLIC
 
 	//Safety against falling below the minimum temperature:
 	l_m := 0;																			
-	IF (g_temp_TIR[23].r_ist < L_R_T_MIN_SF) AND (g_pm_PM[1].r_soll > 0) THEN			//Warning: Low temperature of the steam dosing!
+	IF (g_temp_TIR[23].r_ist < L_R_T_MIN_SF) AND (g_pm_PM[1].r_soll > 0) THEN		//Warning: Low temperature of the steam dosing!
 		g_b_warning[l_i_w] := TRUE;
 		IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
 			MpAlarmXSet(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
@@ -445,9 +445,9 @@ PROGRAM _CYCLIC
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
 	ENDIF
 	l_i_w := l_i_w + 1;
-	l_r_p_H2O := g_r_y_in_react[3] * g_pres_PIR[2].r_ist_abs;						//Calculation of the steam partial pressure
+	l_r_p_H2O := g_r_y_in_react[3] * g_pres_PIR[2].r_ist_abs;		//Calculation of the steam partial pressure
 	g_r_T_S_H2O := (LN(l_r_p_H2O * 100000) - LN(L_R_C1)) * L_R_C3 / (L_R_C2 + LN(L_R_C1) - LN(l_r_p_H2O * 100000));			//Calculation of the saturation temperature of water based on the Magnus equation
-	IF (g_temp_TIR[4].r_ist < g_r_T_S_H2O) AND (g_pm_PM[1].r_soll > 0) THEN			//Warning: Low temperature of the steam dosing at the gas mixing point!
+	IF (g_temp_TIR[4].r_ist < g_r_T_S_H2O) AND (g_pm_PM[1].r_soll > 0) THEN		//Warning: Low temperature of the steam dosing at the gas mixing point!
 		g_b_warning[l_i_w] := TRUE;
 		IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
 			MpAlarmXSet(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
@@ -468,14 +468,14 @@ PROGRAM _CYCLIC
 		l_b_t_min[l_m] = TRUE;
 	ELSE
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
-		IF l_b_t_min[l_m] = TRUE THEN									//When the temperature limit is exceeded, the heater is switched off
+		IF l_b_t_min[l_m] = TRUE THEN		//When the temperature limit is exceeded, the heater is switched off
 			g_i_status_HZ[10] := 0;
 			l_b_t_min[l_m] = FALSE;
 		ENDIF
 	ENDIF
 	l_i_w := l_i_w + 1;
 	l_m := l_m + 1; 
-	IF g_temp_TIR[20].r_ist < L_R_T_MIN_WS THEN							//Error: Low temperature of the water supply!
+	IF g_temp_TIR[20].r_ist < L_R_T_MIN_WS THEN		//Error: Low temperature of the water supply!
 		g_b_error[l_i_e] := TRUE;
 		l_b_act_pres_descent := TRUE;
 		l_b_act_SG_inactive := TRUE;
@@ -490,11 +490,11 @@ PROGRAM _CYCLIC
 		l_b_t_min[l_m] = TRUE;
 	ELSE
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_e[l_i_e]);
-		IF l_b_t_min[l_m] = TRUE THEN									//When the temperature limit is exceeded, the heater is switched off
+		IF l_b_t_min[l_m] = TRUE THEN		//When the temperature limit is exceeded, the heater is switched off
 			LOOP l_i = 1 TO 9 DO			
 				g_i_status_HZ[l_i] := 0;
 			ENDLOOP
-			g_i_status_CON := 0;										//Additionally, water flow is deactivated to prevent freezing
+			g_i_status_CON := 0;		//Additionally, water flow is deactivated to prevent freezing
 			l_b_t_min[l_m] = FALSE;
 		ENDIF
 	ENDIF
@@ -537,7 +537,7 @@ PROGRAM _CYCLIC
 			LOOP l_i = 1 TO 9 DO			
 				g_i_status_HZ[l_i] := 0;
 			ENDLOOP
-			g_i_status_CON := 0;			//Additionally, water flow is deactivated to prevent freezing
+			g_i_status_CON := 0;		//Additionally, water flow is deactivated to prevent freezing
 			l_b_t_min[l_m] = FALSE;
 		ENDIF
 	ENDIF
@@ -578,7 +578,7 @@ PROGRAM _CYCLIC
 			LOOP l_i = 1 TO 9 DO			
 				g_i_status_HZ[l_i] := 0;
 			ENDLOOP
-			g_i_status_CON := 0;			//Additionally, water flow is deactivated to prevent freezing
+			g_i_status_CON := 0;		//Additionally, water flow is deactivated to prevent freezing
 			l_b_t_min[l_m] = FALSE;
 		ENDIF
 	ENDIF
@@ -602,7 +602,7 @@ PROGRAM _CYCLIC
 	ENDIF
 	l_i_w := l_i_w + 1;
 	l_m := l_m + 1; 
-	IF g_temp_TIR[43].r_ist < L_R_T_MIN_SK1  THEN		/Error: Low temperature in the control cabinet!
+	IF g_temp_TIR[43].r_ist < L_R_T_MIN_SK1  THEN		//Error: Low temperature in the control cabinet!
 		g_b_error[l_i_e] := TRUE;
 		l_b_act_pres_descent := TRUE;
 		//l_b_act_CON_inactive := TRUE;
@@ -620,7 +620,7 @@ PROGRAM _CYCLIC
 			LOOP l_i = 1 TO 9 DO			
 				g_i_status_HZ[l_i] := 0;
 			ENDLOOP
-			g_i_status_CON := 0;			//Additionally, water flow is deactivated to prevent freezing
+			g_i_status_CON := 0;		//Additionally, water flow is deactivated to prevent freezing
 			l_b_t_min[l_m] = FALSE;
 		ENDIF
 	ENDIF
@@ -628,7 +628,7 @@ PROGRAM _CYCLIC
 
 		
 	//Safety against overfilling:
-	IF g_lirc_LIRC1.r_ist_avg > L_R_H_MAX_LIRC1 THEN			//Error: High level in the steam generator!
+	IF g_lirc_LIRC1.r_ist_avg > L_R_H_MAX_LIRC1 THEN		//Error: High level in the steam generator!
 		g_b_warning[l_i_w] := TRUE;
 		IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
 			MpAlarmXSet(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
@@ -638,7 +638,7 @@ PROGRAM _CYCLIC
 		MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
 	ENDIF
 	l_i_w := l_i_w + 1;
-	IF g_b_LIR[0] = FALSE THEN				//Error: High level in the steam generator!
+	IF g_b_LIR[0] = FALSE THEN		//Error: High level in the steam generator!
 		g_b_error[l_i_e] := TRUE;
 		l_b_act_HZ_inactive := TRUE;
 		l_b_act_gasf_inactive := TRUE;
@@ -653,7 +653,7 @@ PROGRAM _CYCLIC
 	ENDIF
 	l_i_e := l_i_e + 1;
 	
-	IF g_b_LC[1] = FALSE THEN				//Error: High level in the storage tank!
+	IF g_b_LC[1] = FALSE THEN		//Error: High level in the storage tank!
 		g_b_error[l_i_e] := TRUE;
 		l_b_act_HZ_inactive := TRUE;
 		l_b_act_n2_flush := TRUE;
@@ -682,7 +682,7 @@ PROGRAM _CYCLIC
 			MpAlarmXReset(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
 		ENDIF
 		l_i_w := l_i_w + 1;
-		IF g_pres_PIR[1].r_ist < L_R_P_MIN_BIO THEN 	// Error: Low pressure in biogas line!
+		IF g_pres_PIR[1].r_ist < L_R_P_MIN_BIO THEN		// Error: Low pressure in biogas line!
 			g_b_error[l_i_e] := TRUE;
 			l_b_act_HZ_inactive := TRUE;
 			l_b_act_gasf_inactive := TRUE;
@@ -698,7 +698,7 @@ PROGRAM _CYCLIC
 		ENDIF
 		l_i_e := l_i_e + 1;
 		
-		IF g_pres_PIR[1].r_ist < (g_pres_PIR[2].r_ist + L_R_DP_MIN_BIO_PL) THEN 	// Error: Low pressure in biogas line for desired plant operation!
+		IF g_pres_PIR[1].r_ist < (g_pres_PIR[2].r_ist + L_R_DP_MIN_BIO_PL) THEN		// Error: Low pressure in biogas line for desired plant operation!
 			g_b_warning[l_i_w] := TRUE;
 			g_pres_PIRC[2].r_soll := g_pres_PIR[1].r_ist - L_R_DP_MIN_BIO_PL;		//Adjustment of the process gas pressure level
 			IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
@@ -710,8 +710,8 @@ PROGRAM _CYCLIC
 		ENDIF
 		l_i_w := l_i_w + 1;
 		
-		IF (g_i_status_PL = 4) AND (g_mfc_MFC[1].r_ist < 0.5) THEN	// Error: H2 bundle change or under-supply with H2
-			FB_TON_10ms[2].IN := TRUE;					// With time delay after 2 seconds
+		IF (g_i_status_PL = 4) AND (g_mfc_MFC[1].r_ist < 0.5) THEN		// Error: H2 bundle change or under-supply with H2
+			FB_TON_10ms[2].IN := TRUE;		// With time delay after 2 seconds
 			IF FB_TON_10ms[2].Q THEN
 				g_b_error[l_i_e] := TRUE;
 				l_b_act_HZ_inactive := TRUE;
@@ -797,7 +797,7 @@ PROGRAM _CYCLIC
 	ENDLOOP
 	
 	//Error when biomethane plant is out of operation
-	IF (g_i_status_PL = 2) OR (g_i_status_PL = 4) OR (g_i_status_PL = 6) THEN 		//Only in field test
+	IF (g_i_status_PL = 2) OR (g_i_status_PL = 4) OR (g_i_status_PL = 6) THEN		//Only in field test
 		IF (g_i_BMA1_wd > l_i_BMA1_wd) THEN
 			FB_TON_10ms[0].IN := FALSE;
 			IF (g_b_BMA1 = FALSE) THEN
@@ -843,7 +843,7 @@ PROGRAM _CYCLIC
 		can only be set to TRUE by the biomethane plant*)
 		FB_PFM.Enable := TRUE;
 		FB_PFM.DutyCycle := 99;			
-		FB_PFM FUB MTBasicsPFM();				//Function call MTBasicsPFM pulse frequency modulation
+		FB_PFM FUB MTBasicsPFM();		//Function call MTBasicsPFM pulse frequency modulation
 		IF FB_PFM.Out THEN
 			g_b_BMA1 := FALSE;
 		ENDIF
@@ -854,7 +854,7 @@ PROGRAM _CYCLIC
 	l_i_e := l_i_e + 1;	
 	
 	//Emergency stop activated
-	IF g_na_NA1.b_di THEN				//Emergency stop chain is switched independently of the control! Nevertheless, the values are set in parallel on the control side
+	IF g_na_NA1.b_di THEN		//Emergency stop chain is switched independently of the control! Nevertheless, the values are set in parallel on the control side
 		g_b_error[l_i_e] := TRUE;
 		l_b_act_HZ_inactive := TRUE;
 		l_b_act_gasf_inactive := TRUE;
@@ -874,7 +874,7 @@ PROGRAM _CYCLIC
 	l_i_e := l_i_e + 1;
 	
 	//Safety against malfunction of safety-relevant thermocouple
-	IF g_temp_TIR[21].r_ist > 3000 THEN			//Storage tank			
+	IF g_temp_TIR[21].r_ist > 3000 THEN		//Storage tank			
 		g_b_warning[l_i_w] := TRUE;
 		IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
 			MpAlarmXSet(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
@@ -886,7 +886,7 @@ PROGRAM _CYCLIC
 	l_i_w := l_i_w + 1;
 
 	LOOP l_i = 41 TO 45 DO
-		IF g_temp_TIR[l_i].r_ist > 3000 THEN	//Enclosure & control cabinet
+		IF g_temp_TIR[l_i].r_ist > 3000 THEN		//Enclosure & control cabinet
 			g_b_warning[l_i_w] := TRUE;
 			IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
 				MpAlarmXSet(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
@@ -898,7 +898,7 @@ PROGRAM _CYCLIC
 		l_i_w := l_i_w + 1;
 	ENDLOOP
 	LOOP l_i = 1 TO 10 DO
-		IF g_temp_TIRC[l_i].r_ist > 3000 THEN	//Heaters
+		IF g_temp_TIRC[l_i].r_ist > 3000 THEN		//Heaters
 			g_b_warning[l_i_w] := TRUE;
 			IF l_b_warning[l_i_w] <> g_b_warning[l_i_w] THEN 
 				MpAlarmXSet(MPLink20kWgAlarmXCore,l_str_w[l_i_w]);
@@ -911,7 +911,7 @@ PROGRAM _CYCLIC
 	ENDLOOP
 
 	//Fuses are triggered
-	IF g_b_S1_5 = FALSE THEN				//Emergency stop chain is switched independently of the control! Nevertheless, the values are set in parallel on the control side
+	IF g_b_S1_5 = FALSE THEN		//Emergency stop chain is switched independently of the control! Nevertheless, the values are set in parallel on the control side
 		g_b_error[l_i_e] := TRUE;
 		g_na_NA1.b_do := TRUE;
 		l_b_act_HZ_inactive := TRUE;
@@ -989,18 +989,18 @@ PROGRAM _CYCLIC
 	l_i_w := l_i_w + 1;
 	
 	//*********************Definition of actions for warnings and error messages*********************	
-	IF l_b_act_HZ_inactive THEN				//Deactivate the heaters
+	IF l_b_act_HZ_inactive THEN		//Deactivate the heaters
 		LOOP l_i = 1 TO 10 DO
-			g_i_status_HZ[l_i] := 0;					//Heaters OFF	
+			g_i_status_HZ[l_i] := 0;		//Heaters OFF	
 		ENDLOOP
 		LOOP l_i = 1 TO 13 DO
-			g_temp_TIRC[l_i].r_soll := 0;				//Set target temperatures to zero
+			g_temp_TIRC[l_i].r_soll := 0;		//Set target temperatures to zero
 		ENDLOOP
 		l_b_act_HZ_inactive := FALSE;
 	ENDIF
 	
-	IF l_b_act_gasf_inactive THEN						//Deactivate the gas supply (H2, biogas, steam)
-		g_r_last := 0;									//Set load profile and biogas volume flow and thus also H2 and H2O flow to zero
+	IF l_b_act_gasf_inactive THEN			//Deactivate the gas supply (H2, biogas, steam)
+		g_r_last := 0;		//Set load profile and biogas volume flow and thus also H2 and H2O flow to zero
 		g_r_last_ramp := 0;
 		g_r_last_ramp_extern := 0;
 		g_volf_in_bio.l_min := 0;
@@ -1013,74 +1013,74 @@ PROGRAM _CYCLIC
 			g_b_MV[3] := FALSE;						
 		ENDIF
 		IF (g_b_MV[1] = FALSE) AND (g_b_MV[3] = FALSE) THEN
-			g_i_status_GR := 0;							//Gas control OFF: only after delayed closing of the solenoid valves
+			g_i_status_GR := 0;			//Gas control OFF: only after delayed closing of the solenoid valves
 			l_b_act_gasf_inactive := FALSE;
 		ENDIF
 	ENDIF
 	
-	IF l_b_act_n2f_inactive THEN						//Deactivate the gas supply with nitrogen
+	IF l_b_act_n2f_inactive THEN		//Deactivate the gas supply with nitrogen
 		g_i_status_GR := 0;
 		g_b_MV[2] := FALSE;
 		l_b_act_n2f_inactive := FALSE;
 	ENDIF
 	
-	IF l_b_act_SG_inactive THEN							//Deactivate the steam generator control
-		g_i_status_SG := 0;								//Steam generator OFF
+	IF l_b_act_SG_inactive THEN		//Deactivate the steam generator control
+		g_i_status_SG := 0;		//Steam generator OFF
 		l_b_act_SG_inactive := FALSE;
 	ENDIF
 	
-	IF l_b_act_CON_inactive THEN						//Deactivate the condenser control
-		g_i_status_CON := 0;							//Condenser control OFF
+	IF l_b_act_CON_inactive THEN		//Deactivate the condenser control
+		g_i_status_CON := 0;		//Condenser control OFF
 		l_b_act_CON_inactive := FALSE;
 	ENDIF
 		
-	IF l_b_act_waterf_inactive THEN						//Deactivate the water supply				
+	IF l_b_act_waterf_inactive THEN		//Deactivate the water supply				
 		g_i_status_WS := 0;
 		l_b_act_waterf_inactive := FALSE;
 	ENDIF
 	
-	IF l_b_act_antifrost_active THEN					//Activate the water supply to prevent frost damage in the pipes
-		g_i_status_CON := 1;							//Condenser control ON
-		g_pv_PV1.r_ist := 100;							//Valve to condenser 1 open
-		g_b_MV[11] := TRUE;								//Valve to condenser 2 open
+	IF l_b_act_antifrost_active THEN		//Activate the water supply to prevent frost damage in the pipes
+		g_i_status_CON := 1;		//Condenser control ON
+		g_pv_PV1.r_ist := 100;		//Valve to condenser 1 open
+		g_b_MV[11] := TRUE;		//Valve to condenser 2 open
 		l_b_act_antifrost_active := FALSE;
 	ENDIF
 	
-	IF l_b_act_GA_inactive THEN							//Deactivate the gas analysis				
+	IF l_b_act_GA_inactive THEN		//Deactivate the gas analysis				
 		g_i_status_GAL := 0;
 		l_b_act_GA_inactive := FALSE;
 	ENDIF
 	
-	IF l_b_act_pres_descent THEN						//Controlled opening of the process control valves and pressure reduction
+	IF l_b_act_pres_descent THEN		//Controlled opening of the process control valves and pressure reduction
 		LOOP l_i = 1 TO 2 DO
-			g_i_status_PIRC[l_i] := 2;					//Pressure control OFF + controlled opening of the valves
+			g_i_status_PIRC[l_i] := 2;		//Pressure control OFF + controlled opening of the valves
 		ENDLOOP
 		l_b_act_pres_descent := FALSE;
 	ENDIF
 	
-	IF l_b_act_n2_flush THEN							//Activate nitrogen flushing				
+	IF l_b_act_n2_flush THEN		//Activate nitrogen flushing				
 		g_i_status_GR := 4;
 		l_b_act_n2_flush := FALSE;
 	ENDIF
 	
-	IF l_b_act_BHZ_active THEN							//Activate the floor heating				
+	IF l_b_act_BHZ_active THEN		//Activate the floor heating				
 		g_i_status_HZ[10] := 2;				
 		g_temp_TIRC[13].r_soll = 40;
 		l_b_act_BHZ_active := FALSE;
 	ENDIF
 	
-	IF l_b_act_lowHZ_active THEN						//Activate the heaters for plant heating
+	IF l_b_act_lowHZ_active THEN		//Activate the heaters for plant heating
 		g_b_FG1 := TRUE;
 		g_b_FG2 := TRUE;
 		LOOP l_i = 1 TO 9 DO			
 			g_i_status_HZ[l_i] := 2;
 			IF l_i = 7 THEN
-				g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll := 80;	//Desulfurization
+				g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll := 80;		//Desulfurization
 			ELSE
-				IF l_i = 6 THEN									//Biogas line
+				IF l_i = 6 THEN		//Biogas line
 					g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll := 60;
 				ELSE
-					IF (l_i = 2) OR (l_i = 3) OR (l_i = 8) OR (l_i = 9) THEN	//Reactors and preheating
+					IF (l_i = 2) OR (l_i = 3) OR (l_i = 8) OR (l_i = 9) THEN		//Reactors and preheating
 						g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll := 250;
 					ELSE
 						g_temp_TIRC[G_I_INDEX_HZ[l_i]].r_soll := 180;
@@ -1091,7 +1091,7 @@ PROGRAM _CYCLIC
 		l_b_act_lowHZ_active := FALSE;
 	ENDIF
 	
-	IF l_b_act_PM2_active THEN							//Activate the pump to empty
+	IF l_b_act_PM2_active THEN		//Activate the pump to empty
 		IF g_b_LIR[2] = FALSE THEN 
 			g_b_SR11_PM2 := TRUE;
 		ELSE
@@ -1100,8 +1100,8 @@ PROGRAM _CYCLIC
 		ENDIF
 	ENDIF
 	
-	IF l_b_act_gasf_inactive_h2_flush THEN				//Deactivate the gas supply (biogas, steam) and H2 flushing
-		g_r_last := 0;									//Set load profile and biogas volume flow and thus also H2 and H2O flow to zero
+	IF l_b_act_gasf_inactive_h2_flush THEN		//Deactivate the gas supply (biogas, steam) and H2 flushing
+		g_r_last := 0;		//Set load profile and biogas volume flow and thus also H2 and H2O flow to zero
 		g_r_last_ramp := 0;
 		g_r_last_ramp_extern := 0;
 		g_volf_in_bio.l_min := 0;
@@ -1114,7 +1114,7 @@ PROGRAM _CYCLIC
 			g_b_MV[3] := FALSE;						
 		ENDIF
 		IF (g_b_MV[1] = FALSE) AND (g_b_MV[3] = FALSE) THEN
-			g_i_status_GR := 3;							//Gas control OFF: only after delayed closing of the solenoid valves
+			g_i_status_GR := 3;		//Gas control OFF: only after delayed closing of the solenoid valves
 			l_b_act_gasf_inactive_h2_flush := FALSE;
 		ENDIF
 	ENDIF
@@ -1124,12 +1124,12 @@ PROGRAM _CYCLIC
 	g_i_e_sum := 0;
 	LOOP l_i = 0 TO (SIZEOF(g_b_warning)/SIZEOF(g_b_warning[0])-1) DO		//SIZEOF(g_b_warning) = Size of the array in bytes;  SIZEOF(g_b_warning[0]) = Size of an array element in bytes;
 		IF g_b_warning[l_i] THEN
-			g_i_w_sum	:= g_i_w_sum + 1;				//Determine the number of warnings
+			g_i_w_sum	:= g_i_w_sum + 1;		//Determine the number of warnings
 		ENDIF
 	ENDLOOP
 	LOOP l_i = 0 TO (SIZEOF(g_b_error)/SIZEOF(g_b_error[0])-1) DO
 		IF g_b_error[l_i] THEN
-			g_i_e_sum	:= g_i_e_sum + 1;				//Determine the number of errors
+			g_i_e_sum	:= g_i_e_sum + 1;		//Determine the number of errors
 		ENDIF
 	ENDLOOP
 	//New warning: (The horn is triggered for each new warning)

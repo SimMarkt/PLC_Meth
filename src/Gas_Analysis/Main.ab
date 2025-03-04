@@ -10,7 +10,7 @@ PROGRAM _INIT
 	//Initialization of a time delay to capture latency in measurement
 	FB_TimeDelay.Enable := FALSE;
 	FB_TimeDelay.InitialValue := 0;
-	FB_TimeDelay.DelayTime := 120;				//Measurement latency = measurement delay time (approx. 120s)
+	FB_TimeDelay.DelayTime := 120;		//Measurement latency = measurement delay time (approx. 120s)
 	
 	//Initialization of parameters for pulse frequency modulation for periodic gas measurement
 	FB_PFM.PulseWidth := 1500;  
@@ -25,10 +25,10 @@ PROGRAM _CYCLIC
 	CASE g_i_status_GAL OF
 		ACTION 0:			//Gas analysis OFF
 			LOOP l_i = 0 TO 2 DO
-				g_b_valid_GAL[l_i] := FALSE;	//Status for valid measurement deactivated
-				g_b_MV[l_i+8] := FALSE;			//Solenoid valves for gas analysis are closed
+				g_b_valid_GAL[l_i] := FALSE;		//Status for valid measurement deactivated
+				g_b_MV[l_i+8] := FALSE;		//Solenoid valves for gas analysis are closed
 			ENDLOOP
-			g_i_period_GAL := 0;				//No periodic measurement
+			g_i_period_GAL := 0;		//No periodic measurement
 			g_r_nf_methan := 0;
 		ENDACTION
 		
@@ -40,11 +40,11 @@ PROGRAM _CYCLIC
 			g_b_MV[10] := TRUE;
 			
 			//Only after measurement latency, a valid gas measurement is expected
-			FB_TimeDelay.InitialValue := 0;									//Input value for t < DelayTime
+			FB_TimeDelay.InitialValue := 0;		//Input value for t < DelayTime
 			FB_TimeDelay.Enable := TRUE;							
-			FB_TimeDelay.In := 1;											//Input value for t >= DelayTime
-			FB_TimeDelay FUB MTBasicsTimeDelay();							//Function call MTBasicsTimeDelay
-			g_b_valid_GAL[0] :=	BOOL(FB_TimeDelay.Out);						//Output value
+			FB_TimeDelay.In := 1;		//Input value for t >= DelayTime
+			FB_TimeDelay FUB MTBasicsTimeDelay();		//Function call MTBasicsTimeDelay
+			g_b_valid_GAL[0] :=	BOOL(FB_TimeDelay.Out);			//Output value
 			
 			//No calibration possible
 			g_b_kal_GAL[0] := FALSE;
@@ -60,11 +60,11 @@ PROGRAM _CYCLIC
 			g_b_MV[8] := TRUE;
 			
 			//Only after measurement latency, a valid gas measurement is expected
-			FB_TimeDelay.InitialValue := 0;									//Input value for t < DelayTime
+			FB_TimeDelay.InitialValue := 0;			//Input value for t < DelayTime
 			FB_TimeDelay.Enable := TRUE;							
-			FB_TimeDelay.In := 1;											//Input value for t >= DelayTime
-			FB_TimeDelay FUB MTBasicsTimeDelay();							//Function call MTBasicsTimeDelay
-			g_b_valid_GAL[1] :=	BOOL(FB_TimeDelay.Out);						//Output value
+			FB_TimeDelay.In := 1;		//Input value for t >= DelayTime
+			FB_TimeDelay FUB MTBasicsTimeDelay();		//Function call MTBasicsTimeDelay
+			g_b_valid_GAL[1] :=	BOOL(FB_TimeDelay.Out);			//Output value
 			
 			//No calibration possible
 			g_b_kal_GAL[0] := FALSE;
@@ -80,11 +80,11 @@ PROGRAM _CYCLIC
 			g_b_MV[10] := FALSE;
 			
 			//Only after measurement latency, a valid gas measurement is expected
-			FB_TimeDelay.InitialValue := 0;									//Input value for t < DelayTime
+			FB_TimeDelay.InitialValue := 0;		//Input value for t < DelayTime
 			FB_TimeDelay.Enable := TRUE;							
-			FB_TimeDelay.In := 1;											//Input value for t >= DelayTime
-			FB_TimeDelay FUB MTBasicsTimeDelay();							//Function call MTBasicsTimeDelay
-			g_b_valid_GAL[2] :=	BOOL(FB_TimeDelay.Out);						//Output value
+			FB_TimeDelay.In := 1;		//Input value for t >= DelayTime
+			FB_TimeDelay FUB MTBasicsTimeDelay();		//Function call MTBasicsTimeDelay
+			g_b_valid_GAL[2] :=	BOOL(FB_TimeDelay.Out);			//Output value
 			
 			//No calibration possible
 			g_b_kal_GAL[0] := FALSE;
@@ -113,10 +113,10 @@ PROGRAM _CYCLIC
 		
 		ACTION 1:			//Periodic measurement gas supply - 1st stage - 2nd stage (laboratory)
 			FB_PFM.Enable := TRUE;
-			FB_PFM.DutyCycle := 99;				//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
-			FB_PFM FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM.DutyCycle := 99;		//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
+			FB_PFM FUB MTBasicsPFM();		//Function call MTBasicsPFM pulse frequency modulation
 			
-			IF EDGEPOS(FB_PFM.Out) THEN			//On positive edge change of gas measurement
+			IF EDGEPOS(FB_PFM.Out) THEN		//On positive edge change of gas measurement
 				IF g_i_status_GAL < 3 THEN
 					g_i_status_GAL := g_i_status_GAL + 1;
 				ELSE
@@ -133,7 +133,7 @@ PROGRAM _CYCLIC
 				FB_PFM.Enable := FALSE;
 			ELSE
 				FB_PFM.Enable := TRUE;
-				FB_PFM.DutyCycle := 99;			//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
+				FB_PFM.DutyCycle := 99;		//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
 				FB_PFM FUB MTBasicsPFM();		//Function call MTBasicsPFM pulse frequency modulation
 			
 				IF EDGEPOS(FB_PFM.Out) THEN		//On positive edge change of gas measurement
@@ -148,10 +148,10 @@ PROGRAM _CYCLIC
 		
 		ACTION 3:			//Periodic measurement 1st stage - 2nd stage (laboratory)
 			FB_PFM.Enable := TRUE;
-			FB_PFM.DutyCycle := 99;				//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
-			FB_PFM FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+			FB_PFM.DutyCycle := 99;		//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
+			FB_PFM FUB MTBasicsPFM();		//Function call MTBasicsPFM pulse frequency modulation
 		
-			IF EDGEPOS(FB_PFM.Out) THEN			//On positive edge change of gas measurement
+			IF EDGEPOS(FB_PFM.Out) THEN		//On positive edge change of gas measurement
 				IF g_i_status_GAL < 3 THEN
 					g_i_status_GAL := g_i_status_GAL + 1;
 				ELSE
@@ -166,10 +166,10 @@ PROGRAM _CYCLIC
 				FB_PFM.Enable := FALSE;
 			ELSE
 				FB_PFM.Enable := TRUE;
-				FB_PFM.DutyCycle := 99;				//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
-				FB_PFM FUB MTBasicsPFM();			//Function call MTBasicsPFM pulse frequency modulation
+				FB_PFM.DutyCycle := 99;		//Utilization of FB_PFM.MinPause = 1s (always alternating pulse and MinPause)
+				FB_PFM FUB MTBasicsPFM();		//Function call MTBasicsPFM pulse frequency modulation
 		
-				IF EDGEPOS(FB_PFM.Out) THEN			//On positive edge change of gas measurement
+				IF EDGEPOS(FB_PFM.Out) THEN		//On positive edge change of gas measurement
 					IF g_i_status_GAL < 3 THEN
 						g_i_status_GAL := g_i_status_GAL + 1;
 					ELSE
