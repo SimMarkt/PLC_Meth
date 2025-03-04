@@ -1,10 +1,14 @@
 # PLC_Meth
 
-The **PLC_Meth** project provides the backend software for a programmable logic controller of a two-stage chemical methanation plant.
+The **PLC_Meth** project provides the source code for full automation of a two-stage chemical methanation plant (Fig. 1). The pilot plant was designed and built at the Institute of energy process engineering at the Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU). It has been designed for investigating the methane production from hydrogen and biogenic gases in industrial environments and features a programmable logic controller from B&R Industrial Automation GmbH.
 
-Programming scripts in *Structured Text*, programming language for PLC defined by PLCOpen in IEC 61131-3.
+Long-term tests at an industrial biomethane production plant in the *Power-to-Biogas* project (Project ID: 03KB165) for a over a year and at a waste water treatment plant in the *Kläffizient* project (Project ID: 03EI5421) for several months has proven the reliability of the software and hardware architecture for operating the plant [1]. 
+
+In addition, **PLC_Meth** includes routines for fully automated operation of the plant with startup, load changes, and cooldown on the basis of rule-based control for dynamic optimization. This has further been used for dynamic real-time optimization and autonomous operation of the plant by using deep Reinforcement learning. For more information, please refer to [2].
 
 ![Meth_Plant](img/Meth_Plant.png)
+
+*Figure 1: Two-stage methanation plant with control cabinet including an industrial PLC and I/O block.*
 
 ---
 
@@ -22,11 +26,25 @@ Programming scripts in *Structured Text*, programming language for PLC defined b
 
 ## Overview
 
+**PLC_Meth** provides the main programming scripts of the software backend for automation of the methanation plant. The following subsections describe the process and the control architecture in more detail.
+
 ### Chemical methanation plant
 
-Chemical methanation plant
- - First methanation reactor with steam generation
- - Second methanaition reactor
+Methanation defines the conversion of hydrogen (H<sub>2</sub>) and carbon monoxide (CO) or carbon dioxide (CO<sub>2</sub>) into methane (CH<sub>4</sub>). They are typically catalyzed to facilitate the underlying reactions. In chemical methanation, the reactors apply chemical catalysts, such as Nickel (Ni), to perform the reaction and typically operate at temperatures and pressures in a range of 473–823 K (200-600 °C) and 0.1-10 MPa (1-100 bar) [3,4]. The following equations delineate the reactions where water (H<sub>2</sub>O) also arises as a byproduct:
+
+COsub>2</sub> + 3 H<sub>2</sub> <-> CH<sub>4</sub> + 2 H<sub>2</sub>O
+CO + 3 H<sub>2</sub> <-> CH<sub>4</sub> + H<sub>2</sub>O
+
+Both reaction pathways from CO and CO<sub>2</sub> are highly exothermic, i.e., produce considerable reaction heat. To maintain the material limits and avoid overtemperatures, the reactors are cooled and the waste heat is used to produce steam. Figure 2 portrays the block diagram of the two-stage methanation plant with steam generation, intermediate water removal, condensation, and water supply.
+
+![Block](img/Block.png)
+
+*Figure 2: Block diagram of the two-stage methanation plant with steam generation, intermediate
+water removal, condensation, and water supply (according to ISO 10628).*
+
+The plant contains the following units:
+ - First methanation reactor with steam generation: The 1st methanation stage converts the preponderance of 
+ - Second methanation reactor
  - Intermediate condensation
  - Product gas cooling
  - Gas analysis
@@ -34,13 +52,11 @@ Chemical methanation plant
 
  Block flow sheet
 
-![Block](img/Block.png)
-
- Pictures of the plant
 
 
+### Programmable logic controller 
 
-### Programmable logic controller  
+**PLC_Meth** contains several different programming scripts developed with *Structured Text*, a programming language for PLC defined by PLCOpen in IEC 61131-3. 
 
 Cyclic runs of the different scripts.
 Autonomous control with discrete action ... RB Control with Temperatur in first stage
@@ -56,6 +72,8 @@ Autonmation studio from B&R -> libraries for modules and functions...
  Visualization in Mappp View
 
  ![Panel](img/Panel.png)
+
+ *Figure 3: Human machine interface of the methanation plant.*
 
 
 
@@ -93,12 +111,10 @@ git clone https://github.com/SimMarkt/PLC_Meth.git
 # Navigate to the project directory
 cd PLC_Meth
 
-# Copy the source code to the folder of your PLC software project and adjust the variables in the physical IO settings
-#### CODE FOR POWERSHELL COPY AND PASTE
 
 ```
 
-
+Copy and paste the source code to the folder of your PLC software project and adjust the variables in the physical IO settings
 
 ## License
 
@@ -122,12 +138,18 @@ If you use PLC_Meth in your research or application, please cite it using the fo
 
 ## References
 
-[1] Markthaler S., "*Katalytische Direktmethanisierung von Biogas: Demonstration
+[1] S. Markthaler, "*Katalytische Direktmethanisierung von Biogas: Demonstration
 in industrieller Umgebung und Betriebsoptimierung mittels Reinforcement
 Learning*", DECHEMA Jahrestreffen der Fachsektion Energie, Chemie
 und Klima (11.-12.03.), Frankfurt/Main, 2024
 
-[2] Markthaler S., "*Optimization of Power-to-Gas operation and dispatch using Deep Reinforcement Learning*", Dissertation (PhD Thesis), Friedrich-Alexander-Universität Erlangen-Nürnberg, 2025 (not yet been published).
+[2] S. Markthaler, "*Optimization of Power-to-Gas operation and dispatch using Deep Reinforcement Learning*", Dissertation (PhD Thesis), Friedrich-Alexander-Universität Erlangen-Nürnberg, 2025 (not yet been published).
+
+[3] S. Rönsch, J. Schneider, S. Matthischke, M. Schlüter, M. Götz, J. Lefebvre, P. Prabhakaran, S. Bajohr, "*Review on methanation – From fundamentals to current projects*", Fuel, 166, 2016, 276–296.
+
+[4] M. Götz, J. Lefebvre, F. Mörs, A. McDaniel Koch, F. Graf, S. Bajohr, R. Reimert, T. Kolb, "*Renewable Power-to-Gas: A technological and economic review*", Renewable Energy, 85, 2016, 1371–1390
+
+
 
 ---
 
