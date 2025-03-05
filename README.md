@@ -1,14 +1,14 @@
 # PLC_Meth
 
-The **PLC_Meth** project provides the source code for full automation of a two-stage chemical methanation plant (Fig. 1). The pilot plant was designed and built at the Institute of energy process engineering at the Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU). It has been designed for investigating the methane production from hydrogen and biogenic gases in industrial environments and features a programmable logic controller from B&R Industrial Automation GmbH.
+The **PLC_Meth** project provides the source code for the full automation of a two-stage chemical methanation plant (Fig. 1). The pilot plant was designed and built at the Institute of Energy Process Engineering at Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU). It was developed to investigate methane production from hydrogen and biogenic gases in industrial environments and features a programmable logic controller from B&R Industrial Automation GmbH.
 
-Long-term tests at an industrial biomethane production plant in the *Power-to-Biogas* project (Project ID: 03KB165) for a over a year and at a waste water treatment plant in the *Kläffizient* project (Project ID: 03EI5421) for several months has proven the reliability of the software and hardware architecture for operating the plant [1]. 
+Long-term tests at an industrial biomethane production facility as part of the *Power-to-Biogas* project (Project ID: 03KB165) for over a year, and at a wastewater treatment plant in the *Kläffizient* project (Project ID: 03EI5421) for several months, have demonstrated the reliability of the software and hardware architecture for plant operation [1].
 
-In addition, **PLC_Meth** includes routines for fully automated operation of the plant with startup, load changes, and cooldown on the basis of *rule-based control* for *dynamic optimization* and *Supervised Learning* methods for temperature control. This has further been used for *dynamic real-time optimization* and autonomous operation of the plant by using *deep Reinforcement Learning*. For more information, please refer to [2].
+Additionally, **PLC_Meth** includes routines for the fully automated operation of the plant, including startup, load changes, and cooldown. It employs *rule-based control* for *dynamic optimization* of state changes and integrates *Supervised Learning* methods for temperature control. Furthermore, it has been used for *dynamic real-time optimization* and autonomous plant operation through *deep reinforcement learning*. For more information, please refer to [2].
 
 ![Meth_Plant](img/Meth_Plant.png)
 
-*Figure 1: Two-stage methanation plant with control cabinet including an industrial PLC and I/O block.*
+*Figure 1: Two-stage methanation plant with a control cabinet containing an industrial PLC and I/O block.*
 
 ---
 
@@ -26,65 +26,96 @@ In addition, **PLC_Meth** includes routines for fully automated operation of the
 
 ## Overview
 
-**PLC_Meth** provides the main programming scripts of the software backend for automation of the methanation plant. The following subsections describe the process and the control architecture in more detail.
+**PLC_Meth** provides the core programming scripts for the software backend that automates the methanation plant. The following sections offer a detailed explanation of the process and control architecture.  
 
 ### Chemical methanation plant
 
-Methanation defines the conversion of hydrogen (H<sub>2</sub>) and carbon monoxide (CO) or carbon dioxide (CO<sub>2</sub>) into methane (CH<sub>4</sub>). They are typically catalyzed to facilitate the underlying reactions. In chemical methanation, the reactors apply chemical catalysts, such as Nickel (Ni), to perform the reaction and typically operate at temperatures and pressures in a range of 473–823 K (200-600 °C) and 0.1-10 MPa (1-100 bar) [3,4]. The following equations delineate the reactions where water (H<sub>2</sub>O) also arises as a byproduct:
+Methanation refers to the conversion of hydrogen (H<sub>2</sub>) and carbon monoxide (CO) or carbon dioxide (CO<sub>2</sub>) into methane (CH<sub>4</sub>). These reactions are typically catalyzed to enhance efficiency. In chemical methanation, reactors use chemical catalysts, such as nickel (Ni), to facilitate the process, operating within a temperature range of 473–823 K (200–600 °C) and a pressure range of 0.1–10 MPa (1–100 bar) [3,4]. The following equations illustrate the reactions, where water (H<sub>2</sub>O) is produced as a byproduct:  
 
 CO<sub>2</sub> + 3 H<sub>2</sub> <-> CH<sub>4</sub> + 2 H<sub>2</sub>O
 
 CO + 3 H<sub>2</sub> <-> CH<sub>4</sub> + H<sub>2</sub>O
 
-Both reaction pathways from CO and CO<sub>2</sub> are highly exothermic, i.e., produce considerable reaction heat. To maintain the material limits and avoid overtemperatures, the reactors are cooled and the waste heat is used to produce steam. Figure 2 portrays the block diagram of the methanation plant.
+Both reaction pathways, from CO and CO<sub>2</sub>, are highly exothermic, meaning they generate significant heat. To prevent overheating and stay within material limits, the reactors are actively cooled, and the waste heat is repurposed to produce steam. Figure 2 presents a block diagram of the methanation plant.  
 
 ![Block](img/Block.png)
 
-*Figure 2: Block diagram of the two-stage methanation plant with steam generation, intermediate water removal, condensation, and water supply (according to ISO 10628).*
+*Figure 2: Block diagram of the two-stage methanation plant, including steam generation, intermediate water removal, condensation, and water supply (according to ISO 10628).*  
 
-The two-stage methanation plant contains the following units for methane production:
- - **1<sup>st</sup> methanation stagewith steam generation**: The first methanation stage is a fixed bed reactor filled with Ni catalyst particles. It converts the preponderance of H<sub>2</sub> and CO(<sub>2</sub>) into CH<sub>4</sub> and thus produces the majority of heat. For this reason, the reactor is actively and directly cooled (polytropic) by special cooling devices, so-called heatpipes. These heatpipes transport the reaction heat from the fixed bed to a steam generator which uses the heat to evaporate water and produces steam. The temperatures in the reactor are controlled by adjusting the water flow to the steam generator. While a high water flow increases reactor cooling and, hence, decreases reaction temperature, a low water flow decreases reactor cooling.
- - **2<sup>nd</sup> methanation stage**: The second methanation stage further promotes methanation of H2 and CO(2) and upgrades the gas quality to the requirements of gas grid injection, i.e., product gas CH4 concentration > 95 %. Since the conversion and heat release is less than the first stage, it does not feature a heatpipe cooling system. To maintain the temperatures below the material limits, it alternatively uses two different approaches for reactor cooling. On the one hand, the second stage allows heat transfer through the walls which reduces the temperatures in the outer bed regions. On the other hand, the water content in the inlet stream is controlled by the intermediate condenser to adjust the conversion rates in the second stage. High concentration of water (byproduct) shift the chemical equilibrium to the reactant side and thus decrease conversion and heat release. 
- - **Condenser for intermediate water removal**: The condenser for intermediate water removal is a shell and tube heat exchanger. By adjusting the cooling water flow into the condenser, it controls the gas temperature and the partial condensation of water. As a result, the condenser can control the water content of the feed gas in the downstream second methanation stage for temperature control.
- - **Condenser for product gas cooling**: The condenser for product gas cooling has also been designed as shell and tube heat exchanger. It cools and dries the product gas of the methanation plant.
- - **Gas control**: The methanation plant comprises a gas control system composed of two mass flow controllers (MFC). Due to the fact that the plant has been used for direct methanation of biogas (up to 55% CO<sub>2</sub>) in the *Power-to-Biogas* and *Kläffizient* project, the gas control features one MFC for hydrogen and one for biogas.
- - **Water supply**: The water supply ensures the deionization of tap water for steam generation and condenser cooling. It includes a storage tank and two pumps. The diaphragm pump transports water doses water from the storage tank to the steam generator, while the second pump can be used for storage tank emptying.
- - **Sensors and actuators**: The methanation plant contains numerous sensors for temperature, pressure, gas concentrations, and water levels, in total 98 sensors. Additionally, it includes 49 valves for gas and water control and 11 elements for electric trace heating of the single components. The electric trace heating is necessary for reactor heating during plant startup and to avoid freezing of water at ambient temperatures below the freezing point.
+The two-stage methanation plant consists of the following units for methane production:  
+
+- **1<sup>st</sup> methanation stage with steam generation**:  
+  The first methanation stage is a fixed-bed reactor filled with Ni catalyst particles. It converts most of the H<sub>2</sub> and CO(<sub>2</sub>) into CH<sub>4</sub>, generating the majority of the reaction heat. To manage this heat, the reactor is actively and directly cooled using specialized heat pipes. These heat pipes transfer the reaction heat from the fixed bed to a steam generator, which utilizes it to evaporate water and produce steam. The reactor temperature is controlled by adjusting the water flow to the steam generator:  
+  - A high water flow increases reactor cooling, lowering the reaction temperature.  
+  - A low water flow decreases cooling, raising the reaction temperature.  
+
+- **2<sup>nd</sup> methanation stage**:  
+  The second methanation stage further enhances methane production by converting residual H<sub>2</sub> and CO(<sub>2</sub>), upgrading the gas quality to meet gas grid injection requirements (CH<sub>4</sub> concentration > 95%). Since the conversion rate and heat release are lower than in the first stage, this reactor does not require heat pipe cooling. Instead, two alternative cooling methods are employed:  
+  - Heat dissipation through the reactor walls, which lowers the temperature in the outer bed regions.  
+  - Water content control in the inlet stream via an intermediate condenser, which regulates conversion rates. A high water concentration (a byproduct of methanation) shifts the chemical equilibrium toward the reactants, reducing conversion and heat generation.  
+
+- **Condenser for intermediate water removal**:  
+  This shell-and-tube heat exchanger regulates gas temperature and partial water condensation by adjusting the cooling water flow. Consequently, it controls the water content of the feed gas entering the second methanation stage, helping manage reaction temperatures.  
+
+- **Condenser for product gas cooling**:  
+  Also designed as a shell-and-tube heat exchanger, this condenser cools and dries the final product gas of the methanation plant.  
+
+- **Gas control**:  
+  The methanation plant features a gas control system with two mass flow controllers (MFCs). Since the plant has been used for direct methanation of biogas (containing up to 55% CO<sub>2</sub>) in the *Power-to-Biogas* and *Kläffizient* projects, the system includes one MFC for hydrogen and another for biogas regulation.  
+
+- **Water supply**:  
+  The water supply system ensures tap water deionization for steam generation and condenser cooling. It comprises a storage tank and a diaphragm pump that precisely doses water from the storage tank to the steam generator. 
+
+- **Sensors and actuators**:  
+  The methanation plant is equipped with 98 sensors that monitor temperature, pressure, gas concentrations, and water levels. Additionally, it features:  
+  - 49 valves for gas and water control.  
+  - 11 electric trace heating elements for individual components.  
+
+  The electric trace heating system is essential for reactor preheating during startup and preventing water from freezing when ambient temperatures drop below the freezing point.  
+
 
 ### Programmable logic controller 
 
-**PLC_Meth** contains several different programming scripts developed with *Structured Text*, a programming language for PLC defined by PLCOpen in IEC 61131-3. The scripts are running in high frequency (0.001 - 0.1 seconds) in the PLC. Note that the source code only provides the software code for processing and automation of the plant including definition of global types, variables, and error messages, but it neglects the part which assigns the variables to the hardware I/O block of the PLC, since this might be specific for a single plant.
+**PLC_Meth** includes multiple programming scripts developed in *Structured Text*, a PLC programming language defined by PLCOpen in IEC 61131-3. These scripts run at high frequencies (0.001–0.1 seconds) on the PLC.  
 
-The code contains 11 programming scripts:
+Note that the source code provides only the software logic for plant automation, including the definition of global types, variables, and error messages. However, it does not include the hardware-specific variable assignments for the PLC's I/O block, as these configurations may vary for different plants.  
+
+The code consists of 11 programming scripts:  
+
 | Script | Description |  
 |-----------|------------|  
-| **Condenser_Control** | Controls the cooling water flow, the water level, and condensate removal. |  
-| **Data_Processing** | Converts the analog and digital signals from the I/O hardware block into values suitable for computations within the scripts and vice versa.|  
-| **Gas_Analysis** | Controls the gas measurments since the plant allows to measure only one gas stream (reactant gas, gas after first stage, product gas) at a time. |  
-| **Gas_Control** | Controls feed gas flow rates in the MFCs. | 
-| **Pressure_Control** | Controls operating pressure of the plant. | 
-| **Safety_Mechanisms** | Defines the safety mechanism to ensure stable and safe operation of the plant with temperatures and pressure within the limits. | 
-| **Steam_Generator** | Controls the diaphragm pump for water supply to the steam generator and cooling of the first methanation stage. |
-| **System_Status** | Defines the plant status, i.e., idle state, startup in the lab/ field, operation in the lab/field, cooldown in the lab/field, error state, hot standby, and manual operation. | 
-| **Temperature_Control** | Controls the electric trace heating elements for heating the reactors and peripherie. | 
-| **Visualization** | Contains data conversion for visualization of temperature profiles in the human machine interface (HMI). |
-| **Water_Supply** | Controls the valves for water supply and water level regulation in the condensate traps. |
+| **Condenser_Control** | Manages cooling water flow, water levels, and condensate removal. |  
+| **Data_Processing** | Converts analog and digital signals between the I/O hardware block and computational values used within the scripts. |  
+| **Gas_Analysis** | Controls gas measurements, as the plant can measure only one gas stream at a time (reactant gas, gas after the first stage, or product gas). |  
+| **Gas_Control** | Regulates feed gas flow rates through the MFCs. |  
+| **Pressure_Control** | Maintains the plant's operating pressure. |  
+| **Safety_Mechanisms** | Defines safety protocols to ensure stable and secure plant operation within temperature and pressure limits. |  
+| **Steam_Generator** | Controls the diaphragm pump for water supply to the steam generator and regulates cooling for the first methanation stage. |  
+| **System_Status** | Defines the plant's operational states, including idle, startup (lab/field), operation (lab/field), cooldown (lab/field), error state, hot standby, and manual operation. |  
+| **Temperature_Control** | Manages the electric trace heating elements used to heat the reactors and peripheral components. |  
+| **Visualization** | Processes data for visualization of temperature profiles on the Human-Machine Interface (HMI). |  
+| **Water_Supply** | Controls water supply valves and regulates water levels in condensate traps. |  
 
-Note that most of the control methods for set point tracking of values (*regulatory control*) use proportional-integral-derivative controllers (PID), which have been to tuned manually to good control performance in the plant. 
+Most control methods for setpoint tracking (*regulatory control*) in **PLC_Meth** use proportional-integral-derivative (PID) controllers, which have been manually tuned to achieve optimal performance in the plant.  
 
-For full autonmation of the plant, **PLC_Meth** moreover uses *rule-based control* for *dynamic optimization* of startup, load changes, and cooldown. This *rule-based control* decides on different actions depend on the maximum catalyst temperature in the first methanation stage. This quantity is key for overall control of the plant because it indicates the progress of reactor heating during startup, the changes of the temperature profile during load changes, and the progress of reactor cooling during cooldown.
+For full automation, **PLC_Meth** also employs *rule-based control* for *dynamic optimization* of startup, load changes, and cooldown processes. This *rule-based control* determines actions based on the maximum catalyst temperature in the first methanation stage, a critical parameter for overall plant control. This temperature:  
+- Reflects reactor heating progress during startup.  
+- Indicates changes in the temperature profile during load adjustments.  
+- Monitors reactor cooling during cooldown.  
 
-For temperature control in the reactors, the plant controls the heatpipe cooling in the first methanation stage and the water content in the second methanation stage. The temperature thresholds are hereby defined by two catalyst deactivation phenomena present in direct methanation of biogas. The first deactivation mechanism which appears at temperatures > 883 K is sintering, which signifies the thermally induced alteration and the loss of catalytic surface area. On the other hand, the direct methanation of biogas is prone to carbon formation, the second deactivation mechanism. 
+To regulate reactor temperatures, the plant controls heat pipe cooling in the first methanation stage and water content in the second stage. The temperature thresholds are determined by two catalyst deactivation phenomena that occur during the direct methanation of biogas:  
+1. **Sintering** (occurs at temperatures > 883 K): A thermally induced process that alters catalyst structure, leading to a loss of active surface area.  
+2. **Carbon Formation**: A phenomenon influenced by gas composition and temperature. Carbon deposits can form if the temperature exceeds the *critical temperature for carbon formation* (T<sub>crit</sub>).  
 
-Carbon formation strongly depends on the gas composition and temperatures. However, as soon as the temperature is below the *critical temperature for carbon formation* (T_crit) [5]. T_crit can be derived from chemical equilibrium data at distinct gas compositions and pressure. **PLC_Meth** incorporates an empirical equation based on large equilibium data and *linear regression with non-linear basis functions* (*Supervised Learning*). 
+The value of T<sub>crit</sub> is derived from chemical equilibrium data at specific gas compositions and pressures. **PLC_Meth** incorporates an empirical equation, developed using a large equilibrium dataset and *linear regression with nonlinear basis functions* (*Supervised Learning*), to estimate this threshold.  
 
-The human machine interface comprises a panel surface at the front of the control cabinet, which can also be accessed by a web browser. The corresponding visualization with pages for the different control parts has been modelled using *mapp View*.
+The plant's HMI consists of a panel interface located on the front of the control cabinet, which can also be accessed remotely via a web browser. The visualization, featuring dedicated pages for various control functions, has been designed using *mapp View*.  
 
 ![Panel](img/Panel.png)
 
-*Figure 3: Human machine interface of the methanation plant.*
+*Figure 3: Human-Machine Interface of the methanation plant.*  
 
-The alarm system of the plant has moreover been implemented based on the warning and error signals delivered by the `Safety_Mechanisms` script and *mapp AlarmX*. 
+The plant's alarm system is implemented using *mapp AlarmX* and is based on warning and error signals generated by the `Safety_Mechanisms` script.  
 
 ---
 
@@ -115,25 +146,33 @@ PLC_Meth/
 
 ```
 
-Every folder in `src/` is ascribed to one programming script and includes a main script `main.ab` and files for declaration of local types `Types.typ` and variables `Variables.var`.
-In addition, `src/` contains also two files for global types `Global.typ` and variables `Global.var`. The `.var` files not only feature variables of the process, but also constants and special *function modules* (`FB`) loaded from external libraries. To keep the code consistent and easy to understand, the notation follows the following syntax, while variables are defined in lower case letters and constants in capital letters:
+Each folder in `src/` corresponds to a specific programming script and contains the following files: 
+- `IEC.prg`: Defines the structure and components of the program. 
+- `main.ab`: The main script.  
+- `Types.typ`: Defines local types.  
+- `Variables.var`: Declares local variables.  
+
+Additionally, `src/` includes two global files:  
+- `Global.typ`: Defines global types.  
+- `Global.var`: Declares global variables.  
+
+The `.var` files contain not only process-related variables but also constants and special *function blocks* (`FB`) imported from external libraries. To ensure consistency and readability, variable notation follows the syntax below, with variables written in lowercase and constants in uppercase:  
 
 `<global/local>_<type>_<description>` 
 
 | Syntax | Description |  
 |-----------|------------|  
-| `global/local` | Global and local variables/constants feature a `g`/`G` and a `l`/`L` as first letter, respectively. |  
-| `type` | The variable/constant types are declared by `b`/`B` (boolean), `i`/`I` (integer), and `r`/`R` (real), or by special types defined in `Global.typ`.|  
-| `description` | Every variable/constant features a short descriptions or abbreviation for identification.| 
+| `global/local` | Global and local variables/constants are prefixed with `g`/`G` and `l`/`L`, respectively. |  
+| `type` | Variable/constant types are indicated as `b`/`B` (boolean), `i`/`I` (integer), and `r`/`R` (real), or as special types defined in `Global.typ`. |  
+| `description` | A short description or abbreviation identifying the variable/constant. |  
 
-The alarm system with *mapp AlarmX* requires a text message for every warning and error.
-These messages are morover stored in `LocalizableTexts.tmx`.
+The alarm system, implemented using *mapp AlarmX*, requires a text message for each warning and error. These messages are stored in `LocalizableTexts.tmx`.  
 
 ---
 
 ## Installation and Usage
 
-Follow these steps to load and use the project:
+Follow these steps to load and use the project: 
 
 ```bash
 # Clone the repository
@@ -142,12 +181,13 @@ git clone https://github.com/SimMarkt/PLC_Meth.git
 # Navigate to the project directory
 cd PLC_Meth
 
-# Copy the paste the source code to the folder of your PLC software project
+# Copy the source code to your PLC software project folder
 cp -r src/* /path/to/your/plc/project/folder/
 ```
 
-PLC systems different from the ones by B&R Industrial Automation GmbH may need adjustments in the source code.
-Additionally, the variables need to be connected with the hardware modules in the I/O block.
+If you are using a PLC system other than those from B&R Industrial Automation GmbH, modifications to the source code
+may be required.
+Additionally, variables must be mapped to the appropriate hardware modules in the I/O block.
 
 ## License
 
