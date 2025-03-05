@@ -126,13 +126,14 @@ In addition, `src/` contains also two files for global types `Global.typ` and va
 | `type` | The variable/constant types are declared by `b`/`B` (boolean), `i`/`I` (integer), and `r`/`R` (real), or by special types defined in `Global.typ`.|  
 | `description` | Every variable/constant features a short descriptions or abbreviation for identification.| 
 
-
+The alarm system with *mapp AlarmX* requires a text message for every warning and error.
+These messages are morover stored in `LocalizableTexts.tmx`.
 
 ---
 
 ## Installation and Usage
 
-Follow these steps to install and run the project:
+Follow these steps to load and use the project:
 
 ```bash
 # Clone the repository
@@ -141,10 +142,12 @@ git clone https://github.com/SimMarkt/PLC_Meth.git
 # Navigate to the project directory
 cd PLC_Meth
 
-
+# Copy the paste the source code to the folder of your PLC software project
+cp -r src/* /path/to/your/plc/project/folder/
 ```
 
-Copy and paste the source code to the folder of your PLC software project and adjust the variables in the physical IO settings
+PLC systems different from the ones by B&R Industrial Automation GmbH may need adjustments in the source code.
+Additionally, the variables need to be connected with the hardware modules in the I/O block.
 
 ## License
 
@@ -184,12 +187,10 @@ From laboratory experiments to demonstration scale”, 4th Doctoral Colloquium
 BIOENERGY (13.-14.09.), Karlsruhe, 2021
 
 
-
 ---
 
 ## Acknowledgments
 
-This project was funded by the German *Federal Ministry for Economic Affairs and Climate Action* within the **Power-to-Biogas**
-project (Project ID: 03KB165). 
+This project was part of the Energie Campus Nürnberg project (EnCN<sup>2</sup> Speicher A TP SP3; funded by the Bavarian State Government) and the **Power-to-Biogas** project (Project ID: 03KB165; funded by the German Federal Ministry for Economic Affairs and Climate Action). 
 
 ---
