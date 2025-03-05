@@ -339,7 +339,7 @@ PROGRAM _CYCLIC
 			g_b_SA1[2] := FALSE;
 		ENDACTION
 		
-		ACTION 9:		// System: Standby -> Reactors are kept at temperature
+		ACTION 9:		// System: Standby -> Reactors are kept at temperature to enable a rapid warm start
 			IF l_i_status_PL <> g_i_status_PL THEN
 				g_i_status_GAL := 0;		// Gas measurement OFF
 				g_i_period_GAL := 0;		// and periodic measurement OFF
