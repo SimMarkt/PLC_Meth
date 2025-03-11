@@ -1,1 +1,4 @@
-*.st linguist-language=StructuredText
+*.prg linguist-language=XML
+*.ab linguist-language=StructuredText
+*.typ linguist-language=StructuredText
+*.var linguist-language=StructuredText
