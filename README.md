@@ -231,6 +231,6 @@ BIOENERGY (13.-14.09.), Karlsruhe, 2021
 
 ## Acknowledgments
 
-This project was part of the Energie Campus Nürnberg project (EnCN<sup>2</sup> Speicher A TP SP3; funded by the Bavarian State Government) and the **Power-to-Biogas** project (Project ID: 03KB165; funded by the German Federal Ministry for Economic Affairs and Climate Action). 
+This project was part of the *Energie Campus Nürnberg* project (EnCN<sup>2</sup> Speicher A TP SP3; funded by the Bavarian State Government) and the *Power-to-Biogas* project (Project ID: 03KB165; funded by the German Federal Ministry for Economic Affairs and Climate Action). 
 
 ---
