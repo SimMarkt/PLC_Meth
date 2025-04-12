@@ -76,7 +76,7 @@ The two-stage methanation plant consists of the following units for methane prod
 
 ### Programmable logic controller 
 
-**PLC_Meth** includes multiple programming scripts developed in *Structured Text*, a PLC programming language defined by PLCOpen in IEC 61131-3. These scripts run at high frequencies (0.001–0.1 seconds) on the PLC.  
+**PLC_Meth** includes multiple programming scripts developed in *Structured Text*, a PLC programming language defined by IEC 61131-3. These scripts run at high frequencies (0.001–0.1 seconds) on the PLC.  
 
 Note that the source code provides only the software logic for plant automation, including the definition of global types, variables, and error messages. However, it does not include the hardware-specific variable assignments for the PLC's I/O block, as these configurations may vary for different plants.  
 
